@@ -19,3 +19,5 @@
 |5|0|36|3240|
 
 用户明确要求原数字直接作为天保留。第4/5题长工期、第2/5题必要虚线比例以及第3/5题必要串行仍扣分；未改评分设置、缩短任务或伪造完成状态。原题钟点窗口不再作为天制演示约束，计划正文明确说明，不宣称原现实时间题可行。
+
+用户重新加载后，真实CLI site.context（指定计划与当前选中计划两种入口）均成功：complete=true、serverVerified=true，带websiteGuide、siteAnalysis、审核modified及完整计划；第5题原生得分36、总工期3240天、无warnings。该结果来自当前登录浏览器，经Native Messaging往返，非模拟响应。
