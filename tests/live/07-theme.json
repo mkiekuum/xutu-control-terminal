@@ -1,0 +1,40 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "live-07-theme-20261110",
+  "mode": "execute",
+  "execution": {},
+  "steps": [
+    {
+      "id": "apply",
+      "op": "theme.apply",
+      "params": {
+        "theme": {
+          "schema": "xutu.theme/v1",
+          "name": "验收外观",
+          "scope": {
+            "origin": "https://plan.fpgabbs.cn",
+            "path": "/*"
+          },
+          "selectors": {
+            "body": {
+              "fontSize": "16px"
+            }
+          },
+          "components": [
+            {
+              "id": "test-note",
+              "kind": "note",
+              "anchor": "main",
+              "text": "序图插件外观测试：不改变业务数据"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "export",
+      "op": "theme.export",
+      "params": {}
+    }
+  ]
+}

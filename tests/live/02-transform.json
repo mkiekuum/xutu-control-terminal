@@ -1,0 +1,82 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "live-02-transform-20261110",
+  "mode": "execute",
+  "execution": {
+    "backup": true
+  },
+  "steps": [
+    {
+      "id": "inspect",
+      "op": "graph.inspect",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "merge",
+      "op": "task.merge",
+      "params": {
+        "nodeIds": [
+          "1",
+          "2",
+          "3"
+        ],
+        "name": "合并设计成果"
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "readMerged",
+      "op": "plan.get",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "split",
+      "op": "task.split",
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "3",
+        "nodes": [
+          {
+            "id": "2",
+            "name": "重新拆分成果"
+          }
+        ],
+        "segments": [
+          {
+            "estimateDays": {
+              "minimum": 1,
+              "likely": 2,
+              "maximum": 3
+            }
+          },
+          {
+            "estimateDays": {
+              "minimum": 2,
+              "likely": 3,
+              "maximum": 4
+            }
+          }
+        ]
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "readSplit",
+      "op": "plan.get",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-52",
+  "mode": "preview",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "task.updateStatus",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "2",
+        "actualCompleteDate": "2026-11-10"
+      }
+    }
+  ]
+}

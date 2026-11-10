@@ -962,5 +962,121 @@
         }
       ]
     }
+  },
+  {
+    "name": "合并无分支任务链",
+    "condition": "仅草稿、无基线、未完成的无分支链；保留计划编号和首尾节点ID，删除中间节点。不同负责人需显式指定，独立里程碑默认拒绝。",
+    "command": {
+      "protocol": "xutu.command/v1",
+      "requestId": "recipe-50",
+      "mode": "preview",
+      "steps": [
+        {
+          "id": "s1",
+          "op": "task.merge",
+          "target": {
+            "id": "TEST_PLAN_ID"
+          },
+          "params": {
+            "nodeIds": [
+              "1",
+              "2",
+              "3"
+            ],
+            "name": "合并后的成果"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "拆分任务并保留总估时",
+    "condition": "目标原三点估时必须为3、5、7；新增节点2不能已存在。边端点保持，估时总和默认不变。",
+    "command": {
+      "protocol": "xutu.command/v1",
+      "requestId": "recipe-51",
+      "mode": "preview",
+      "steps": [
+        {
+          "id": "s1",
+          "op": "task.split",
+          "target": {
+            "id": "TEST_PLAN_ID"
+          },
+          "params": {
+            "fromNodeId": "1",
+            "toNodeId": "3",
+            "nodes": [
+              {
+                "id": "2",
+                "name": "新增中间成果"
+              }
+            ],
+            "segments": [
+              {
+                "estimateDays": {
+                  "minimum": 1,
+                  "likely": 2,
+                  "maximum": 3
+                }
+              },
+              {
+                "estimateDays": {
+                  "minimum": 2,
+                  "likely": 3,
+                  "maximum": 4
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "工作任务表更新完成日期",
+    "condition": "任务必须在网站工作任务表中，服务器canComplete为true；可能要求先审核。写入完成日期会影响进度。",
+    "command": {
+      "protocol": "xutu.command/v1",
+      "requestId": "recipe-52",
+      "mode": "preview",
+      "steps": [
+        {
+          "id": "s1",
+          "op": "task.updateStatus",
+          "target": {
+            "id": "TEST_PLAN_ID"
+          },
+          "params": {
+            "fromNodeId": "1",
+            "toNodeId": "2",
+            "actualCompleteDate": "2026-11-10"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "工作任务表分配执行人",
+    "condition": "替换为真实人员目录名称；服务器canAssign必须为true。不会新建账号。",
+    "command": {
+      "protocol": "xutu.command/v1",
+      "requestId": "recipe-53",
+      "mode": "preview",
+      "steps": [
+        {
+          "id": "s1",
+          "op": "task.assign",
+          "target": {
+            "id": "TEST_PLAN_ID"
+          },
+          "params": {
+            "fromNodeId": "1",
+            "toNodeId": "2",
+            "executor": "TEST_ASSIGNEE"
+          }
+        }
+      ]
+    }
   }
 ]

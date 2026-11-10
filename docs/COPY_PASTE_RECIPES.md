@@ -1,4 +1,4 @@
-# 49份完整可复制示例
+# 53份完整可复制示例
 
 TEST_*是占位值，请换成真实授权测试对象。写操作会改变服务器记录；必须保留真实依赖和验收点。每个新作业换requestId，重放旧ID不会重复执行。示例不证明真实账号已通过验收。
 
@@ -1206,6 +1206,134 @@ TEST_*是占位值，请换成真实授权测试对象。写操作会改变服�
       "id": "s1",
       "op": "theme.undo",
       "params": {}
+    }
+  ]
+}
+~~~
+
+## 50. 合并无分支任务链
+
+适用条件及风险：仅草稿、无基线、未完成的无分支链；保留计划编号和首尾节点ID，删除中间节点。不同负责人需显式指定，独立里程碑默认拒绝。 默认预览；核对目标后将mode改为execute执行。
+
+~~~json
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-50",
+  "mode": "preview",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "task.merge",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "nodeIds": [
+          "1",
+          "2",
+          "3"
+        ],
+        "name": "合并后的成果"
+      }
+    }
+  ]
+}
+~~~
+
+## 51. 拆分任务并保留总估时
+
+适用条件及风险：目标原三点估时必须为3、5、7；新增节点2不能已存在。边端点保持，估时总和默认不变。 默认预览；核对目标后将mode改为execute执行。
+
+~~~json
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-51",
+  "mode": "preview",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "task.split",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "3",
+        "nodes": [
+          {
+            "id": "2",
+            "name": "新增中间成果"
+          }
+        ],
+        "segments": [
+          {
+            "estimateDays": {
+              "minimum": 1,
+              "likely": 2,
+              "maximum": 3
+            }
+          },
+          {
+            "estimateDays": {
+              "minimum": 2,
+              "likely": 3,
+              "maximum": 4
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+~~~
+
+## 52. 工作任务表更新完成日期
+
+适用条件及风险：任务必须在网站工作任务表中，服务器canComplete为true；可能要求先审核。写入完成日期会影响进度。 默认预览；核对目标后将mode改为execute执行。
+
+~~~json
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-52",
+  "mode": "preview",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "task.updateStatus",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "2",
+        "actualCompleteDate": "2026-11-10"
+      }
+    }
+  ]
+}
+~~~
+
+## 53. 工作任务表分配执行人
+
+适用条件及风险：替换为真实人员目录名称；服务器canAssign必须为true。不会新建账号。 默认预览；核对目标后将mode改为execute执行。
+
+~~~json
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-53",
+  "mode": "preview",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "task.assign",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "2",
+        "executor": "TEST_ASSIGNEE"
+      }
     }
   ]
 }

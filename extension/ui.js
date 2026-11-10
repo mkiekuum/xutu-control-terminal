@@ -1,12 +1,21 @@
-const $=id=>document.getElementById(id),send=m=>chrome.runtime.sendMessage(m),show=x=>$('output').textContent=JSON.stringify(x,null,2);
+import {setupOnboarding} from './onboarding.js';
+const $=id=>document.getElementById(id),show=x=>$('output').textContent=JSON.stringify(x,null,2);
+const send=async m=>{try{return await chrome.runtime.sendMessage(m);}catch(e){const result={status:'failed',code:'EXTENSION_BACKGROUND_UNAVAILABLE',message:'扩展后台未响应，请在扩展管理页查看错误并重新加载。详情：'+e.message};show(result);return result;}};
+document.body.style.minWidth='620px';
+const launch=document.createElement('div');launch.className='tools';
+const full=document.createElement('button');full.textContent='在完整标签页打开';full.onclick=async()=>{try{await chrome.tabs.create({url:chrome.runtime.getURL('ui.html')});}catch(e){show({code:'OPEN_TAB_FAILED',message:e.message});}};
+const identity=document.createElement('small');identity.textContent='扩展 '+chrome.runtime.getManifest().version+' · ID '+chrome.runtime.id;
+launch.append(full,identity);document.querySelector('header').append(launch);
+window.addEventListener('error',e=>show({code:'UI_STARTUP_ERROR',message:e.message}));window.addEventListener('unhandledrejection',e=>show({code:'UI_STARTUP_ERROR',message:String(e.reason?.message||e.reason)}));
 const envelope=(op,params={})=>({protocol:'xutu.command/v1',requestId:crypto.randomUUID(),tabId:Number($('tabs').value),steps:[{id:'s1',op,params}]});
 const recipes=await (await fetch('recipes.json')).json();for(const r of recipes){const o=document.createElement('option');o.textContent=r.name;o.value=String(recipes.indexOf(r));$('recipes').append(o);}
 function example(){const e=structuredClone(recipes[Number($('recipes').value)].command);e.requestId=crypto.randomUUID();$('editor').value=JSON.stringify(e,null,2);$('mode').value='JSON';}example();$('recipes').onchange=example;
 $('copyExample').onclick=()=>navigator.clipboard.writeText($('editor').value);$('copyResult').onclick=()=>navigator.clipboard.writeText($('output').textContent);
-async function refresh(){const tabs=await send({kind:'tabs'});$('tabs').replaceChildren();for(const t of tabs){const o=document.createElement('option');o.value=t.id;o.textContent=t.id+' · '+t.title;$('tabs').append(o);}}$('refresh').onclick=refresh;await refresh();
+async function refresh(){const tabs=await send({kind:'tabs'});$('tabs').replaceChildren();if(!Array.isArray(tabs))return;for(const t of tabs){const o=document.createElement('option');o.value=t.id;o.textContent=t.id+' · '+t.title;$('tabs').append(o);}}$('refresh').onclick=refresh;await refresh();
 for(const mode of ['validate','preview','execute'])$(mode).onclick=async()=>{try{let message;if($('mode').value==='CLI'){const {parseCLI}=await import('./core.js');const command=parseCLI($('editor').value);command.mode=mode;command.tabId=Number($('tabs').value);message={kind:'run',command};}else{const command=$('mode').value==='JavaScript'?envelope('script.execute',{source:$('editor').value,world:$('world').value}):JSON.parse($('editor').value);command.mode=mode;command.tabId=Number($('tabs').value);message={kind:'run',command};}show(await send(message));}catch(e){show({code:'INVALID_INPUT',message:e.message});}};
 $('file').onchange=async()=>{if($('file').files[0])$('editor').value=await $('file').files[0].text();};
 $('terminal').onclick=()=>{$('terminalPanel').hidden=false;$('appearancePanel').hidden=true;};$('appearance').onclick=()=>{$('terminalPanel').hidden=true;$('appearancePanel').hidden=false;};
 $('theme').value=JSON.stringify({schema:'xutu.theme/v1',name:'清晰布局',scope:{origin:'https://plan.fpgabbs.cn',path:'/*'},tokens:{accent:'#246b50'},selectors:{body:{fontSize:'15px'},'.workspace':{display:'flex',flexDirection:'column',gap:'20px'}},layout:{order:['.editor-panel'],hidden:[]},components:[]},null,2);
 $('apply').onclick=async()=>{try{show(await send({kind:'run',command:envelope('theme.apply',{theme:JSON.parse($('theme').value)})}));}catch(e){show({message:e.message});}};
 $('reset').onclick=async()=>show(await send({kind:'run',command:envelope('theme.reset')}));$('export').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('theme').value],{type:'application/json'}));a.download='xutu-theme.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};$('importTheme').onchange=async()=>{$('theme').value=await $('importTheme').files[0].text();};$('native').onclick=async()=>show(await send({kind:'native'}));
+await setupOnboarding({send,show,refresh,envelope});

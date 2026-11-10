@@ -1,0 +1,124 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "live-03-edit-20261110",
+  "mode": "execute",
+  "execution": {
+    "backup": true
+  },
+  "steps": [
+    {
+      "id": "title",
+      "op": "plan.update",
+      "params": {
+        "set": {
+          "title": "插件验收专用：编辑通过",
+          "deadlineDate": "2026-12-31"
+        }
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "createNode",
+      "op": "node.create",
+      "params": {
+        "id": "5",
+        "name": "临时测试节点"
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "updateNode",
+      "op": "node.update",
+      "params": {
+        "id": "5",
+        "set": {
+          "name": "临时节点已改名",
+          "content": "合成测试，不含业务内容"
+        }
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "createEdge",
+      "op": "edge.create",
+      "params": {
+        "fromNodeId": "4",
+        "toNodeId": "5",
+        "estimateDays": {
+          "minimum": 1,
+          "likely": 1,
+          "maximum": 1
+        }
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "updateEdge",
+      "op": "edge.update",
+      "params": {
+        "fromNodeId": "4",
+        "toNodeId": "5",
+        "estimateDays": {
+          "minimum": 2,
+          "likely": 2,
+          "maximum": 2
+        }
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "removeEdge",
+      "op": "edge.remove",
+      "params": {
+        "fromNodeId": "4",
+        "toNodeId": "5"
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "removeNode",
+      "op": "node.remove",
+      "params": {
+        "id": "5"
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "reorder",
+      "op": "node.reorder",
+      "params": {
+        "ids": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "read",
+      "op": "plan.get",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    }
+  ]
+}

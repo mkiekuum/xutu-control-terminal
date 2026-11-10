@@ -1,4 +1,5 @@
 (()=>{
+ if(globalThis.__xutuBridgeInstalled)return;globalThis.__xutuBridgeInstalled=true;
  const origin='https://plan.fpgabbs.cn',style=document.createElement('style');style.id='xutu-theme-style';document.head.append(style);let components=[];
  const error=code=>Object.assign(new Error(code),{code});
  function render(themes){style.textContent='';components.forEach(n=>n.remove());components=[];let css='';const nodes=[];
@@ -25,10 +26,10 @@
  else if(op==='layout.component.remove')theme.components=theme.components.filter(x=>x.id!==p.id);else throw error('UNSUPPORTED_BY_SITE');return appearance('theme.apply',{theme});}
  throw error('UNSUPPORTED_BY_SITE');}
  chrome.runtime.onMessage.addListener((m,sender,reply)=>{if(sender.id!==chrome.runtime.id)return;(async()=>{
- if(m.kind==='inspect'){const ids=['new','nodeSubmit','edgeSubmit','rows','planOwner','planNumber','title'];return {origin:location.origin,anchors:Object.fromEntries(ids.map(id=>[id,document.querySelectorAll('#'+id).length])),auth:'use site.session for authoritative result'};}
+ if(m.kind==='inspect'){const ids=['new','nodeSubmit','edgeSubmit','rows','planOwner','planNumber','title'];return {origin:location.origin,anchors:Object.fromEntries(ids.map(id=>[id,document.querySelectorAll('#'+id).length])),activeTarget:{number:document.getElementById('planNumber')?.value||'',owner:document.getElementById('planOwner')?.value||''},auth:'use site.session for authoritative result'};}
  if(m.kind==='appearance')return appearance(m.op,m.params);
- if(m.kind!=='api'||!/^\/api\/(session|plans(?:\/[^/?#]+(?:\/(change|import|trash|undelete|submit|review|restore))?)?|trash|assignees|project-groups|visibility-groups|work-tasks)$/.test(m.path))throw error('PERMISSION_DENIED');
- try{const r=await fetch(m.path,{method:m.method,credentials:'same-origin',headers:{'Content-Type':'application/json'},body:m.body?JSON.stringify(m.body):undefined,signal:AbortSignal.timeout(20000)});if(!r.ok)return {ok:false,code:({401:'NOT_LOGGED_IN',403:'PERMISSION_DENIED',404:'TARGET_NOT_FOUND',409:'VERSION_CONFLICT',410:'TARGET_TRASHED'})[r.status]||'SERVER_ERROR',message:'服务器 HTTP '+r.status};return {ok:true,data:await r.json()};}catch{return {ok:false,code:'NETWORK_ERROR',message:'请求失败或超时；写入状态未知，先回读再处理'};}
+ if(m.kind!=='api'||!/^\/api\/(session|plans(?:\/[^/?#]+(?:\/(change|import|trash|undelete|submit|review|restore))?)?|trash|assignees|project-groups|visibility-groups|work-tasks(?:\/update)?)$/.test(m.path))throw error('PERMISSION_DENIED');
+ try{const r=await fetch(m.path,{method:m.method,credentials:'same-origin',headers:{'Content-Type':'application/json'},body:m.body?JSON.stringify(m.body):undefined,signal:AbortSignal.timeout(20000)});if(!r.ok){let detail;try{const payload=await r.json();detail=typeof payload.error==='string'?payload.error:typeof payload.message==='string'?payload.message:'';}catch{}return {ok:false,code:({400:'INVALID_SITE_DATA',401:'NOT_LOGGED_IN',403:'PERMISSION_DENIED',404:'TARGET_NOT_FOUND',409:'VERSION_CONFLICT',410:'TARGET_TRASHED'})[r.status]||'SERVER_ERROR',message:'服务器 HTTP '+r.status+(detail?'：'+detail.slice(0,500):'')};}return {ok:true,data:await r.json()};}catch{return {ok:false,code:'NETWORK_ERROR',message:'请求失败或超时；写入状态未知，先回读再处理'};}
  })().then(reply,e=>reply({ok:false,code:e.code||'DOM_DRIFT',message:e.message}));return true;});
  chrome.storage.local.get('xutuThemes').then(v=>{try{render(v.xutuThemes||[]);}catch{console.warn('Xutu: THEME_ANCHOR_MISSING，已恢复默认外观');}});
 })();

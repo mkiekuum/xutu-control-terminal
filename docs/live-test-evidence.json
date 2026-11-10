@@ -1,0 +1,365 @@
+{
+  "date": "2026-11-10",
+  "environment": "Windows; installed browser extension; current ordinary user; explicitly authorized dedicated production test records",
+  "counts": {
+    "checkedSteps": 43,
+    "passed": 43,
+    "unexpectedFailures": 0
+  },
+  "cleanup": {
+    "activeTestPlans": 0,
+    "trashTestPlans": 3,
+    "otherActivePlanCount": 6,
+    "permanentDeletion": "unavailable"
+  },
+  "results": [
+    {
+      "case": "live-create-final",
+      "step": "create",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-create-final",
+      "step": "read",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-create-final",
+      "step": "archive",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-02-transform-final",
+      "step": "inspect",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-02-transform-final",
+      "step": "merge",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-02-transform-final",
+      "step": "readMerged",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-02-transform-final",
+      "step": "split",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-02-transform-final",
+      "step": "readSplit",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-03-edit-final",
+      "step": "title",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-03-edit-final",
+      "step": "createNode",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-03-edit-final",
+      "step": "updateNode",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-03-edit-final",
+      "step": "createEdge",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-03-edit-final",
+      "step": "updateEdge",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-03-edit-final",
+      "step": "removeEdge",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-03-edit-final",
+      "step": "removeNode",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-03-edit-final",
+      "step": "reorder",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-03-edit-final",
+      "step": "read",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-04-redundancy",
+      "step": "redundant",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-04-redundancy",
+      "step": "inspect",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-04-redundancy",
+      "step": "simplify",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-04-redundancy",
+      "step": "read",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-05-copy-batch",
+      "step": "copy",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-05-copy-batch",
+      "step": "editOriginal",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-05-copy-batch",
+      "step": "editCopy",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-05-copy-batch",
+      "step": "readCopy",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-06-restore-snapshot",
+      "step": "restore",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-06-restore-snapshot",
+      "step": "read",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-07-theme",
+      "step": "apply",
+      "status": "success",
+      "serverVerified": false,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-07-theme",
+      "step": "export",
+      "status": "success",
+      "serverVerified": false,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-08-theme-restore",
+      "step": "reset",
+      "status": "success",
+      "serverVerified": false,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-08-theme-restore",
+      "step": "undo",
+      "status": "success",
+      "serverVerified": false,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-08-theme-restore",
+      "step": "resetAgain",
+      "status": "success",
+      "serverVerified": false,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-lifecycle",
+      "step": "versionConflict",
+      "status": "failed",
+      "code": "VERSION_CONFLICT",
+      "serverVerified": false,
+      "expected": "VERSION_CONFLICT",
+      "passed": true
+    },
+    {
+      "case": "live-lifecycle",
+      "step": "adminDenied",
+      "status": "failed",
+      "code": "PERMISSION_DENIED",
+      "serverVerified": false,
+      "expected": "PERMISSION_DENIED",
+      "passed": true
+    },
+    {
+      "case": "live-lifecycle",
+      "step": "hardDeleteUnavailable",
+      "status": "failed",
+      "code": "UNSUPPORTED_BY_SITE",
+      "serverVerified": false,
+      "expected": "UNSUPPORTED_BY_SITE",
+      "passed": true
+    },
+    {
+      "case": "live-lifecycle",
+      "step": "historyUnavailable",
+      "status": "failed",
+      "code": "UNSUPPORTED_BY_SITE",
+      "serverVerified": false,
+      "expected": "UNSUPPORTED_BY_SITE",
+      "passed": true
+    },
+    {
+      "case": "live-lifecycle",
+      "step": "submit",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-lifecycle",
+      "step": "reviewStatus",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-lifecycle",
+      "step": "archive",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-lifecycle",
+      "step": "restore",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-lifecycle",
+      "step": "read",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-original-cleanup",
+      "step": "s1",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    },
+    {
+      "case": "live-copy-cleanup",
+      "step": "s1",
+      "status": "success",
+      "serverVerified": true,
+      "expected": "success",
+      "passed": true
+    }
+  ]
+}

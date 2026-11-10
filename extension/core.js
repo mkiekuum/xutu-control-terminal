@@ -3,6 +3,13 @@ export const VERSION='2.0.0';
 export function fail(code,message=code){throw Object.assign(new Error(message),{code});}
 export function assert(ok,message){if(!ok)fail('INVALID_SCHEMA',message);}
 export const clone=x=>structuredClone(x);
+export async function operationId(requestId,stepId,attempt=''){
+ const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([requestId,stepId,attempt])))).slice(0,16);
+ bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
+ const hex=Array.from(bytes,n=>n.toString(16).padStart(2,'0')).join('');
+ return [hex.slice(0,8),hex.slice(8,12),hex.slice(12,16),hex.slice(16,20),hex.slice(20)].join('-');
+}
+export function equivalent(a,b){if(Object.is(a,b))return true;if(!a||!b||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return false;if(Array.isArray(a))return a.length===b.length&&a.every((x,i)=>equivalent(x,b[i]));const keys=Object.keys(a);return keys.length===Object.keys(b).length&&keys.every(k=>Object.hasOwn(b,k)&&equivalent(a[k],b[k]));}
 export function clean(x){if(Array.isArray(x))return x.map(clean);if(x&&typeof x==='object')return Object.fromEntries(Object.entries(x).filter(([k])=>!/(password|token|cookie|authorization|secret)/i.test(k)).map(([k,v])=>[k,clean(v)]));return x;}
 export function validate(e){
  checkSchema({type:'object',properties:Object.fromEntries(['protocol','requestId','mode','tabId','execution','steps'].map(k=>[k,{}])),additionalProperties:false},e);

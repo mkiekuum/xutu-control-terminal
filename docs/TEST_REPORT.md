@@ -1,11 +1,7 @@
 # 测试报告
 
-Windows、Node.js v24.22.1，2026-11-10。当前40项通过、0失败、0跳过；证据见test-results.tap。
+2026-11-10，Windows，Node.js v24.22.1。本地58项通过、0失败、0跳过，证据见[test-results.tap](test-results.tap)。覆盖统一命令、53份示例、标准JSON Schema、DAG/精度/编号、合并拆分、权限负例、UUID去重键、服务端回读、合成HTTP冲突、Native Messaging长连接、Windows EXE、AI合成提供商和MCP协议。
 
-范围包括：幂等、失败依赖、时间精度、标准JSON Schema与49份示例、严格写入参数、可选快照恢复、实际本机命名管道、Windows Native Messaging EXE真实进程stdio、合成HTTP服务的401/403/409及写后GET回读、零耗时冗余依赖简化和编号保留。
+真实安装与网站验证另见[LIVE_TEST_RESULTS.md](LIVE_TEST_RESULTS.md)：43个步骤符合预期，其中4个预期拒绝。合成HTTP服务不是公司后端；单测不能代替真实验收。
 
-Windows EXE已用.NET Framework编译。测试只模拟浏览器与宿主的二进制协议，不声称已完成Chrome/Edge真实扩展安装。合成本地HTTP服务不是公司后端。
-
-真实网站只读：匿名API返回401，已登录浏览器页面显示当前记录可编辑；公开前端接口和评分规则已检查。未修改现有业务记录。
-
-未测：真实浏览器安装后的完整业务链路、真实管理员权限、生产写后回读、完整原生计算回归、macOS（用户已暂缓）。GitHub远端结果另见最终报告。
+目前总体仍未达到30项全部通过，限制见[ACCEPTANCE.md](ACCEPTANCE.md)。GitHub双平台CI实际状态见GITHUB.md及最终报告。

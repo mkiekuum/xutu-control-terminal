@@ -1,0 +1,51 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "live-05-copy-batch-20261110",
+  "mode": "execute",
+  "execution": {},
+  "steps": [
+    {
+      "id": "copy",
+      "op": "plan.copy",
+      "params": {
+        "number": "XUTU-TEST-20261110-COPY",
+        "title": "插件验收副本（非业务计划）"
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "editOriginal",
+      "op": "plan.update",
+      "params": {
+        "set": {
+          "title": "插件验收主计划：批量修改"
+        }
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "editCopy",
+      "op": "plan.update",
+      "params": {
+        "set": {
+          "title": "插件验收副本：批量修改"
+        }
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110-COPY"
+      }
+    },
+    {
+      "id": "readCopy",
+      "op": "plan.get",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110-COPY"
+      }
+    }
+  ]
+}

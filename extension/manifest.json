@@ -1,1 +1,42 @@
-{"manifest_version":3,"name":"序图 · 统一代码终端与外观修改器","version":"2.0.0","version_name":"2.0.0 candidate — 真实账号验收待完成","minimum_chrome_version":"135","description":"统一 JSON/CLI 终端、用户脚本与声明式外观配置。","permissions":["storage","scripting","userScripts","nativeMessaging"],"host_permissions":["https://plan.fpgabbs.cn/*"],"background":{"service_worker":"background.js","type":"module"},"action":{"default_title":"打开序图终端"},"content_scripts":[{"matches":["https://plan.fpgabbs.cn/*"],"js":["content.js"],"run_at":"document_idle"}]}
+{
+  "manifest_version": 3,
+  "name": "序图 · 统一代码终端与外观修改器",
+  "version": "2.0.0",
+  "version_name": "2.0.0 candidate — 真实账号验收待完成",
+  "minimum_chrome_version": "135",
+  "description": "统一 JSON/CLI 终端、用户脚本与声明式外观配置。",
+  "permissions": [
+    "storage",
+    "scripting",
+    "userScripts",
+    "nativeMessaging"
+  ],
+  "host_permissions": [
+    "https://plan.fpgabbs.cn/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "打开序图终端",
+    "default_popup": "ui.html"
+  },
+  "options_page": "ui.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://plan.fpgabbs.cn/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ]
+}

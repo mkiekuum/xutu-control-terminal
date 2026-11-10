@@ -1,0 +1,79 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "live-01-create-20261110",
+  "mode": "execute",
+  "execution": {},
+  "steps": [
+    {
+      "id": "session",
+      "op": "site.session",
+      "params": {}
+    },
+    {
+      "id": "create",
+      "op": "plan.create",
+      "params": {
+        "number": "XUTU-TEST-20261110",
+        "title": "插件验收专用（非业务计划）",
+        "startDate": "2026-11-10",
+        "status": "draft",
+        "nodes": [
+          {
+            "id": "1",
+            "name": "测试开始"
+          },
+          {
+            "id": "2",
+            "name": "设计成果甲"
+          },
+          {
+            "id": "3",
+            "name": "设计成果乙"
+          },
+          {
+            "id": "4",
+            "name": "测试结束"
+          }
+        ],
+        "edges": [
+          {
+            "fromNodeId": "1",
+            "toNodeId": "2",
+            "estimateDays": {
+              "minimum": 1,
+              "likely": 2,
+              "maximum": 3
+            }
+          },
+          {
+            "fromNodeId": "2",
+            "toNodeId": "3",
+            "estimateDays": {
+              "minimum": 2,
+              "likely": 3,
+              "maximum": 4
+            }
+          },
+          {
+            "fromNodeId": "3",
+            "toNodeId": "4",
+            "estimateDays": {
+              "minimum": 0,
+              "likely": 0,
+              "maximum": 0
+            },
+            "dashed": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "read",
+      "op": "plan.get",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    }
+  ]
+}

@@ -19,6 +19,10 @@ export const parameterSchemas={
  'edge.create':object(edgeFields,['fromNodeId','toNodeId','estimateDays']),
  'edge.update':object(edgeFields,['fromNodeId','toNodeId']),
  'edge.remove':object({fromNodeId:nonempty,toNodeId:nonempty},['fromNodeId','toNodeId']),
+ 'task.merge':object({nodeIds:{type:'array',items:nonempty,uniqueItems:true},name:nonempty,content:string,owner:string,executor:string,allowMilestones:boolean},['nodeIds','name']),
+ 'task.split':object({fromNodeId:nonempty,toNodeId:nonempty,nodes:{type:'array',items:node},segments:{type:'array',items:object({estimateDays:estimate,executor:string,dashed:boolean},['estimateDays'])},allowDurationChange:boolean},['fromNodeId','toNodeId','nodes','segments']),
+ 'task.assign':object({fromNodeId:nonempty,toNodeId:nonempty,executor:string},['fromNodeId','toNodeId','executor']),
+ 'task.updateStatus':object({fromNodeId:nonempty,toNodeId:nonempty,actualCompleteDate:string},['fromNodeId','toNodeId','actualCompleteDate']),
  'progress.update':object({fromNodeId:nonempty,toNodeId:nonempty,actualCompleteDate:string},['fromNodeId','toNodeId','actualCompleteDate']),
  'review.reject':object({note:nonempty},['note']),
  'history.restore':object({targetRevision:{type:'integer',minimum:1}},['targetRevision']),
@@ -50,7 +54,7 @@ export function checkSchema(schema,value,path='$'){
 export function validateStep(s){
  if(parameterSchemas[s.op])checkSchema(parameterSchemas[s.op],s.params||{},s.op);
  if(s.target!==undefined)checkSchema(object({id:nonempty,number:nonempty,owner:nonempty,version:{type:'integer',minimum:0}}),s.target,'target');
- if(/^(node|edge|progress|review|graph)\./.test(s.op)||['plan.get','plan.update','plan.replace','plan.copy','plan.export','plan.archive','plan.delete','plan.restore','plan.restoreSnapshot','schedule.updateInputs','history.restore'].includes(s.op)){
+ if(/^(node|edge|progress|review|graph)\./.test(s.op)||['task.merge','task.split','task.assign','task.updateStatus','plan.get','plan.update','plan.replace','plan.copy','plan.export','plan.archive','plan.delete','plan.restore','plan.restoreSnapshot','schedule.updateInputs','history.restore'].includes(s.op)){
   if(!s.target?.id&&!s.target?.number)invalid('target.id 或 target.number');
  }
 }

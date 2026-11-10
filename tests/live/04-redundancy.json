@@ -1,0 +1,49 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "live-04-redundancy-20261110",
+  "mode": "execute",
+  "execution": {},
+  "steps": [
+    {
+      "id": "redundant",
+      "op": "edge.create",
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "3",
+        "estimateDays": {
+          "minimum": 0,
+          "likely": 0,
+          "maximum": 0
+        },
+        "dashed": true
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "inspect",
+      "op": "graph.inspect",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "simplify",
+      "op": "graph.simplify",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "read",
+      "op": "plan.get",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    }
+  ]
+}

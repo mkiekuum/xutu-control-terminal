@@ -1,0 +1,22 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-50",
+  "mode": "preview",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "task.merge",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "nodeIds": [
+          "1",
+          "2",
+          "3"
+        ],
+        "name": "合并后的成果"
+      }
+    }
+  ]
+}

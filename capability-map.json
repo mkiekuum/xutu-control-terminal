@@ -3,231 +3,231 @@
     "op": "plan.list",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "project.list",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "group.list",
     "transport": "api",
     "role": "admin",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "task.list",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "site.session",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "user.list",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "plan.create",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "plan.update",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "plan.replace",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "plan.copy",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "plan.archive",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "plan.delete",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "plan.restore",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "node.create",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "node.update",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "node.remove",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "node.reorder",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "edge.create",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "edge.update",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "edge.remove",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "schedule.updateInputs",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "progress.update",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "progress.complete",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "review.submit",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "review.approve",
     "transport": "api",
     "role": "admin",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "ordinary-user rejection verified; admin positive not tested",
     "rollback": "not_guaranteed"
   },
   {
     "op": "review.reject",
     "transport": "api",
     "role": "admin",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "history.restore",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "project.create",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "project.assignPlan",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "group.create",
     "transport": "api",
     "role": "admin",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "group.update",
     "transport": "api",
     "role": "admin",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "group.remove",
     "transport": "api",
     "role": "admin",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "group.assign",
     "transport": "api",
     "role": "admin",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
@@ -255,7 +255,7 @@
     "op": "plan.get",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
@@ -269,35 +269,35 @@
     "op": "node.list",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "edge.list",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "progress.read",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "plan.export",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
     "op": "review.status",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
@@ -374,7 +374,7 @@
     "op": "history.list",
     "transport": "unavailable",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
@@ -407,9 +407,9 @@
   },
   {
     "op": "task.updateStatus",
-    "transport": "unavailable",
+    "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   },
   {
@@ -507,21 +507,21 @@
     "op": "graph.inspect",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "synthetic tests passed",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "graph.simplify",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "synthetic tests passed",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
     "op": "plan.restoreSnapshot",
     "transport": "api",
     "role": "current-session/server-authoritative",
-    "tested": "synthetic tests passed",
+    "tested": "authenticated dedicated-record E2E passed",
     "rollback": "not_guaranteed"
   },
   {
@@ -529,6 +529,27 @@
     "transport": "dom",
     "role": "current-session/server-authoritative",
     "tested": "browser pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "task.merge",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "authenticated dedicated-record E2E passed",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "task.split",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "authenticated dedicated-record E2E passed",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "task.assign",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
   }
 ]

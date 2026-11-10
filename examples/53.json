@@ -1,0 +1,19 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-53",
+  "mode": "preview",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "task.assign",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "2",
+        "executor": "TEST_ASSIGNEE"
+      }
+    }
+  ]
+}

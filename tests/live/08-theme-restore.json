@@ -1,0 +1,23 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "live-08-theme-restore-20261110",
+  "mode": "execute",
+  "execution": {},
+  "steps": [
+    {
+      "id": "reset",
+      "op": "theme.reset",
+      "params": {}
+    },
+    {
+      "id": "undo",
+      "op": "theme.undo",
+      "params": {}
+    },
+    {
+      "id": "resetAgain",
+      "op": "theme.reset",
+      "params": {}
+    }
+  ]
+}

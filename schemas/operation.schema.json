@@ -668,6 +668,223 @@
       ],
       "properties": {
         "op": {
+          "const": "task.merge"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "nodeIds": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "content": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "string"
+            },
+            "executor": {
+              "type": "string"
+            },
+            "allowMilestones": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "nodeIds",
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "task.split"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "fromNodeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "toNodeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "nodes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "ownerName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "estimateDays": {
+                    "type": "object",
+                    "properties": {
+                      "minimum": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "likely": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "maximum": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "minimum",
+                      "likely",
+                      "maximum"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "executor": {
+                    "type": "string"
+                  },
+                  "dashed": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "estimateDays"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "allowDurationChange": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "fromNodeId",
+            "toNodeId",
+            "nodes",
+            "segments"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "task.assign"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "fromNodeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "toNodeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "executor": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "fromNodeId",
+            "toNodeId",
+            "executor"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "task.updateStatus"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "fromNodeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "toNodeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "actualCompleteDate": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "fromNodeId",
+            "toNodeId",
+            "actualCompleteDate"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
           "const": "progress.update"
         },
         "params": {

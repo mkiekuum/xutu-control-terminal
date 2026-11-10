@@ -13,6 +13,7 @@ export async function contractServer(){
    if(actor!==record.current.planOwner)return send(403,{error:'owner-only'});
    let bytes='';for await(const chunk of req){bytes+=chunk;if(bytes.length>200000){return send(413,{error:'too-large'});}}
    let body;try{body=JSON.parse(bytes);}catch{return send(400,{error:'invalid-json'});}
+   if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(body.operation))return send(400,{error:'invalid-operation-id'});
    if(operations.has(body.operation))return send(200,operations.get(body.operation));
    if(body.baseRevision!==record.revision)return send(409,{error:'revision'});
    record={...record,revision:record.revision+1,current:body.current};events.push({method:req.method,path:req.url,revision:record.revision});operations.set(body.operation,structuredClone(record));return send(200,record);

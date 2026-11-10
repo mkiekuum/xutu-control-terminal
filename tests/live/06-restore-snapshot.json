@@ -1,0 +1,26 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "live-06-restore-snapshot-20261110",
+  "mode": "execute",
+  "execution": {},
+  "steps": [
+    {
+      "id": "restore",
+      "op": "plan.restoreSnapshot",
+      "params": {
+        "backupId": "live-03-edit-20261110:title"
+      },
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    },
+    {
+      "id": "read",
+      "op": "plan.get",
+      "params": {},
+      "target": {
+        "number": "XUTU-TEST-20261110"
+      }
+    }
+  ]
+}

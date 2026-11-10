@@ -1,0 +1,40 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-51",
+  "mode": "preview",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "task.split",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "3",
+        "nodes": [
+          {
+            "id": "2",
+            "name": "新增中间成果"
+          }
+        ],
+        "segments": [
+          {
+            "estimateDays": {
+              "minimum": 1,
+              "likely": 2,
+              "maximum": 3
+            }
+          },
+          {
+            "estimateDays": {
+              "minimum": 2,
+              "likely": 3,
+              "maximum": 4
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
