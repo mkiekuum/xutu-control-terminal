@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "xutu.command/v1"
+    },
+    "requestId": {
+      "type": "string",
+      "pattern": "^[\\w-]{1,120}$"
+    },
+    "mode": {
+      "enum": [
+        "validate",
+        "preview",
+        "execute"
+      ]
+    },
+    "tabId": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "retry": {
+          "type": "object",
+          "properties": {
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "backoffMs": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5000
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "maxAttempts",
+            "backoffMs"
+          ]
+        },
+        "onConflict": {
+          "enum": [
+            "fail",
+            "refresh-retry",
+            "overwrite-if-authorized"
+          ]
+        },
+        "continueOnError": {
+          "type": "boolean"
+        },
+        "backup": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "op": {
+            "type": "string",
+            "pattern": "^[a-z]+\\.[a-zA-Z.]+$"
+          },
+          "target": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "number": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false
+          },
+          "params": {
+            "type": "object"
+          },
+          "dependsOn": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "op"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "op": {
+                  "enum": [
+                    "plan.create",
+                    "plan.update",
+                    "plan.replace",
+                    "plan.copy",
+                    "plan.delete",
+                    "plan.restoreSnapshot",
+                    "node.create",
+                    "node.update",
+                    "node.remove",
+                    "node.reorder",
+                    "edge.create",
+                    "edge.update",
+                    "edge.remove",
+                    "progress.update",
+                    "review.reject",
+                    "history.restore",
+                    "project.create",
+                    "project.assignPlan",
+                    "group.create",
+                    "group.update",
+                    "group.remove",
+                    "group.assign",
+                    "script.execute",
+                    "system.logs",
+                    "system.status",
+                    "system.backup.get",
+                    "schedule.updateInputs",
+                    "progress.complete",
+                    "graph.inspect",
+                    "graph.simplify",
+                    "plan.list",
+                    "plan.get",
+                    "plan.export",
+                    "plan.archive",
+                    "plan.restore",
+                    "node.list",
+                    "edge.list",
+                    "progress.read",
+                    "review.status",
+                    "review.submit",
+                    "review.approve",
+                    "history.list",
+                    "project.list",
+                    "group.list",
+                    "task.list",
+                    "user.list",
+                    "site.session",
+                    "system.version",
+                    "system.health",
+                    "system.capabilities",
+                    "site.inspect",
+                    "site.capabilities",
+                    "theme.list",
+                    "theme.export",
+                    "theme.reset",
+                    "theme.undo"
+                  ]
+                }
+              },
+              "required": [
+                "op"
+              ]
+            },
+            "then": {
+              "$ref": "operation.schema.json"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "requestId",
+    "steps"
+  ]
+}

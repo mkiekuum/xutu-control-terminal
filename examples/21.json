@@ -1,0 +1,23 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-21",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "edge.update",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "2",
+        "dashed": true,
+        "estimateDays": {
+          "minimum": 0,
+          "likely": 0,
+          "maximum": 0
+        }
+      }
+    }
+  ]
+}

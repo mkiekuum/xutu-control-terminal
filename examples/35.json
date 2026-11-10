@@ -1,0 +1,11 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-35",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "user.list",
+      "params": {}
+    }
+  ]
+}

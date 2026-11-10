@@ -1,0 +1,17 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-22",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "edge.remove",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "2"
+      }
+    }
+  ]
+}

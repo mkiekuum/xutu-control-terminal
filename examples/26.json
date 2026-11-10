@@ -1,0 +1,14 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-26",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "plan.export",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {}
+    }
+  ]
+}

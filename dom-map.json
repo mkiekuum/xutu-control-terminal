@@ -1,0 +1,12 @@
+{
+  "anchors": [
+    "new",
+    "nodeSubmit",
+    "edgeSubmit",
+    "rows",
+    "planOwner",
+    "planNumber",
+    "title"
+  ],
+  "writeFallback": "disabled: no reliable server verification"
+}

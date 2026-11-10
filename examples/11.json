@@ -1,0 +1,18 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-11",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "plan.update",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "set": {
+          "title": "合成新名称"
+        }
+      }
+    }
+  ]
+}

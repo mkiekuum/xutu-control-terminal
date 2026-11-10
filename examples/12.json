@@ -1,0 +1,19 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-12",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "schedule.updateInputs",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "set": {
+          "startDate": "2026-11-10",
+          "deadlineDate": "2026-11-20"
+        }
+      }
+    }
+  ]
+}

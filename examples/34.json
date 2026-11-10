@@ -1,0 +1,14 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-34",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "project.assignPlan",
+      "params": {
+        "planId": "TEST_PLAN_ID",
+        "groupId": "TEST_GROUP_ID"
+      }
+    }
+  ]
+}

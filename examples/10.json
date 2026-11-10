@@ -1,0 +1,23 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-10",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "convert.legacyToNative",
+      "params": {
+        "title": "合成任务",
+        "unit": "hour",
+        "start": "2026-11-10T09:00",
+        "workers": [],
+        "tasks": [
+          {
+            "id": "a",
+            "name": "A",
+            "duration": 2
+          }
+        ]
+      }
+    }
+  ]
+}

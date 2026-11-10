@@ -1,0 +1,14 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-29",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "review.submit",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {}
+    }
+  ]
+}

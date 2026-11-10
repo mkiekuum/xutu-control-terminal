@@ -1,0 +1,15 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-46",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "graph.inspect",
+      "params": {},
+      "target": {
+        "id": "TEST_PLAN_ID"
+      }
+    }
+  ]
+}

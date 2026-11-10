@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema",
+    "name",
+    "scope"
+  ],
+  "properties": {
+    "schema": {
+      "const": "xutu.theme/v1"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "const": "https://plan.fpgabbs.cn"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^/"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "origin",
+        "path"
+      ]
+    },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "selectors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "order": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hidden": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "text",
+              "note",
+              "label",
+              "divider",
+              "details"
+            ]
+          },
+          "anchor": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "anchor"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-42",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "layout.component.add",
+      "params": {
+        "component": {
+          "id": "test-note",
+          "kind": "note",
+          "anchor": ".workspace",
+          "text": "本地合成提示"
+        }
+      }
+    }
+  ]
+}

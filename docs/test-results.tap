@@ -1,0 +1,250 @@
+TAP version 13
+# Subtest: 全部49份示例满足信封Schema所用关键字及运行时校验
+ok 1 - 全部49份示例满足信封Schema所用关键字及运行时校验
+  ---
+  duration_ms: 9.1093
+  type: 'test'
+  ...
+# Subtest: 原生计划和主题示例满足各自Schema
+ok 2 - 原生计划和主题示例满足各自Schema
+  ---
+  duration_ms: 1.0958
+  type: 'test'
+  ...
+# Subtest: MV3发布权限限定站点，无旧时间代理或远程执行代码
+ok 3 - MV3发布权限限定站点，无旧时间代理或远程执行代码
+  ---
+  duration_ms: 1.851
+  type: 'test'
+  ...
+# Subtest: CLI 与 JSON 统一、引用字符串和中文赋值
+ok 4 - CLI 与 JSON 统一、引用字符串和中文赋值
+  ---
+  duration_ms: 1.6581
+  type: 'test'
+  ...
+# Subtest: 协议拒绝重复步骤、未来依赖和无上限重试
+ok 5 - 协议拒绝重复步骤、未来依赖和无上限重试
+  ---
+  duration_ms: 0.4699
+  type: 'test'
+  ...
+# Subtest: 幂等重放并发仅执行一次；不同内容不能复用 requestId
+ok 6 - 幂等重放并发仅执行一次；不同内容不能复用 requestId
+  ---
+  duration_ms: 7.0598
+  type: 'test'
+  ...
+# Subtest: 中断 WAL 阻止未知写入重试，磁盘不保存原始命令
+ok 7 - 中断 WAL 阻止未知写入重试，磁盘不保存原始命令
+  ---
+  duration_ms: 0.8616
+  type: 'test'
+  ...
+# Subtest: 批量部分失败和依赖跳过计数
+ok 8 - 批量部分失败和依赖跳过计数
+  ---
+  duration_ms: 0.8638
+  type: 'test'
+  ...
+# Subtest: 极小估时不被 toFixed 丢失；不按标题换算
+ok 9 - 极小估时不被 toFixed 丢失；不按标题换算
+  ---
+  duration_ms: 0.634
+  type: 'test'
+  ...
+# Subtest: DAG 校验拒绝循环与重复连线
+ok 10 - DAG 校验拒绝循环与重复连线
+  ---
+  duration_ms: 0.1629
+  type: 'test'
+  ...
+# Subtest: 旧任务转换明确输出资源时间窗损失
+ok 11 - 旧任务转换明确输出资源时间窗损失
+  ---
+  duration_ms: 0.4318
+  type: 'test'
+  ...
+# Subtest: Native 帧支持分片、粘包，拒绝超长消息
+ok 12 - Native 帧支持分片、粘包，拒绝超长消息
+  ---
+  duration_ms: 0.3184
+  type: 'test'
+  ...
+# Subtest: 敏感键递归脱敏
+ok 13 - 敏感键递归脱敏
+  ---
+  duration_ms: 0.1714
+  type: 'test'
+  ...
+# Subtest: 普通用户管理分组被拒绝，且不会发 POST
+ok 14 - 普通用户管理分组被拒绝，且不会发 POST
+  ---
+  duration_ms: 0.9008
+  type: 'test'
+  ...
+# Subtest: 编号歧义和未核实永久删除均阻止写入
+ok 15 - 编号歧义和未核实永久删除均阻止写入
+  ---
+  duration_ms: 0.3008
+  type: 'test'
+  ...
+# Subtest: 真实字段契约 mock：更新、版本号及服务端回读
+ok 16 - 真实字段契约 mock：更新、版本号及服务端回读
+  ---
+  duration_ms: 0.3754
+  type: 'test'
+  ...
+# Subtest: 服务器返回成功但回读字段不同不得报成功
+ok 17 - 服务器返回成功但回读字段不同不得报成功
+  ---
+  duration_ms: 0.1964
+  type: 'test'
+  ...
+# Subtest: preview 不写入服务端
+ok 18 - preview 不写入服务端
+  ---
+  duration_ms: 0.2001
+  type: 'test'
+  ...
+# Subtest: A→B→C已建立时，只移除A→C零耗时虚边，编号和真实工作不变
+ok 19 - A→B→C已建立时，只移除A→C零耗时虚边，编号和真实工作不变
+  ---
+  duration_ms: 1.5755
+  type: 'test'
+  ...
+# Subtest: 真实耗时A→C即使有替代路径，也不能自动删除
+ok 20 - 真实耗时A→C即使有替代路径，也不能自动删除
+  ---
+  duration_ms: 0.4657
+  type: 'test'
+  ...
+# Subtest: 公共起止点所需零耗时边不被误删
+ok 21 - 公共起止点所需零耗时边不被误删
+  ---
+  duration_ms: 0.1744
+  type: 'test'
+  ...
+# Subtest: 长任务建议和同负责人串行合并提示不改用时或编号，交付节点保留
+ok 22 - 长任务建议和同负责人串行合并提示不改用时或编号，交付节点保留
+  ---
+  duration_ms: 0.3125
+  type: 'test'
+  ...
+# Subtest: 新增虚任务不得隐含非零耗时，必须明确三个0
+ok 23 - 新增虚任务不得隐含非零耗时，必须明确三个0
+  ---
+  duration_ms: 0.3701
+  type: 'test'
+  ...
+# Subtest: 旧任务导入A→B→C时去除显式重复A→C依赖
+ok 24 - 旧任务导入A→B→C时去除显式重复A→C依赖
+  ---
+  duration_ms: 0.862
+  type: 'test'
+  ...
+# Subtest: 写入参数拼写错误在任何网络调用前拒绝，validate模式也执行参数校验
+ok 25 - 写入参数拼写错误在任何网络调用前拒绝，validate模式也执行参数校验
+  ---
+  duration_ms: 2.0475
+  type: 'test'
+  ...
+# Subtest: 参数契约拒绝错误类型和原型字段
+ok 26 - 参数契约拒绝错误类型和原型字段
+  ---
+  duration_ms: 0.2383
+  type: 'test'
+  ...
+# Subtest: 旧站单值用时合法且不被重新格式化；空值拒绝
+ok 27 - 旧站单值用时合法且不被重新格式化；空值拒绝
+  ---
+  duration_ms: 0.4579
+  type: 'test'
+  ...
+# Subtest: 已执行作业仍允许同ID只读预览
+ok 28 - 已执行作业仍允许同ID只读预览
+  ---
+  duration_ms: 5.2293
+  type: 'test'
+  ...
+# Subtest: 可选备份先存储；可恢复原内容并保留最新版本控制
+ok 29 - 可选备份先存储；可恢复原内容并保留最新版本控制
+  ---
+  duration_ms: 0.7278
+  type: 'test'
+  ...
+# Subtest: 备份存储失败阻止写入
+ok 30 - 备份存储失败阻止写入
+  ---
+  duration_ms: 0.2417
+  type: 'test'
+  ...
+# Subtest: JSON Lines预解析整批；错误行在提交前失败
+ok 31 - JSON Lines预解析整批；错误行在提交前失败
+  ---
+  duration_ms: 0.6115
+  type: 'test'
+  ...
+# Subtest: 实际本机IPC：客户端发送统一信封并收到分片结果
+ok 32 - 实际本机IPC：客户端发送统一信封并收到分片结果
+  ---
+  duration_ms: 3.955
+  type: 'test'
+  ...
+# Subtest: 实际本机IPC：宿主提前关闭返回状态未知错误
+ok 33 - 实际本机IPC：宿主提前关闭返回状态未知错误
+  ---
+  duration_ms: 53.319
+  type: 'test'
+  ...
+# Subtest: 项目分配必须回读计划对应项目字段，不以POST成功判定
+ok 34 - 项目分配必须回读计划对应项目字段，不以POST成功判定
+  ---
+  duration_ms: 0.4934
+  type: 'test'
+  ...
+# Subtest: 本地HTTP契约集成：写入后实际GET回读、同作业重放无重复POST
+ok 35 - 本地HTTP契约集成：写入后实际GET回读、同作业重放无重复POST
+  ---
+  duration_ms: 57.8777
+  type: 'test'
+  ...
+# Subtest: 本地HTTP契约集成：真实401和403映射，不产生写入
+ok 36 - 本地HTTP契约集成：真实401和403映射，不产生写入
+  ---
+  duration_ms: 34.2796
+  type: 'test'
+  ...
+# Subtest: 本地HTTP契约集成：并发409后仅覆盖指定字段并保留远端其他字段
+ok 37 - 本地HTTP契约集成：并发409后仅覆盖指定字段并保留远端其他字段
+  ---
+  duration_ms: 34.4132
+  type: 'test'
+  ...
+# Subtest: JSON Schema 2020-12 标准验证器验证49份示例及各命令参数
+ok 38 - JSON Schema 2020-12 标准验证器验证49份示例及各命令参数
+  ---
+  duration_ms: 64.1729
+  type: 'test'
+  ...
+# Subtest: 标准Schema拒绝拼错写字段、错误类型及缺失必填参数
+ok 39 - 标准Schema拒绝拼错写字段、错误类型及缺失必填参数
+  ---
+  duration_ms: 0.3955
+  type: 'test'
+  ...
+# Subtest: Windows EXE宿主实际进程：stdio二进制帧往返且正常退出
+ok 40 - Windows EXE宿主实际进程：stdio二进制帧往返且正常退出
+  ---
+  duration_ms: 257.6903
+  type: 'test'
+  ...
+1..40
+# tests 40
+# suites 0
+# pass 40
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 422.2103

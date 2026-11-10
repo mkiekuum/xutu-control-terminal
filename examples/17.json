@@ -1,0 +1,16 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-17",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "node.remove",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "id": "3"
+      }
+    }
+  ]
+}

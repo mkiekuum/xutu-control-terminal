@@ -1,0 +1,31 @@
+name: Reviewed release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        description: '已评审的 v版本号 tag'
+permissions:
+  contents: write
+jobs:
+  release:
+    environment: release-approved
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: node --test tests/*.test.js
+      - run: node tools/build.mjs
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: gh release create "$RELEASE_TAG" dist/* --draft --title "$RELEASE_TAG" --notes-file docs/RELEASE_NOTES.md

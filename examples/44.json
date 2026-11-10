@@ -1,0 +1,14 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-44",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "script.execute",
+      "params": {
+        "world": "USER_SCRIPT",
+        "source": "document.title"
+      }
+    }
+  ]
+}

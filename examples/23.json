@@ -1,0 +1,14 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-23",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "progress.read",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {}
+    }
+  ]
+}

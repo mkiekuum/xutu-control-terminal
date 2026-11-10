@@ -1,0 +1,16 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-08",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "plan.create",
+      "params": {
+        "title": "合成测试草稿",
+        "number": "TEST-001",
+        "nodes": [],
+        "edges": []
+      }
+    }
+  ]
+}

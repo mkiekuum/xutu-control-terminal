@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "protocol",
+    "requestId",
+    "status",
+    "steps",
+    "summary"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "xutu.result/v1"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "success",
+        "partial_success",
+        "failed"
+      ]
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "success",
+              "failed",
+              "skipped"
+            ]
+          },
+          "serverVerified": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "success",
+        "failed",
+        "skipped"
+      ]
+    }
+  }
+}

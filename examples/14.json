@@ -1,0 +1,17 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-14",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "node.create",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "id": "3",
+        "name": "验收"
+      }
+    }
+  ]
+}

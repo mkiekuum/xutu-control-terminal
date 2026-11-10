@@ -1,0 +1,18 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-24",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "progress.complete",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "2",
+        "actualCompleteDate": "2026-11-12"
+      }
+    }
+  ]
+}

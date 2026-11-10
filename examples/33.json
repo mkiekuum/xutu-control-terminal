@@ -1,0 +1,15 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-33",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "project.create",
+      "params": {
+        "number": "TEST-GROUP",
+        "name": "合成项目",
+        "owner": "TEST_OWNER"
+      }
+    }
+  ]
+}

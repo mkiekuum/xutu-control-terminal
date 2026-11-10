@@ -1,0 +1,13 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-40",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "layout.hide",
+      "params": {
+        "selector": ".intro"
+      }
+    }
+  ]
+}

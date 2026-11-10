@@ -1,0 +1,17 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-25",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "plan.copy",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "number": "TEST-COPY",
+        "title": "合成副本"
+      }
+    }
+  ]
+}

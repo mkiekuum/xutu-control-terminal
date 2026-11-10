@@ -1,0 +1,20 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-15",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "node.update",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "id": "3",
+        "set": {
+          "name": "最终验收",
+          "content": "合成说明"
+        }
+      }
+    }
+  ]
+}

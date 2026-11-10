@@ -1,0 +1,11 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-04",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "site.session",
+      "params": {}
+    }
+  ]
+}

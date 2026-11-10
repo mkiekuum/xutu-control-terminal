@@ -1,0 +1,11 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-02",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "system.capabilities",
+      "params": {}
+    }
+  ]
+}

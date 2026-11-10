@@ -1,0 +1,534 @@
+[
+  {
+    "op": "plan.list",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "project.list",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "group.list",
+    "transport": "api",
+    "role": "admin",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "task.list",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "site.session",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "user.list",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.create",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.update",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.replace",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.copy",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.archive",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.delete",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.restore",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "node.create",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "node.update",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "node.remove",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "node.reorder",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "edge.create",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "edge.update",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "edge.remove",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "schedule.updateInputs",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "progress.update",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "progress.complete",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "review.submit",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "review.approve",
+    "transport": "api",
+    "role": "admin",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "review.reject",
+    "transport": "api",
+    "role": "admin",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "history.restore",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "project.create",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "project.assignPlan",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "group.create",
+    "transport": "api",
+    "role": "admin",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "group.update",
+    "transport": "api",
+    "role": "admin",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "group.remove",
+    "transport": "api",
+    "role": "admin",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "group.assign",
+    "transport": "api",
+    "role": "admin",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "system.version",
+    "transport": "local",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "system.capabilities",
+    "transport": "local",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "site.inspect",
+    "transport": "dom",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.get",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "convert.legacyToNative",
+    "transport": "local",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "node.list",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "edge.list",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "progress.read",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.export",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "review.status",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "theme.apply",
+    "transport": "dom",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "theme.export",
+    "transport": "dom",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "theme.reset",
+    "transport": "dom",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "layout.hide",
+    "transport": "dom",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "layout.show",
+    "transport": "dom",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "layout.component.add",
+    "transport": "dom",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "layout.component.remove",
+    "transport": "dom",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "script.execute",
+    "transport": "userScripts",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "system.logs",
+    "transport": "local",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.delete(permanent)",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "history.list",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "history.diff",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "schedule.read",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "schedule.recalculate",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "task.get",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "task.updateStatus",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "user.get",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "user.create",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "user.update",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "user.disable",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "role.list",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "role.grant",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "role.revoke",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "role.assign",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "project.update",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "project.remove",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "site.click",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "site.field.set",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "site.navigation",
+    "transport": "unavailable",
+    "role": "current-session/server-authoritative",
+    "tested": "unit/mock only; authenticated E2E pending",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "graph.inspect",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "synthetic tests passed",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "graph.simplify",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "synthetic tests passed",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "plan.restoreSnapshot",
+    "transport": "api",
+    "role": "current-session/server-authoritative",
+    "tested": "synthetic tests passed",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "theme.undo",
+    "transport": "dom",
+    "role": "current-session/server-authoritative",
+    "tested": "browser pending",
+    "rollback": "not_guaranteed"
+  }
+]

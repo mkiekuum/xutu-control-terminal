@@ -1,0 +1,16 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-31",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "review.reject",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "note": "合成测试意见"
+      }
+    }
+  ]
+}

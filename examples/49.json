@@ -1,0 +1,12 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-49",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "theme.undo",
+      "params": {}
+    }
+  ]
+}

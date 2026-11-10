@@ -1,0 +1,13 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-43",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "layout.component.remove",
+      "params": {
+        "id": "test-note"
+      }
+    }
+  ]
+}

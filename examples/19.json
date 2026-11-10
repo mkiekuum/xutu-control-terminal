@@ -1,0 +1,22 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-19",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "edge.create",
+      "target": {
+        "id": "TEST_PLAN_ID"
+      },
+      "params": {
+        "fromNodeId": "1",
+        "toNodeId": "2",
+        "estimateDays": {
+          "minimum": 1,
+          "likely": 2,
+          "maximum": 3
+        }
+      }
+    }
+  ]
+}

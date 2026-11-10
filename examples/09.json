@@ -1,0 +1,36 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-09",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "plan.create",
+      "params": {
+        "title": "合成三点估时",
+        "number": "TEST-002",
+        "nodes": [
+          {
+            "id": "1",
+            "name": "开始"
+          },
+          {
+            "id": "2",
+            "name": "完成"
+          }
+        ],
+        "edges": [
+          {
+            "fromNodeId": "1",
+            "toNodeId": "2",
+            "estimateDays": {
+              "minimum": 1,
+              "likely": 2,
+              "maximum": 3
+            },
+            "dashed": false
+          }
+        ]
+      }
+    }
+  ]
+}

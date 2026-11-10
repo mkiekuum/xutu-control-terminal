@@ -1,0 +1,11 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "recipe-38",
+  "steps": [
+    {
+      "id": "s1",
+      "op": "theme.export",
+      "params": {}
+    }
+  ]
+}
