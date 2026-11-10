@@ -31,4 +31,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.tag }}
-        run: gh release create "$env:RELEASE_TAG" dist/*.zip dist/SHA256SUMS --draft --title "$env:RELEASE_TAG" --notes-file docs/RELEASE_NOTES.md
+        run: |
+          $assets = @(Get-ChildItem dist -Filter *.zip | ForEach-Object { $_.FullName })
+          gh release create "$env:RELEASE_TAG" @assets dist/SHA256SUMS --draft --title "$env:RELEASE_TAG" --notes-file docs/RELEASE_NOTES.md

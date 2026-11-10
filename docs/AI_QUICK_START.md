@@ -32,6 +32,6 @@ MCP提供契约资源xutu://contracts。建议在AI中说：“读取序图契�
 
 ## 当前验证范围
 
-已测试：合成AI响应解析、字段校验、脚本拦截、HTTPS/本机地址约束、Key不进入提示词、MCP真实stdio初始化/工具发现/契约读取。尚未测试：你的真实模型账号、第三方AI客户端及真实浏览器业务端到端。不能承诺“所有AI一键连接”或“所有网站操作均可实现”。
+已测试：合成AI响应解析、字段校验、脚本拦截、HTTPS/本机地址约束、Key不进入提示词、MCP真实stdio初始化/工具发现/契约读取。已验证MCP→本地宿主→已安装插件调用及核心浏览器业务链路。尚未测试：你的真实模型账号和第三方AI客户端界面配置。不能承诺“所有AI一键连接”或“所有网站操作均可实现”。
 
 协议参考：[MCP stdio](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports) 与 [MCP工具](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)。
