@@ -6,6 +6,9 @@ import {collectContext} from './context.js';
 import {readNativeAnalysis} from './website-guide.js';
 import {buildIntake} from './ai-brief.js';
 import {collectCompatibility,probeNativeCompatibility} from './compatibility.js';
+import {createUpdateChecker} from './updates.js';
+import {runCliDiagnostics} from './cli-diagnostics.js';
+const checkUpdates=createUpdateChecker({load:async()=>(await chrome.storage.local.get('releaseCheck')).releaseCheck,save:report=>chrome.storage.local.set({releaseCheck:report})});
 async function compatibilityFor(tab){return collectCompatibility({inspect:()=>bridge(tab.id,{kind:'inspect'}),session:()=>request(tab,'/api/session'),plans:()=>request(tab,'/api/plans'),probe:async()=>(await chrome.scripting.executeScript({target:{tabId:tab.id},world:'MAIN',func:probeNativeCompatibility}))[0]?.result,userScripts:async()=>{if(!chrome.userScripts?.getScripts)return false;await chrome.userScripts.getScripts();return true;},nativeConnected:ready});}
 const store={get:async k=>(await chrome.storage.local.get(k))[k],set:async(k,v)=>chrome.storage.local.set({[k]:v})};
 async function tabFor(e){if(e.tabId){const t=await chrome.tabs.get(e.tabId);if(new URL(t.url).origin!=='https://plan.fpgabbs.cn')fail('PERMISSION_DENIED');return t;}const tabs=await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'});if(tabs.length!==1)fail('TARGET_AMBIGUOUS','请打开唯一序图标签页或指定 tabId');return tabs[0];}
@@ -57,22 +60,38 @@ chrome.runtime.onMessage.addListener((message,sender,reply)=>{
   if(message.kind==='openSite'){const tabs=await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'});if(tabs.length)await chrome.tabs.update(tabs[0].id,{active:true});else await chrome.tabs.create({url:'https://plan.fpgabbs.cn/'});return {opened:true};}
   if(message.kind==='native'){try{await connectNative();return {connected:true,message:'CLI 已连接，可直接运行命令。'};}catch(e){return {connected:false,message:e.message};}}
   if(message.kind==='tabs')return (await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'})).map(t=>({id:t.id,title:t.title,active:t.active}));
+  if(message.kind==='updates')return checkUpdates();
+  if(message.kind==='cliTest')return runCliDiagnostics({tabId:message.tabId,probeHost:async()=>{
+   await connectNative();if(nativeInfo?.diagnostics!==1)throw {code:'HOST_TOO_OLD'};return nativeDiagnostic('ping');
+  },query:async selected=>{
+   let tab;try{tab=await chrome.tabs.get(selected);}catch{throw {code:'TARGET_NOT_FOUND'};}
+   if(!tab.url?.startsWith('https://plan.fpgabbs.cn/'))throw {code:'TARGET_ORIGIN'};
+   return nativeDiagnostic('query',{tabId:selected},22000);
+  }});
   if(message.kind==='run')return executor.run(message.command);
   fail('INVALID_SCHEMA');
  })().then(reply,e=>reply({status:'failed',code:e.code||'INTERNAL_ERROR',message:e.message}));return true;
 });
-let native,ready=false,connecting;
+let native,ready=false,connecting,nativeInfo;const nativeTests=new Map();
+function nativeDiagnostic(action,params={},timeout=5000){
+ return new Promise((resolve,reject)=>{
+  if(!native||!ready){reject({code:'HOST_DISCONNECTED'});return;}
+  const id=crypto.randomUUID(),timer=setTimeout(()=>{nativeTests.delete(id);reject({code:action==='ping'?'HOST_TIMEOUT':'CLI_TIMEOUT'});},timeout);
+  nativeTests.set(id,{resolve:result=>{clearTimeout(timer);resolve(result);},reject:error=>{clearTimeout(timer);reject(error);}});
+  try{native.postMessage({kind:'diagnostic',id,action,...params});}catch{nativeTests.get(id)?.reject({code:'HOST_DISCONNECTED'});nativeTests.delete(id);}
+ });
+}
 function connectNative(){
  if(ready)return Promise.resolve();if(connecting)return connecting;
  connecting=new Promise((resolve,reject)=>{
   let settled=false;const done=error=>{if(settled)return;settled=true;clearTimeout(timer);error?reject(error):resolve();};
-  const timer=setTimeout(()=>{native?.disconnect();native=null;ready=false;done(Error('连接超时，请检查本地宿主是否已安装。'));},8000);
+  const timer=setTimeout(()=>{done(Object.assign(Error('宿主响应超时'),{code:'HOST_TIMEOUT'}));native?.disconnect();native=null;ready=false;},8000);
   try{
    native=chrome.runtime.connectNative('cn.fpgabbs.xutu');
-   native.onMessage.addListener(m=>{if(m.kind==='ready'){ready=true;done();return;}executor.run(m.command).then(result=>native?.postMessage({id:m.id,result}),e=>native?.postMessage({id:m.id,result:{status:'failed',code:e.code||'INTERNAL_ERROR',message:e.message}}));});
-   native.onDisconnect.addListener(()=>{const detail=chrome.runtime.lastError?.message;native=null;ready=false;done(Error('本地 CLI 未连接。请先安装宿主，再重试。'+(detail?' '+detail:'')));});
-  }catch(error){native=null;done(error);}
+   native.onMessage.addListener(m=>{if(m.kind==='ready'){nativeInfo=m;ready=true;done();return;}if(m.kind==='diagnostic-result'){nativeTests.get(m.id)?.resolve(m.result);nativeTests.delete(m.id);return;}executor.run(m.command).then(result=>native?.postMessage({id:m.id,result}),e=>native?.postMessage({id:m.id,result:{status:'failed',code:e.code||'INTERNAL_ERROR',message:e.message}}));});
+   native.onDisconnect.addListener(()=>{const detail=chrome.runtime.lastError?.message||'';native=null;nativeInfo=null;ready=false;for(const test of nativeTests.values())test.reject({code:'HOST_DISCONNECTED'});nativeTests.clear();const code=/not found/i.test(detail)?'HOST_NOT_FOUND':'HOST_CONNECT_FAILED';done(Object.assign(Error('本地 CLI 未连接，请按安装说明检查。'),{code}));});
+  }catch{native=null;done(Object.assign(Error('本地 CLI 连接失败'),{code:'HOST_CONNECT_FAILED'}));}
  }).finally(()=>{connecting=null;});return connecting;
 }
 chrome.runtime.onStartup.addListener(()=>connectNative().catch(()=>{}));
-chrome.runtime.onInstalled.addListener(()=>{chrome.storage.local.remove(['xutuThemes','xutuThemeUndo']);chrome.storage.session.remove('aiConnection');});
+chrome.runtime.onInstalled.addListener(()=>{chrome.storage.local.remove(['xutuThemes','xutuThemeUndo','releaseCheck']);chrome.storage.session.remove('aiConnection');});

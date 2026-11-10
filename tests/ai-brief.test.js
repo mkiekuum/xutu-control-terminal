@@ -14,7 +14,7 @@ test('多个账号的提示词不写死名字，完整保留审核、日期和�
 });
 test('可粘贴带说明的单一JSON代码块；多块、附件链接和问卷明确拒绝',()=>{
  const json=JSON.stringify({protocol:'xutu.command/v1',steps:[{id:'r',op:'plan.list'}]});
- assert.equal(prepareCommand('下面是只读指令：\n```json\n'+json+'\n```\n复制即可。','JSON',1,'copy').steps[0].op,'plan.list');
- const embedded=JSON.stringify({protocol:'xutu.command/v1',steps:[{id:'r',op:'node.update',target:{id:'TEST'},params:{id:'1',set:{content:'说明中的```json\n示例\n```不能作为外层指令'}}}]});assert.equal(prepareCommand(embedded,'JSON',1,'embedded').steps[0].op,'node.update');
- for(const text of ['[下载](sandbox:/plan.json)','请先回答负责人是谁？','```json\n'+json+'\n```\n```json\n'+json+'\n```'])assert.throws(()=>prepareCommand(text,'JSON',1,'bad'));
+ assert.equal(prepareCommand('下面是只读指令：\n```json\n'+json+'\n```\n复制即可。',1,'copy').steps[0].op,'plan.list');
+ const embedded=JSON.stringify({protocol:'xutu.command/v1',steps:[{id:'r',op:'node.update',target:{id:'TEST'},params:{id:'1',set:{content:'说明中的```json\n示例\n```不能作为外层指令'}}}]});assert.equal(prepareCommand(embedded,1,'embedded').steps[0].op,'node.update');
+ for(const text of ['[下载](sandbox:/plan.json)','请先回答负责人是谁？','```json\n'+json+'\n```\n```json\n'+json+'\n```'])assert.throws(()=>prepareCommand(text,1,'bad'));
 });

@@ -23,4 +23,4 @@ fs.writeFileSync(path.join(dir,'bridge-config.json'),JSON.stringify({socket:'\\\
 const manifest=path.join(dir,'native-host.json');fs.writeFileSync(manifest,JSON.stringify({name:'cn.fpgabbs.xutu',description:'Xutu Windows native host',path:path.join(dir,'native-host.exe'),type:'stdio',allowed_origins:['chrome-extension://'+mode+'/']},null,2));
 for(const browser of browsers)execFileSync('reg.exe',['add','HKCU\\Software\\'+browser+'\\NativeMessagingHosts\\cn.fpgabbs.xutu','/ve','/t','REG_SZ','/d',manifest,'/f'],{stdio:'pipe'});
 fs.writeFileSync(path.join(dir,'xutu.cmd'),'@echo off\r\n"'+process.execPath+'" "'+path.join(root,'native-host','cli.mjs')+'" %*\r\n');
-console.log('已安装到 '+dir+'，仅当前用户Chrome/Edge。点击扩展连接本地CLI后运行 "'+path.join(dir,'xutu.cmd')+'" status。');
+console.log('已安装到 '+dir+'，仅当前用户Chrome/Edge。在扩展更多→本地CLI测试通过后运行 "'+path.join(dir,'xutu.cmd')+'" status。');

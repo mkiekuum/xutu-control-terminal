@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "序图终端",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "minimum_chrome_version": "135",
   "description": "复制提示词给 AI，粘贴指令一键执行；支持本地 CLI。",
   "permissions": [
@@ -11,7 +11,8 @@
     "nativeMessaging"
   ],
   "host_permissions": [
-    "https://plan.fpgabbs.cn/*"
+    "https://plan.fpgabbs.cn/*",
+    "https://github.com/*"
   ],
   "background": {
     "service_worker": "background.js",
