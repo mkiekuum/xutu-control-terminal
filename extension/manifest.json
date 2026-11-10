@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "序图终端",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "minimum_chrome_version": "135",
   "description": "复制提示词给 AI，粘贴指令一键执行；支持本地 CLI。",
   "permissions": [

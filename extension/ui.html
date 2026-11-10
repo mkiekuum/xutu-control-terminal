@@ -1,15 +1,19 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>序图终端</title><link rel="stylesheet" href="ui.css"></head>
 <body>
-<header><div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M7 8h18M7 8v16h18M7 8l18 16"/><circle cx="7" cy="8" r="3"/><circle cx="25" cy="8" r="3"/><circle cx="25" cy="24" r="3"/><circle cx="7" cy="24" r="3"/></svg></span><div><h1>序图终端</h1><p class="tagline">把想法变成清晰的计划</p></div></div><button id="openSite" class="site-link">打开序图 <span aria-hidden="true">↗</span></button></header>
-<div class="connection-strip"><span class="status-dot" aria-hidden="true"></span><p id="connection" role="status">正在连接序图…</p><span class="connection-note">当前网站账号</span></div>
-<main><div id="targetRow" hidden><label for="tabs">选择操作网页</label><select id="tabs"></select></div>
-<section class="request-card"><div class="card-heading"><span class="step">01</span><div><label for="request">说说你的想法</label><p class="card-caption">让 AI 先理解，再动手</p></div><span class="card-tag">需求</span></div><textarea id="request" rows="3" placeholder="想新建什么计划，或调整哪些任务？&#10;负责人、时间还没想好也没关系，AI 会先问你。"></textarea><div class="card-footer"><p class="hint">附带计划详情与网站规则</p><button id="copyPrompt" class="secondary">复制 AI 提示词 <span aria-hidden="true">↗</span></button></div></section>
-<div class="flow-note"><span aria-hidden="true">↓</span> 发给你常用的 AI，回答问题后复制 JSON 代码块</div>
-<section class="command-card"><div class="card-heading"><span class="step">02</span><div><label for="editor">粘贴，然后执行</label><p class="card-caption">用当前账号完成修改</p></div><select id="mode" aria-label="指令格式"><option>JSON</option><option>CLI</option><option>JavaScript</option></select></div><textarea id="editor" rows="5" spellcheck="false" placeholder="粘贴 AI 在聊天中给出的完整 JSON 代码块…"></textarea><button id="execute" class="primary"><span aria-hidden="true">▶</span> 一键执行</button></section>
-<p id="message" role="status" aria-live="polite">从上方写下你的需求开始。</p><details id="resultDetails" hidden><summary>执行结果 <button id="copyResult" class="text-button">复制</button></summary><pre id="output"></pre></details>
-<div class="utilities"><details class="cli"><summary><span class="utility-icon" aria-hidden="true">⌘</span> 连接本地 CLI</summary><div class="detail-body"><p class="hint">让能运行本机命令的 AI 直接操作。先安装宿主，再连接。</p><p class="hint">扩展 ID：<code id="extensionId"></code> <button id="copyId" class="text-button">复制</button></p><div class="button-row"><button id="native" class="secondary">连接 CLI</button><button id="copyCli" class="quiet">复制 CLI 用法</button></div><p id="cliStatus" class="hint" role="status">尚未连接</p></div></details>
-<details id="compatibilityDetails"><summary><span class="utility-icon" aria-hidden="true">◎</span> 兼容性与排查</summary><div class="detail-body"><p id="compatibilityStatus" class="hint" role="status">打开插件时自动检查。</p><div class="button-row"><button id="checkCompatibility" class="quiet">重新检查</button><button id="copyCompatibility" class="secondary">复制兼容状态</button></div><pre id="compatibilityOutput"></pre><p class="hint">只读检查，不改计划。报告不含姓名、计划内容或本机路径，可交给维护者。</p></div></details>
-<details class="help"><summary><span class="utility-icon" aria-hidden="true">?</span> 第一次使用？两分钟上手</summary><div class="detail-body"><ol><li>在序图网站登录，选中要修改的计划。</li><li>写下需求，复制提示词发给 AI；若有问卷，先回答。</li><li>让 AI 直接给 JSON 代码块，复制粘贴后执行。</li></ol><p class="hint">新建计划时在需求里写“新建”，避免误改当前计划。无需 API Key；业务操作使用网站真实权限。</p></div></details></div>
+<header><h1>序图终端</h1><button id="openSite" class="text-button">打开网站 ↗</button></header>
+<div class="connection-strip"><span class="status-dot" aria-hidden="true"></span><p id="connection" role="status">正在连接…</p></div>
+<main>
+<div id="targetRow" hidden><label for="tabs">操作网页</label><select id="tabs"></select></div>
+<section><div class="field-heading"><label for="request">你的需求</label><button id="copyPrompt" class="secondary">复制 AI 提示词</button></div><textarea id="request" rows="3" placeholder="想新建或修改什么计划？"></textarea></section>
+<p class="guide">将提示词发给 AI，再把回复的代码粘贴到下方。</p>
+<section><div class="field-heading"><label for="editor">AI 指令</label><select id="mode" aria-label="指令格式"><option>JSON</option><option>CLI</option><option>JavaScript</option></select></div><textarea id="editor" rows="6" spellcheck="false" placeholder="在这里粘贴代码…"></textarea><button id="execute" class="primary">执行</button></section>
+<p id="message" role="status" aria-live="polite"></p>
+<details id="resultDetails" hidden><summary>执行结果 <button id="copyResult" class="text-button">复制</button></summary><pre id="output"></pre></details>
+<details id="moreDetails"><summary>更多</summary><div class="more-body">
+<section class="cli"><h2>本地 CLI</h2><p class="hint">供能运行本机命令的 AI 使用。安装宿主后连接。</p><div class="button-row"><button id="native" class="secondary">连接 CLI</button><button id="copyCli">复制 CLI 用法</button></div><p id="cliStatus" class="hint" role="status">尚未连接</p><p class="extension-id">扩展 ID：<code id="extensionId"></code> <button id="copyId" class="text-button">复制</button></p></section>
+<details id="compatibilityDetails"><summary>兼容性与排查</summary><div class="detail-body"><p id="compatibilityStatus" class="hint" role="status">打开插件时自动检查。</p><div class="button-row"><button id="checkCompatibility">重新检查</button><button id="copyCompatibility" class="secondary">复制兼容状态</button></div><pre id="compatibilityOutput"></pre><p class="hint">只读检查，不改计划。报告不含姓名、计划内容或本机路径。</p></div></details>
+<details class="help"><summary>使用帮助</summary><div class="detail-body"><ol><li>在序图网站登录，选中要修改的计划。</li><li>写下需求，复制提示词发给 AI；信息不全时，先回答 AI 的问题。</li><li>复制 AI 回复中的完整 JSON 代码块，粘贴到「AI 指令」，点击「执行」。</li></ol><p class="hint">新建计划时在需求里写“新建”。操作使用当前网站账号的真实权限。</p></div></details>
+</div></details>
 <details id="manualCopy" hidden><summary>手动复制内容</summary><p class="hint">剪贴板不可用，请选中下方全部内容复制。</p><textarea id="manualCopyText" rows="6" readonly aria-label="待复制的完整内容"></textarea></details>
-<footer>清晰表达 · 认真规划 · 按权限执行</footer></main><script type="module" src="ui.js"></script></body></html>
+</main><script type="module" src="ui.js"></script></body></html>

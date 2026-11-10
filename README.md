@@ -1,4 +1,4 @@
-# 序图终端 2.2.0
+# 序图终端 2.2.1
 
 把需求发给你常用的AI，信息清楚后复制聊天中的JSON代码块，在当前序图账号中一键执行。无需API Key。
 
@@ -6,7 +6,7 @@
 2. 在插件写下需求，复制AI提示词。资料不清楚时先回答AI的问题。
 3. 复制AI直接给出的JSON代码块，粘贴并执行。
 
-新界面保留两步主操作，CLI、兼容性与帮助默认折叠。打开插件自动做基础只读兼容检查；展开“兼容性与排查”可复制不含业务内容的报告。提示词会包含完整计划，复制后由你选择发送给哪个AI。
+极简界面只保留需求、指令和主要按钮；CLI、兼容性与帮助统一收在“更多”。打开插件自动做基础只读兼容检查；展开“更多 → 兼容性与排查”可复制不含业务内容的报告。提示词会包含完整计划，复制后由你选择发送给哪个AI。
 
 [两分钟入门](docs/AI_QUICK_START.md) · [提示词规则](docs/AI_PROMPT_GUIDE.md) · [Windows安装](docs/WINDOWS_INSTALL.md) · [换电脑与分享](docs/CROSS_DEVICE.md) · [自主维护/升级](docs/GITHUB_MAINTENANCE.md) · [终端手册](docs/TERMINAL_MANUAL.md) · [45份示例](docs/COPY_PASTE_RECIPES.md) · [验收和边界](docs/CURRENT_STATUS.md)
 
