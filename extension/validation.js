@@ -39,7 +39,7 @@ export const parameterSchemas={
 };
 parameterSchemas['schedule.updateInputs']=parameterSchemas['plan.update'];
 parameterSchemas['progress.complete']=parameterSchemas['progress.update'];
-for(const op of ['graph.inspect','graph.simplify','plan.list','plan.get','plan.export','plan.archive','plan.restore','node.list','edge.list','progress.read','review.status','review.submit','review.approve','history.list','project.list','group.list','task.list','user.list','site.session','system.version','system.health','system.capabilities','site.inspect','site.capabilities','site.context','site.tabs'])parameterSchemas[op]=object({});
+for(const op of ['graph.inspect','graph.simplify','plan.list','plan.get','plan.export','plan.archive','plan.restore','node.list','edge.list','progress.read','review.status','review.submit','review.approve','history.list','project.list','group.list','task.list','user.list','site.session','system.version','system.health','system.capabilities','site.inspect','site.capabilities','site.context','site.tabs','site.compatibility'])parameterSchemas[op]=object({});
 function invalid(path){throw Object.assign(Error('参数不符合约束：'+path),{code:'INVALID_SCHEMA'});}
 export function checkSchema(schema,value,path='$'){
  if(schema.const!==undefined&&value!==schema.const)invalid(path);

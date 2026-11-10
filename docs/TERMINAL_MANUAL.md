@@ -1,4 +1,4 @@
-# 序图终端使用手册（2.1.0）
+# 序图终端使用手册（2.2.0）
 
 ## 安装与开始
 
@@ -74,3 +74,7 @@ context是只读快照，带capturedAt、target.version和complete。有部分�
 提示词与CLI context均包含websiteGuide：双代号网络、节点/工作区别、实线/虚线、三点估时、编号、任务资源、审核和权限规则。siteAnalysis读取当前网页的真实scorePlan/validatePlan及当前评分阈值，包含得分、逐项扣分、总工期、TE/TL、时差、关键边和完成率；读取不到时标记不完整，不编造分数。完整介绍见WEBSITE_GUIDE.md。
 
 优先保证原任务完整、约束真实、编号稳定，再改善评分。固定等待不能改成虚线；不能删除有耗时的工作或修改评分阈值骗分。明确要求保留原数字按天演示时不得转换或缩短；长工期扣分可能无法消除。分数高也不证明人员、截止等现实约束全部可行。
+
+## 2.2新增入口
+
+底部“兼容性与排查”默认折叠，打开插件自动只读检查；可重新检查或一键复制脱敏状态。CLI命令为 xutu compatibility --tab-id ID。详细AI规则见AI_PROMPT_GUIDE.md，维护更新见GITHUB_MAINTENANCE.md，新设备与分享见CROSS_DEVICE.md。业务信息不足先问卷；软件维护按既有授权自主执行，不发维护问卷。

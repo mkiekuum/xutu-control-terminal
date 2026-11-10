@@ -1754,6 +1754,23 @@
           "additionalProperties": false
         }
       }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "const": "site.compatibility"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      }
     }
   ]
 }

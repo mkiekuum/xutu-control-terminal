@@ -1375,3 +1375,7 @@
   "additionalProperties": false
 }
 ~~~
+
+## site.compatibility
+
+只读，无params；返回基础兼容检查、时间、版本、范围与未验证限制，不含业务数据。CLI别名：compatibility。serverVerified=false，因为不是业务写入回读。检查正常不代表所有写接口和权限均已验收。site.context新增aiGuidance（详细指引/缺项摘要）和compatibility；这些字段不会修改业务计划。

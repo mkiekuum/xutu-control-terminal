@@ -173,7 +173,8 @@
                     "site.inspect",
                     "site.capabilities",
                     "site.context",
-                    "site.tabs"
+                    "site.tabs",
+                    "site.compatibility"
                   ]
                 }
               },

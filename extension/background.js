@@ -4,6 +4,9 @@ import {legacyToNative,nativeToLegacy} from './converter.js';
 import {validateStep} from './validation.js';
 import {collectContext} from './context.js';
 import {readNativeAnalysis} from './website-guide.js';
+import {buildIntake} from './ai-brief.js';
+import {collectCompatibility,probeNativeCompatibility} from './compatibility.js';
+async function compatibilityFor(tab){return collectCompatibility({inspect:()=>bridge(tab.id,{kind:'inspect'}),session:()=>request(tab,'/api/session'),plans:()=>request(tab,'/api/plans'),probe:async()=>(await chrome.scripting.executeScript({target:{tabId:tab.id},world:'MAIN',func:probeNativeCompatibility}))[0]?.result,userScripts:async()=>{if(!chrome.userScripts?.getScripts)return false;await chrome.userScripts.getScripts();return true;},nativeConnected:ready});}
 const store={get:async k=>(await chrome.storage.local.get(k))[k],set:async(k,v)=>chrome.storage.local.set({[k]:v})};
 async function tabFor(e){if(e.tabId){const t=await chrome.tabs.get(e.tabId);if(new URL(t.url).origin!=='https://plan.fpgabbs.cn')fail('PERMISSION_DENIED');return t;}const tabs=await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'});if(tabs.length!==1)fail('TARGET_AMBIGUOUS','请打开唯一序图标签页或指定 tabId');return tabs[0];}
 async function request(tab,path,method='GET',body){
@@ -22,10 +25,11 @@ export const executor=new Executor(store,async(s,e)=>{
  if(s.op==='convert.nativeToLegacy')return {data:nativeToLegacy(s.params),serverVerified:false};
  if(s.op==='system.version')return {data:{version:VERSION},serverVerified:false};
  if(s.op==='site.tabs')return {data:(await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'})).map(t=>({id:t.id,title:t.title,active:t.active})),serverVerified:false};
- if(s.op==='system.capabilities'||s.op==='site.capabilities')return {data:{api:Object.keys(reads).concat(writes,['site.context','site.tabs']),unavailable:['plan.delete permanent','user.create','user.update','user.disable','role.*','schedule.recalculate','history.diff'],testStatus:'contract observed; test status varies by operation; see docs/LIVE_TEST_RESULTS.md'},serverVerified:false};
+ if(s.op==='system.capabilities'||s.op==='site.capabilities')return {data:{api:Object.keys(reads).concat(writes,['site.context','site.tabs','site.compatibility']),unavailable:['plan.delete permanent','user.create','user.update','user.disable','role.*','schedule.recalculate','history.diff'],testStatus:'contract observed; test status varies by operation; see docs/LIVE_TEST_RESULTS.md'},serverVerified:false};
  if(s.op==='system.logs'||s.op==='system.status')return {data:(await store.get('job:'+s.params?.requestId))?.result||{status:'unknown'},serverVerified:false};
  if(s.op==='system.backup.get')return {data:await store.get('snapshot:'+s.params.backupId)||null,serverVerified:false};
  const tab=await tabFor(e);
+ if(s.op==='site.compatibility')return {data:await compatibilityFor(tab),serverVerified:false};
  if(s.op==='site.context'){
   const target=s.target?.id||s.target?.number?s.target:(await bridge(tab.id,{kind:'inspect'})).activeTarget;
   const context=await collectContext((path,method,body)=>request(tab,path,method,body),target);
@@ -34,6 +38,8 @@ export const executor=new Executor(store,async(s,e)=>{
    catch(error){context.siteAnalysis={available:false,reason:error.message};}
    if(!context.siteAnalysis.available){context.complete=false;context.warnings.push('原站评分/计算未读取成功，不能保证状态完整。');}
   }
+  context.compatibility=await compatibilityFor(tab);
+  context.aiGuidance.intake=buildIntake(context);
   return {data:{...context,tabId:tab.id},serverVerified:!!context.plan&&context.complete};
  }
  if(s.op==='system.health'||s.op==='site.inspect')return {data:await bridge(tab.id,{kind:'inspect'}),serverVerified:false};

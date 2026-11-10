@@ -509,5 +509,12 @@
     "role": "current-session",
     "tested": "local unit/UI tests; live verification pending",
     "rollback": "read-only"
+  },
+  {
+    "op": "site.compatibility",
+    "transport": "read-only API / DOM / native calculation",
+    "role": "current-session/server-authoritative",
+    "tested": "2.2.0 Windows live read-only passed; no write validation",
+    "rollback": "no business writes"
   }
 ]
