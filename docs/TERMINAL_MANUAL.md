@@ -1,265 +1,76 @@
-> 最新状态：Windows优先，macOS暂缓；核心参数Schema、JSON Lines、计划快照和图依赖检查已加入。参见 [当前状态](CURRENT_STATUS.md) 与 [Windows安装](WINDOWS_INSTALL.md)。
+# 序图终端使用手册（2.1.0）
 
-# 序图终端使用手册
+## 安装与开始
 
-本交付是 2.0.0 开发候选，尚不符合全量完成定义。安装前先阅读 ACCEPTANCE.md。以下说明代码当前真实行为，不把接口已映射等同于通过公司验收。
+Windows安装见WINDOWS_INSTALL.md。更新已经加载的扩展时，在浏览器扩展管理页点一次“重新加载”，再打开插件。无需重新登录AI服务，因为插件不再连接AI API。登录仍由序图网站完成。
 
-## 从零开始
+插件只有一个页面，没有“终端”导航按钮。顶部显示网站连接状态；未登录时使用“打开序图”。多个网页时选择要操作的目标，避免误改计划。
 
-先完成 INSTALL.md 的步骤。关闭旧插件，刷新网站，再正常登录。扩展没有独立账号，不代你登录、不创建人员。点击工具栏的序图扩展图标，弹窗显示“终端”和“外观修改器”。目标标签下拉框列出已打开的序图页。多个页面时明确选定目标。
+## 自然语言到指令
 
-## 第一次只读检查
+在第一个框描述需求，点击“复制 AI 提示词”，粘贴给你常用的AI。复制时读取当前选中计划的完整服务端内容并包含在提示词中，无需额外勾选。当前计划的名称、编号、人员和任务正文都会包含；不会后台发送到第三方服务。未选计划则附带空上下文，要求AI先查询或生成新计划。
 
-选择 JSON 模式，从示例选择“查看版本”，点击执行。输出 status=success 仅表示此条本地指令成功。再选择“读取当前登录态”，确认服务端认可会话。未登录应返回 NOT_LOGGED_IN，回网站登录后为下一次操作生成新的 requestId。运行“查看能力”检查限制；能力列表不是账号授权清单。
+将AI返回的JSON放入第二个输入框，点击“一键执行”。代码围栏包裹的JSON也可识别。执行默认直接写入，不要求预览/确认。AI输出错误或网站拒绝会显示原因，不会假装成功。
 
-## 认识 JSON
+## 结果与重复点击
 
-protocol 固定为 xutu.command/v1。requestId 是一项作业的唯一名称。steps 是按顺序执行的步骤，每步 id 唯一、op 是动作、target 是对象、params 是参数。JSON 使用英文双引号，最后一项后不要逗号。不要在指令中放密码、Cookie 或 Token。
+成功后显示完成步骤数。失败时展开详细结果，复制给AI排查。serverVerified=true表示对应服务端操作做过回读；本地版本、网页脚本等不会声称服务端已保存。
 
-## 校验、预览与执行
+同一输入、格式及目标在当前弹窗内重复点击会保留requestId，因此不会重复提交同一作业。编辑内容或换目标会生成新作业。网络错误后应先查询状态，不要盲目修改指令反复执行。
 
-校验检查协议与操作是否有适配，不证明账号有权限；预览会读取目标并显示 before/after，部分操作只显示操作意图。执行会写入授权目标，不弹额外确认。serverVerified=true 表示适配器完成其规定的回读；项目组写入现在逐字段回读比对，未匹配时返回SERVER_NOT_CONFIRMED。已有计划修改可选backup:true，结果返回backupId；用plan.restoreSnapshot恢复，仍需当前权限及版本检查。
+## JSON结构
 
-## 从示例开始编辑
+protocol固定xutu.command/v1，steps按顺序执行。每一步有唯一id、op动作、target目标和params参数。target优先使用服务器id；按number定位遇到重名会拒绝猜测。执行按钮管理当前作业requestId，强制mode=execute；CLI/API仍支持validate/preview供高级用户自行调用。
 
-示例下拉框会载入完整信封并生成新 requestId。“复制示例”复制编辑区全部内容。“导入文件”将文件文本载入编辑区，不会自动执行。TEST_PLAN_ID、TEST_GROUP_ID、TEST_OWNER 都是合成占位值，应替换成测试账号真实可访问的目标。先调用 plan.list 获取稳定 ID。编号可能跨负责人重复，歧义会拒绝操作。
+## 计划、节点与连线
 
-## 创建草稿
+plan.create默认草稿，必须填写title和number。三点估时为estimateDays.minimum/likely/maximum，使用网站原生天数，非负且递增。虚任务必须三个0，不隐藏改变时间单位。
 
-选择“创建原生网络草稿”，修改 number 保证唯一。节点 id 长度不超过16字，名称不超过40字；边引用节点 ID。三点估时使用 estimateDays.minimum/likely/maximum，单位是自然日。它们必须非负且递增。创建保持 draft，不自动审核；不要填写 TE、TL、slack 等计算值。
+plan.update可修改标题、开工和截止日期。node.*调整节点；edge.*调整连线及执行人。全量替换需plan.replace和replace:true。修改先做版本检查，随后服务端回读，失败输出可能说明已写入但未确认。
 
-## 更新和批量
+## 合并、拆分和编号
 
-plan.update 的 params.set 支持 title、startDate、deadlineDate。节点命令通过 target 指定计划，再用 params.id 指定节点；边使用 fromNodeId/toNodeId 这一对稳定端点。多个独立步骤放在同一 steps 数组中。execution.continueOnError=true 表示独立步骤继续；有 dependsOn 的步骤在依赖失败后跳过。查看 summary 的三个计数以及每一步的 code。
+合并使用task.merge，nodeIds依次包含无分支任务链，例如1、2、3；保留首尾1和3，移除中间2。三点估时分别求和。默认拒绝已完成、有基线、外部分支或独立验收里程碑，避免丢失进度和依赖。
 
-## 请求 ID 与网络中断
+拆分使用task.split，指定原边端点、新节点和N+1段估时。默认各段估时总和等于原三点估时；明确改变工期才使用allowDurationChange:true。新增ID不能重复。拆分及显式排序使用网站正式import接口保留提交顺序。
 
-同一信封同一 requestId 重放返回此前结果，不再次新建或删除。改变信封必须换 ID。不要在网络超时后盲目换 ID 重试。使用 plan.get 回读目标，或用 system.logs 查询已有作业。若 worker 中断后只留下执行标记，返回 NON_IDEMPOTENT_RETRY_BLOCKED，需要检查服务端实际状态。本候选尚未实现自动恢复未知写入。
+计划编号和保留节点ID不变；网站后续自身编辑可能重新编号，不能承诺原站显示序号永不变化。graph.inspect检查长任务、可合并链和冗余虚依赖；graph.simplify仅去掉已有替代路径的零耗时虚边。
 
-## 冲突
+## 批量、快照与日志
 
-默认服务器返回冲突就停止。plan.update 可以设置 execution.onConflict=overwrite-if-authorized，执行器再次读取最新版本，只覆盖 set 明确提供的字段，再携带最新版本提交。最多覆盖重试一次。全量替换不自动冲突覆盖。服务器拒绝不会被绕过。目标 version 不符时拒绝，不擅自忽略调用方的预期版本。
+多个steps构成批次。dependsOn失败则依赖步骤跳过，continueOnError控制独立步骤继续。execution.backup=true可选本机快照；plan.restoreSnapshot需有效backupId且当前账号仍有权限。没有强制备份，不保证所有操作可恢复。
 
-## 删除、审核、人员
+system.logs/system.status按requestId读取结果。跨浏览器不共享执行锁；未知写入中断后自动恢复尚未完成。
 
-plan.archive 和非 permanent 的 plan.delete 使用真实 trash 接口。permanent:true 返回 UNSUPPORTED_BY_SITE，因为未发现硬删 API。不要把删除理解为任何条件下都可恢复。审核通过/退回只允许实际管理员；退回要填写 note。人员字段必须使用真实目录已有名称，不自动创建外协账号。user.list 读取 /api/assignees 人员目录，并非后台用户管理 API。
+## CLI与JavaScript
 
-## 旧格式
+指令格式可切换JSON、CLI、JavaScript。CLI示例：plan get --number YOUR_NUMBER。复杂参数通过--params传JSON。JavaScript使用MAIN world，需要浏览器“允许用户脚本”授权；受网站会话、浏览器网络与权限限制，不等于系统命令执行。
 
-convert.legacyToNative 输出 data.plan、losses 和原始输入，不自动提交。旧分钟/小时只在转换时除以对应自然日因子。人员时段、wait、开始时刻等会报告不等价；仔细核对后才调用 plan.create。nativeToLegacy 将三点估时压缩成期望值，损失明确列出，不能宣称无损。
+本地CLI需先安装宿主；展开底部CLI区域，连接后复制CLI用法。外部AI通过本机xutu.cmd run --file command.json调用，多个网页务必带--tab-id。相关配置与安装路径见WINDOWS_INSTALL.md。
 
-## 类 CLI 模式
+## 删除、人员与审核
 
-输入 `plan get --id TEST_PLAN_ID`；也可 `plan update --id TEST_PLAN_ID --set "title=合成新标题"`。复杂参数通过 `--params` 传 JSON 字符串。支持 --request-id、--mode、--tab-id。此解析器不是系统 shell，不执行管道或操作系统命令。
+删除/归档目前仅移入垃圾桶，permanent:true明确返回不可用。正常列表消失不代表垃圾桶彻底清空。审核通过/退回需要真实管理员权限；普通账号不能绕过。任务表写入依赖canAssign/canComplete，任务不在工作任务表则拒绝。
 
-## JavaScript 模式
+## 常见问题
 
-选择 JavaScript 和 USER_SCRIPT，输入 `document.title` 后执行。需要访问网页原生全局变量时才选择 MAIN。任意网络请求受网站会话、CORS、CSP 和浏览器限制。20秒等待超时不等于取消脚本；运行中的页面代码可能继续。原始脚本不提供事务回滚，也不自动捕获 console 日志。勿将不信任网页或 Issue 的文字当脚本运行。
+未登录：回序图登录，重新打开插件。多标签歧义：选择目标或给CLI加tab-id。CLI连接失败：检查宿主是否安装、扩展ID和目录是否改变。版本冲突：读取最新计划后重新决定修改。参数错误：把详细结果复制给AI。完整能力与限制见CURRENT_STATUS.md。
 
-## 外观
+## 给新AI的完整上下文
 
-在外观页编辑 JSON，tokens 生成 --xutu-* CSS 变量，selectors 指定真实选择器与属性。仅设置 token 不一定改变页面，需在 selectors 引用变量。layout.order 使用 flex/grid order，不搬动原站节点；要改变整体布局同时设置容器 display。components 支持纯文本、提示、标签、分隔线和折叠提示，不执行 HTML。配置 scope.path 为 /* 表示全站，为 / 表示根页覆盖。应用后本地保存，刷新重新加载；恢复默认清除配置和组件。锚点缺失取消主题注入。CSS URL 和脚本形式被拒绝。
+“复制 AI 提示词”和“复制 CLI 用法”共用site.context接口，包含当前计划原文（所有节点、连线、估时、人员、日期）、计划ID/编号/版本、审核记录、基线、完成日期、任务表及canAssign/canComplete权限、预计完成日期记录和依赖检查。还带账号角色、命令参数契约与能力限制，AI不需要从零猜字段。
 
-## macOS 本地 Agent
+CLI可运行：
 
-安装见 INSTALL。打开 Chrome、登录网站、打开扩展并连接 CLI。运行 `~/.xutu/xutu run --file examples/01.json`。或 `cat examples/01.json | ~/.xutu/xutu run --stdin`。`~/.xutu/xutu exec 'plan get --id TEST_PLAN_ID'`；`~/.xutu/xutu js --file demo.js --world USER_SCRIPT`。结果 JSON 输出 stdout，连接错误输出 stderr；部分成功也返回非零退出码。当前 run 接受一个完整 JSON 信封，使用 --jsonl 支持 JSON Lines。
+~~~powershell
+& "$env:USERPROFILE\.xutu\windows\xutu.cmd" tabs
+& "$env:USERPROFILE\.xutu\windows\xutu.cmd" context --tab-id YOUR_TAB_ID
+~~~
 
-## 更新与回退
+context是只读快照，带capturedAt、target.version和complete。有部分接口失败或读取时版本改变，complete=false并列出warnings；不能把缺失状态当成未完成/无权限。写入前重新获取context，使用目标当前版本。工作任务表只保留当前计划，不附带其他计划的任务。
 
-Release ZIP 解压到固定目录，在 chrome://extensions 点击重新加载并刷新网站。检查 manifest 版本以及 SHA256SUMS。当前没有自动下载执行远程代码，也没有 Chrome 商店更新。旧版 chrome.storage 数据保留但不自动迁移，旧计划原数据不改。回退前记录配置并检查 Native Host 的 extension ID。
+## 网站规则与真实评分
 
-## 逐条命令示例
+提示词与CLI context均包含websiteGuide：双代号网络、节点/工作区别、实线/虚线、三点估时、编号、任务资源、审核和权限规则。siteAnalysis读取当前网页的真实scorePlan/validatePlan及当前评分阈值，包含得分、逐项扣分、总工期、TE/TL、时差、关键边和完成率；读取不到时标记不完整，不编造分数。完整介绍见WEBSITE_GUIDE.md。
 
-### 1. 查看版本
-
-操作：system.version。无需网站登录，只读取扩展版本 参数从 examples/01.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 1 节。
-
-### 2. 查看能力
-
-操作：system.capabilities。读取实现范围，不代表当前账号授权 参数从 examples/02.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 2 节。
-
-### 3. 检测页面锚点
-
-操作：site.inspect。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/03.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 3 节。
-
-### 4. 读取当前登录态
-
-操作：site.session。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/04.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 4 节。
-
-### 5. 列出计划
-
-操作：plan.list。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/05.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 5 节。
-
-### 6. 按编号读取计划
-
-操作：plan.get。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/06.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 6 节。
-
-### 7. 按 ID 读取计划
-
-操作：plan.get。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/07.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 7 节。
-
-### 8. 创建空白草稿
-
-操作：plan.create。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/08.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 8 节。
-
-### 9. 创建原生网络草稿
-
-操作：plan.create。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/09.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 9 节。
-
-### 10. 转换旧任务，暂不写入
-
-操作：convert.legacyToNative。转换结果在 data.plan；检查 losses 后再构造 plan.create，不自动写入 参数从 examples/10.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 10 节。
-
-### 11. 修改标题
-
-操作：plan.update。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/11.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 11 节。
-
-### 12. 修改日期
-
-操作：schedule.updateInputs。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/12.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 12 节。
-
-### 13. 读取节点
-
-操作：node.list。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/13.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 13 节。
-
-### 14. 新增节点
-
-操作：node.create。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/14.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 14 节。
-
-### 15. 更新节点
-
-操作：node.update。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/15.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 15 节。
-
-### 16. 重排节点
-
-操作：node.reorder。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/16.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 16 节。
-
-### 17. 删除无连线节点
-
-操作：node.remove。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/17.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 17 节。
-
-### 18. 读取连线
-
-操作：edge.list。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/18.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 18 节。
-
-### 19. 新增连线
-
-操作：edge.create。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/19.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 19 节。
-
-### 20. 修改三点估时
-
-操作：edge.update。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/20.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 20 节。
-
-### 21. 设置虚线
-
-操作：edge.update。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/21.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 21 节。
-
-### 22. 删除连线
-
-操作：edge.remove。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/22.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 22 节。
-
-### 23. 读取进度
-
-操作：progress.read。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/23.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 23 节。
-
-### 24. 设置实际完成日期
-
-操作：progress.complete。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/24.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 24 节。
-
-### 25. 复制为草稿
-
-操作：plan.copy。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/25.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 25 节。
-
-### 26. 导出服务端 JSON
-
-操作：plan.export。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/26.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 26 节。
-
-### 27. 移入垃圾桶
-
-操作：plan.archive。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/27.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 27 节。
-
-### 28. 查看审核状态
-
-操作：review.status。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/28.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 28 节。
-
-### 29. 提交审核
-
-操作：review.submit。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/29.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 29 节。
-
-### 30. 管理员审核通过
-
-操作：review.approve。仅测试管理员、合成计划；改变审核状态 参数从 examples/30.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 30 节。
-
-### 31. 管理员退回
-
-操作：review.reject。仅测试管理员、合成计划；改变审核状态 参数从 examples/31.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 31 节。
-
-### 32. 列出项目组
-
-操作：project.list。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/32.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 32 节。
-
-### 33. 创建测试项目组
-
-操作：project.create。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/33.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 33 节。
-
-### 34. 项目分配
-
-操作：project.assignPlan。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/34.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 34 节。
-
-### 35. 人员目录
-
-操作：user.list。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/35.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 35 节。
-
-### 36. 管理员查看可见性分组
-
-操作：group.list。需服务器实际允许的管理员角色 参数从 examples/36.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 36 节。
-
-### 37. 应用主题
-
-操作：theme.apply。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/37.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 37 节。
-
-### 38. 导出主题
-
-操作：theme.export。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/38.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 38 节。
-
-### 39. 恢复默认外观
-
-操作：theme.reset。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/39.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 39 节。
-
-### 40. 隐藏宣传区
-
-操作：layout.hide。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/40.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 40 节。
-
-### 41. 恢复宣传区
-
-操作：layout.show。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/41.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 41 节。
-
-### 42. 插入文本组件
-
-操作：layout.component.add。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/42.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 42 节。
-
-### 43. 删除组件
-
-操作：layout.component.remove。需要已登录的序图标签页；写操作仅在隔离测试数据上使用。 参数从 examples/43.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 43 节。
-
-### 44. 读取网页标题 JS
-
-操作：script.execute。需开启 User Scripts；代码仅读取当前页标题 参数从 examples/44.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 44 节。
-
-### 45. 查询已有执行结果
-
-操作：system.logs。只读本机去重日志，不返回原始命令 参数从 examples/45.json 导入；先校验/预览，再执行。完整 JSON 与风险说明见 COPY_PASTE_RECIPES.md 第 45 节。
-
-## 自然语言与任务合并拆分
-
-新手先使用终端顶部“打开网站/检查登录”，网站保持自己的登录流程。需要AI生成时展开“连接AI”，填写兼容服务地址、模型和Key，保存后输入自然语言。默认先预览；勾选自动执行才提交生成结果。真实AI连通性以首次生成结果为准。Key只保留当前浏览器会话。完整说明见AI_QUICK_START.md。
-
-合并：使用示例50，target填写自己的计划ID。nodeIds依次填写无分支任务链节点，例如1、2、3；合并后保留1与3，移除2，三点估时分别求和。已完成、基线计划及存在外部依赖时拒绝合并，避免丢失进度或关系。独立里程碑默认拒绝；确认要合并时显式allowMilestones:true。
-
-拆分：使用示例51，新增节点编号不能重复，N个中间节点需要N+1段估时。默认每种估时之和与原边相同；明确需要改变工期才使用allowDurationChange:true。网站普通change接口不保存重排，故拆分和node.reorder走正式import接口并做版本及顺序回读。
-
-工作任务表：示例52/53使用服务端canComplete/canAssign权限，任务不在工作任务表时返回TARGET_NOT_FOUND，不会假装完成。
-
-编号：计划编号不会随合并拆分改变；保留节点ID不变。被删除的中间节点不再存在，网站自身后续编辑可能重排显示序号，不能保证原站显示序号永不改变。
-
-测试清理：plan.archive/plan.delete默认仅移入垃圾桶。permanent:true当前明确拒绝。正常列表消失不等于所有账号都无法从垃圾桶看到。
+优先保证原任务完整、约束真实、编号稳定，再改善评分。固定等待不能改成虚线；不能删除有耗时的工作或修改评分阈值骗分。明确要求保留原数字按天演示时不得转换或缩短；长工期扣分可能无法消除。分数高也不证明人员、截止等现实约束全部可行。

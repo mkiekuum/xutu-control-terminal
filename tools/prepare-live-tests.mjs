@@ -11,6 +11,4 @@ write('03-edit',[step('title','plan.update',{set:{title:'插件验收专用：�
 write('04-redundancy',[step('redundant','edge.create',{fromNodeId:'1',toNodeId:'3',estimateDays:{minimum:0,likely:0,maximum:0},dashed:true}),step('inspect','graph.inspect'),step('simplify','graph.simplify'),step('read','plan.get')]);
 write('05-copy-batch',[step('copy','plan.copy',{number:number+'-COPY',title:'插件验收副本（非业务计划）'}),step('editOriginal','plan.update',{set:{title:'插件验收主计划：批量修改'}}),step('editCopy','plan.update',{set:{title:'插件验收副本：批量修改'}},{number:number+'-COPY'}),step('readCopy','plan.get',{}, {number:number+'-COPY'})]);
 write('06-restore-snapshot',[step('restore','plan.restoreSnapshot',{backupId:'live-03-edit-20261110:title'}),step('read','plan.get')]);
-write('07-theme',[step('apply','theme.apply',{theme:{schema:'xutu.theme/v1',name:'验收外观',scope:{origin:'https://plan.fpgabbs.cn',path:'/*'},selectors:{body:{fontSize:'16px'}},components:[{id:'test-note',kind:'note',anchor:'main',text:'序图插件外观测试：不改变业务数据'}]}},null),step('export','theme.export',{},null)]);
-write('08-theme-restore',[step('reset','theme.reset',{},null),step('undo','theme.undo',{},null),step('resetAgain','theme.reset',{},null)]);
 console.log('Generated live instructions only; no live tests executed.');

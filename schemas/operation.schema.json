@@ -1728,7 +1728,7 @@
       ],
       "properties": {
         "op": {
-          "const": "theme.list"
+          "const": "site.context"
         },
         "params": {
           "type": "object",
@@ -1745,41 +1745,7 @@
       ],
       "properties": {
         "op": {
-          "const": "theme.export"
-        },
-        "params": {
-          "type": "object",
-          "properties": {},
-          "required": [],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "object",
-      "required": [
-        "op"
-      ],
-      "properties": {
-        "op": {
-          "const": "theme.reset"
-        },
-        "params": {
-          "type": "object",
-          "properties": {},
-          "required": [],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "object",
-      "required": [
-        "op"
-      ],
-      "properties": {
-        "op": {
-          "const": "theme.undo"
+          "const": "site.tabs"
         },
         "params": {
           "type": "object",

@@ -1,94 +1,8 @@
 # 命令参考
 
-真实验收见LIVE_TEST_RESULTS.md，限制见ACCEPTANCE.md。默认target.id或唯一number定位，不猜测。写入需当前会话权限。协议结果包含status、steps、code及serverVerified。参数契约同时提供schemas/operation.schema.json。
+本版仅终端。参数与权限边界见CURRENT_STATUS.md。普通界面一键执行；CLI/API可自行使用preview/validate。site.context可指定target.id/number，否则读取所选网页当前计划；site.tabs列出可操作网页。
 
-|操作|通道|权限|验证|
-|---|---|---|---|
-|plan.list|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|project.list|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|group.list|api|admin|local tests/frontend contract; live write not verified|
-|task.list|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|site.session|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|user.list|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|plan.create|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|plan.update|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|plan.replace|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|plan.copy|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|plan.archive|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|plan.delete|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|plan.restore|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|node.create|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|node.update|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|node.remove|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|node.reorder|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|edge.create|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|edge.update|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|edge.remove|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|schedule.updateInputs|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|progress.update|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|progress.complete|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|review.submit|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|review.approve|api|admin|ordinary-user rejection verified; admin positive not tested|
-|review.reject|api|admin|local tests/frontend contract; live write not verified|
-|history.restore|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|project.create|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|project.assignPlan|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|group.create|api|admin|local tests/frontend contract; live write not verified|
-|group.update|api|admin|local tests/frontend contract; live write not verified|
-|group.remove|api|admin|local tests/frontend contract; live write not verified|
-|group.assign|api|admin|local tests/frontend contract; live write not verified|
-|system.version|local|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|system.capabilities|local|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|site.inspect|dom|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|plan.get|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|convert.legacyToNative|local|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|node.list|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|edge.list|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|progress.read|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|plan.export|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|review.status|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|theme.apply|dom|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|theme.export|dom|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|theme.reset|dom|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|layout.hide|dom|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|layout.show|dom|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|layout.component.add|dom|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|layout.component.remove|dom|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|script.execute|userScripts|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|system.logs|local|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|plan.delete(permanent)|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|history.list|unavailable|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|history.diff|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|schedule.read|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|schedule.recalculate|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|task.get|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|task.updateStatus|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-|user.get|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|user.create|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|user.update|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|user.disable|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|role.list|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|role.grant|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|role.revoke|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|role.assign|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|project.update|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|project.remove|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|site.click|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|site.field.set|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|site.navigation|unavailable|current-session/server-authoritative|unit/mock only; authenticated E2E pending|
-|graph.inspect|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|graph.simplify|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|plan.restoreSnapshot|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|theme.undo|dom|current-session/server-authoritative|browser pending|
-|task.merge|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|task.split|api|current-session/server-authoritative|authenticated dedicated-record E2E passed|
-|task.assign|api|current-session/server-authoritative|local tests/frontend contract; live write not verified|
-
-## 已严格映射的参数
-
-以下参数使用JSON Schema；required列出必填字段，额外字段会拒绝。业务前置条件见终端手册。
-
-### plan.create
+## plan.create
 
 ~~~json
 {
@@ -205,7 +119,7 @@
 }
 ~~~
 
-### plan.update
+## plan.update
 
 ~~~json
 {
@@ -236,7 +150,7 @@
 }
 ~~~
 
-### plan.replace
+## plan.replace
 
 ~~~json
 {
@@ -358,7 +272,7 @@
 }
 ~~~
 
-### plan.copy
+## plan.copy
 
 ~~~json
 {
@@ -384,7 +298,7 @@
 }
 ~~~
 
-### plan.delete
+## plan.delete
 
 ~~~json
 {
@@ -399,7 +313,7 @@
 }
 ~~~
 
-### plan.restoreSnapshot
+## plan.restoreSnapshot
 
 ~~~json
 {
@@ -417,7 +331,7 @@
 }
 ~~~
 
-### node.create
+## node.create
 
 ~~~json
 {
@@ -446,7 +360,7 @@
 }
 ~~~
 
-### node.update
+## node.update
 
 ~~~json
 {
@@ -482,7 +396,7 @@
 }
 ~~~
 
-### node.remove
+## node.remove
 
 ~~~json
 {
@@ -500,7 +414,7 @@
 }
 ~~~
 
-### node.reorder
+## node.reorder
 
 ~~~json
 {
@@ -522,7 +436,7 @@
 }
 ~~~
 
-### edge.create
+## edge.create
 
 ~~~json
 {
@@ -578,7 +492,7 @@
 }
 ~~~
 
-### edge.update
+## edge.update
 
 ~~~json
 {
@@ -633,7 +547,7 @@
 }
 ~~~
 
-### edge.remove
+## edge.remove
 
 ~~~json
 {
@@ -656,7 +570,7 @@
 }
 ~~~
 
-### task.merge
+## task.merge
 
 ~~~json
 {
@@ -695,7 +609,7 @@
 }
 ~~~
 
-### task.split
+## task.split
 
 ~~~json
 {
@@ -791,7 +705,7 @@
 }
 ~~~
 
-### task.assign
+## task.assign
 
 ~~~json
 {
@@ -818,7 +732,7 @@
 }
 ~~~
 
-### task.updateStatus
+## task.updateStatus
 
 ~~~json
 {
@@ -845,7 +759,7 @@
 }
 ~~~
 
-### progress.update
+## progress.update
 
 ~~~json
 {
@@ -872,7 +786,7 @@
 }
 ~~~
 
-### review.reject
+## review.reject
 
 ~~~json
 {
@@ -890,7 +804,7 @@
 }
 ~~~
 
-### history.restore
+## history.restore
 
 ~~~json
 {
@@ -908,7 +822,7 @@
 }
 ~~~
 
-### project.create
+## project.create
 
 ~~~json
 {
@@ -936,7 +850,7 @@
 }
 ~~~
 
-### project.assignPlan
+## project.assignPlan
 
 ~~~json
 {
@@ -958,7 +872,7 @@
 }
 ~~~
 
-### group.create
+## group.create
 
 ~~~json
 {
@@ -976,7 +890,7 @@
 }
 ~~~
 
-### group.update
+## group.update
 
 ~~~json
 {
@@ -999,7 +913,7 @@
 }
 ~~~
 
-### group.remove
+## group.remove
 
 ~~~json
 {
@@ -1017,7 +931,7 @@
 }
 ~~~
 
-### group.assign
+## group.assign
 
 ~~~json
 {
@@ -1039,7 +953,7 @@
 }
 ~~~
 
-### script.execute
+## script.execute
 
 ~~~json
 {
@@ -1064,7 +978,7 @@
 }
 ~~~
 
-### system.logs
+## system.logs
 
 ~~~json
 {
@@ -1082,7 +996,7 @@
 }
 ~~~
 
-### system.status
+## system.status
 
 ~~~json
 {
@@ -1100,7 +1014,7 @@
 }
 ~~~
 
-### system.backup.get
+## system.backup.get
 
 ~~~json
 {
@@ -1118,7 +1032,7 @@
 }
 ~~~
 
-### schedule.updateInputs
+## schedule.updateInputs
 
 ~~~json
 {
@@ -1149,7 +1063,7 @@
 }
 ~~~
 
-### progress.complete
+## progress.complete
 
 ~~~json
 {
@@ -1176,7 +1090,7 @@
 }
 ~~~
 
-### graph.inspect
+## graph.inspect
 
 ~~~json
 {
@@ -1187,7 +1101,7 @@
 }
 ~~~
 
-### graph.simplify
+## graph.simplify
 
 ~~~json
 {
@@ -1198,7 +1112,7 @@
 }
 ~~~
 
-### plan.list
+## plan.list
 
 ~~~json
 {
@@ -1209,7 +1123,7 @@
 }
 ~~~
 
-### plan.get
+## plan.get
 
 ~~~json
 {
@@ -1220,7 +1134,7 @@
 }
 ~~~
 
-### plan.export
+## plan.export
 
 ~~~json
 {
@@ -1231,7 +1145,7 @@
 }
 ~~~
 
-### plan.archive
+## plan.archive
 
 ~~~json
 {
@@ -1242,7 +1156,7 @@
 }
 ~~~
 
-### plan.restore
+## plan.restore
 
 ~~~json
 {
@@ -1253,7 +1167,7 @@
 }
 ~~~
 
-### node.list
+## node.list
 
 ~~~json
 {
@@ -1264,7 +1178,7 @@
 }
 ~~~
 
-### edge.list
+## edge.list
 
 ~~~json
 {
@@ -1275,7 +1189,7 @@
 }
 ~~~
 
-### progress.read
+## progress.read
 
 ~~~json
 {
@@ -1286,7 +1200,7 @@
 }
 ~~~
 
-### review.status
+## review.status
 
 ~~~json
 {
@@ -1297,7 +1211,7 @@
 }
 ~~~
 
-### review.submit
+## review.submit
 
 ~~~json
 {
@@ -1308,7 +1222,7 @@
 }
 ~~~
 
-### review.approve
+## review.approve
 
 ~~~json
 {
@@ -1319,7 +1233,7 @@
 }
 ~~~
 
-### history.list
+## history.list
 
 ~~~json
 {
@@ -1330,7 +1244,7 @@
 }
 ~~~
 
-### project.list
+## project.list
 
 ~~~json
 {
@@ -1341,7 +1255,7 @@
 }
 ~~~
 
-### group.list
+## group.list
 
 ~~~json
 {
@@ -1352,7 +1266,7 @@
 }
 ~~~
 
-### task.list
+## task.list
 
 ~~~json
 {
@@ -1363,7 +1277,7 @@
 }
 ~~~
 
-### user.list
+## user.list
 
 ~~~json
 {
@@ -1374,7 +1288,7 @@
 }
 ~~~
 
-### site.session
+## site.session
 
 ~~~json
 {
@@ -1385,7 +1299,7 @@
 }
 ~~~
 
-### system.version
+## system.version
 
 ~~~json
 {
@@ -1396,7 +1310,7 @@
 }
 ~~~
 
-### system.health
+## system.health
 
 ~~~json
 {
@@ -1407,7 +1321,7 @@
 }
 ~~~
 
-### system.capabilities
+## system.capabilities
 
 ~~~json
 {
@@ -1418,7 +1332,7 @@
 }
 ~~~
 
-### site.inspect
+## site.inspect
 
 ~~~json
 {
@@ -1429,7 +1343,7 @@
 }
 ~~~
 
-### site.capabilities
+## site.capabilities
 
 ~~~json
 {
@@ -1440,7 +1354,7 @@
 }
 ~~~
 
-### theme.list
+## site.context
 
 ~~~json
 {
@@ -1451,7 +1365,7 @@
 }
 ~~~
 
-### theme.export
+## site.tabs
 
 ~~~json
 {
@@ -1461,31 +1375,3 @@
   "additionalProperties": false
 }
 ~~~
-
-### theme.reset
-
-~~~json
-{
-  "type": "object",
-  "properties": {},
-  "required": [],
-  "additionalProperties": false
-}
-~~~
-
-### theme.undo
-
-~~~json
-{
-  "type": "object",
-  "properties": {},
-  "required": [],
-  "additionalProperties": false
-}
-~~~
-
-## 执行约定
-
-validate不写入、不证明账号权限；preview读取前后差异但不写入。execute默认直接执行。requestId在本机扩展存储中去重；服务端操作ID由requestId/步骤确定性转换为UUID。计划修改携带baseRevision并GET回读，不把页面同步文本当成保存证据。外观serverVerified=false，因为只写本机。
-
-常见错误：INVALID_SCHEMA参数错误；INVALID_SITE_DATA服务端400校验拒绝；NOT_LOGGED_IN未登录；PERMISSION_DENIED无权；VERSION_CONFLICT版本变化；SERVER_NOT_CONFIRMED写入后回读不符（可能已经写入）；NETWORK_ERROR状态可能未知；UNSUPPORTED_BY_SITE未核实或不可用；USER_SCRIPTS_DISABLED浏览器未授权；NON_IDEMPOTENT_RETRY_BLOCKED中断后禁止盲目重放。

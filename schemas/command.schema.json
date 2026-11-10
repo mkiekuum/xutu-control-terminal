@@ -172,10 +172,8 @@
                     "system.capabilities",
                     "site.inspect",
                     "site.capabilities",
-                    "theme.list",
-                    "theme.export",
-                    "theme.reset",
-                    "theme.undo"
+                    "site.context",
+                    "site.tabs"
                   ]
                 }
               },

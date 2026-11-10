@@ -301,55 +301,6 @@
     "rollback": "not_guaranteed"
   },
   {
-    "op": "theme.apply",
-    "transport": "dom",
-    "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
-    "rollback": "not_guaranteed"
-  },
-  {
-    "op": "theme.export",
-    "transport": "dom",
-    "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
-    "rollback": "not_guaranteed"
-  },
-  {
-    "op": "theme.reset",
-    "transport": "dom",
-    "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
-    "rollback": "not_guaranteed"
-  },
-  {
-    "op": "layout.hide",
-    "transport": "dom",
-    "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
-    "rollback": "not_guaranteed"
-  },
-  {
-    "op": "layout.show",
-    "transport": "dom",
-    "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
-    "rollback": "not_guaranteed"
-  },
-  {
-    "op": "layout.component.add",
-    "transport": "dom",
-    "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
-    "rollback": "not_guaranteed"
-  },
-  {
-    "op": "layout.component.remove",
-    "transport": "dom",
-    "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
-    "rollback": "not_guaranteed"
-  },
-  {
     "op": "script.execute",
     "transport": "userScripts",
     "role": "current-session/server-authoritative",
@@ -525,13 +476,6 @@
     "rollback": "not_guaranteed"
   },
   {
-    "op": "theme.undo",
-    "transport": "dom",
-    "role": "current-session/server-authoritative",
-    "tested": "browser pending",
-    "rollback": "not_guaranteed"
-  },
-  {
     "op": "task.merge",
     "transport": "api",
     "role": "current-session/server-authoritative",
@@ -551,5 +495,19 @@
     "role": "current-session/server-authoritative",
     "tested": "local tests/frontend contract; live write not verified",
     "rollback": "not_guaranteed"
+  },
+  {
+    "op": "site.context",
+    "transport": "api",
+    "role": "current-session",
+    "tested": "local unit/UI tests; live verification pending",
+    "rollback": "read-only"
+  },
+  {
+    "op": "site.tabs",
+    "transport": "api",
+    "role": "current-session",
+    "tested": "local unit/UI tests; live verification pending",
+    "rollback": "read-only"
   }
 ]

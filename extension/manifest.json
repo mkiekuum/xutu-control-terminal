@@ -1,10 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "序图 · 统一代码终端与外观修改器",
-  "version": "2.0.0",
-  "version_name": "2.0.0 candidate — 真实账号验收待完成",
+  "name": "序图终端",
+  "version": "2.1.0",
   "minimum_chrome_version": "135",
-  "description": "统一 JSON/CLI 终端、用户脚本与声明式外观配置。",
+  "description": "复制提示词给 AI，粘贴指令一键执行；支持本地 CLI。",
   "permissions": [
     "storage",
     "scripting",
@@ -22,7 +21,6 @@
     "default_title": "打开序图终端",
     "default_popup": "ui.html"
   },
-  "options_page": "ui.html",
   "content_scripts": [
     {
       "matches": [
@@ -33,10 +31,5 @@
       ],
       "run_at": "document_idle"
     }
-  ],
-  "optional_host_permissions": [
-    "https://*/*",
-    "http://localhost/*",
-    "http://127.0.0.1/*"
   ]
 }

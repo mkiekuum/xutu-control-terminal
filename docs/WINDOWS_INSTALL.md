@@ -28,6 +28,6 @@ node native-host/install-windows.mjs 你的32位扩展ID
 
 卸载：node native-host/install-windows.mjs uninstall，只删除本工具注册及已知安装文件，保留源码、扩展存储和业务数据。
 
-已验证：Windows编译、实际EXE子进程stdio帧往返、命名管道客户端。真实浏览器扩展→EXE→Node→CLI/MCP→网站核心操作链路已通过。全新配置首次安装及所有浏览器型号尚未验收。
+已验证：Windows编译、实际EXE子进程stdio帧往返、命名管道客户端。真实浏览器扩展→EXE→Node→CLI→网站核心操作链路已通过。全新配置首次安装及所有浏览器型号尚未验收。
 
-Windows整合ZIP解压后可双击native-host/INSTALL-WINDOWS.cmd，粘贴终端显示的32位扩展ID；需要先安装Node.js22+。该目录要保留，移动后重装宿主。安装完成后终端的“复制MCP配置”可给支持本地MCP的AI客户端使用。Chrome允许用户脚本开关由用户手动开启，扩展不能代开。
+Windows整合ZIP解压后可双击native-host/INSTALL-WINDOWS.cmd，粘贴终端显示的32位扩展ID；需要先安装Node.js22+。该目录要保留，移动后重装宿主。安装完成后展开终端底部“连接本地 CLI”，连接并复制CLI用法。Chrome允许用户脚本开关由用户手动开启，扩展不能代开。
