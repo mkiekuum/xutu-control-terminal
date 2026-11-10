@@ -13,6 +13,14 @@ test('本地HTTP契约集成：写入后实际GET回读、同作业重放无重�
 test('本地HTTP契约集成：真实401和403映射，不产生写入',async()=>{
  const server=await contractServer();try{await assert.rejects(new ApiAdapter(client(server,null)).run(step,job),{code:'NOT_LOGGED_IN'});await assert.rejects(client(server,'OTHER')('/api/plans/SYNTHETIC_PLAN/change','POST',{baseRevision:1}),{code:'PERMISSION_DENIED'});assert.equal(server.events.length,0);}finally{await server.close();}
 });
-test('本地HTTP契约集成：并发409后仅覆盖指定字段并保留远端其他字段',async()=>{
- const server=await contractServer();let edited=false;try{const api=new ApiAdapter(client(server,'TEST_OWNER',(path,method)=>{if(method==='POST'&&!edited){edited=true;server.remoteEdit({deadline:'2026-11-20'});}}));const r=await api.run(step,{...job,execution:{onConflict:'overwrite-if-authorized'}});assert.equal(r.serverVerified,true);assert.equal(r.data.current.title,'UPDATED');assert.equal(r.data.current.deadline,'2026-11-20');assert.equal(r.afterVersion,3);}finally{await server.close();}
+test('本地HTTP契约集成：并发409后独立回读且不覆盖远端字段',async()=>{
+ const server=await contractServer();let edited=false;try{const api=new ApiAdapter(client(server,'TEST_OWNER',(path,method)=>{if(method==='POST'&&!edited){edited=true;server.remoteEdit({deadline:'2026-11-20'});}}));await assert.rejects(api.run(step,{...job,execution:{onConflict:'overwrite-if-authorized'}}),error=>{assert.equal(error.code,'VERSION_CONFLICT');assert.equal(error.diagnostic.latest.current.deadline,'2026-11-20');assert.equal(error.diagnostic.latestVersion,2);assert.equal(error.outcome,'not_executed');return true;});assert.equal(server.events.length,0);assert.equal(server.getRecord().current.title,'SYNTHETIC');}finally{await server.close();}
+});
+
+test('本地HTTP契约集成：批量改名与重编号经import一次提交，完整回读布局和引用',async()=>{
+ const server=await contractServer();try{
+ server.remoteEdit({nodes:[{id:'10',name:'开始',content:'型号10',owner:'TEST_OWNER'},{id:'20',name:'成果',content:'[[node:10]]',owner:'TEST_OWNER'}],edges:[{from:'10',to:'20',upper:'1-1-1',dashed:false,executor:'TEST_OWNER',completedAt:''}],positions:{10:{x:10,y:20},20:{x:30,y:40}}});
+ const api=new ApiAdapter(client(server));let r=await api.run({id:'batch',op:'node.batchUpdate',target:{id:'SYNTHETIC_PLAN',version:2},params:{updates:[{id:'20',set:{name:'验收完成'}}]}},{...job,requestId:'http-batch'});assert.equal(r.afterVersion,3);
+ r=await api.run({id:'renumber',op:'node.renumber',target:{id:'SYNTHETIC_PLAN',version:r.afterVersion},params:{mapping:[{from:'10',to:'1'},{from:'20',to:'2'}]}},{...job,requestId:'http-renumber'});assert.equal(server.events.length,2);assert(server.events.every(e=>e.path.endsWith('/import')));assert.deepEqual(r.data.current.positions,{1:{x:10,y:20},2:{x:30,y:40}});assert.equal(r.data.current.nodes[0].content,'型号10');assert.equal(r.data.current.nodes[1].content,'[[node:1]]');assert.equal(r.data.current.nodes[1].name,'验收完成');
+ }finally{await server.close();}
 });

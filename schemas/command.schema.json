@@ -89,9 +89,19 @@
               "version": {
                 "type": "integer",
                 "minimum": 0
+              },
+              "versionFrom": {
+                "type": "string",
+                "minLength": 1
               }
             },
-            "additionalProperties": false
+            "additionalProperties": false,
+            "not": {
+              "required": [
+                "version",
+                "versionFrom"
+              ]
+            }
           },
           "params": {
             "type": "object"
@@ -125,6 +135,8 @@
                     "node.create",
                     "node.update",
                     "node.remove",
+                    "node.batchUpdate",
+                    "node.renumber",
                     "node.reorder",
                     "edge.create",
                     "edge.update",

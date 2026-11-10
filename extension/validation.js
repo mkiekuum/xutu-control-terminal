@@ -15,6 +15,8 @@ export const parameterSchemas={
  'node.create':node,
  'node.update':object({id:nonempty,set:object({name:nonempty,content:string,owner:string})},['id','set']),
  'node.remove':object({id:nonempty},['id']),
+ 'node.batchUpdate':object({updates:{type:'array',items:object({id:nonempty,set:object({name:nonempty,content:string,owner:string})},['id','set'])}},['updates']),
+ 'node.renumber':object({mapping:{type:'array',items:object({from:nonempty,to:nonempty},['from','to'])},references:{type:'array',items:object({nodeId:nonempty,field:{enum:['name','content']},before:string,after:string},['nodeId','field','before','after'])}},['mapping']),
  'node.reorder':object({ids:{type:'array',items:nonempty,uniqueItems:true}},['ids']),
  'edge.create':object(edgeFields,['fromNodeId','toNodeId','estimateDays']),
  'edge.update':object(edgeFields,['fromNodeId','toNodeId']),
@@ -52,8 +54,9 @@ export function checkSchema(schema,value,path='$'){
  return value;
 }
 export function validateStep(s){
+ if(s.target?.version!==undefined&&s.target?.versionFrom!==undefined)invalid('版本依据只能选择version或versionFrom之一');
  if(parameterSchemas[s.op])checkSchema(parameterSchemas[s.op],s.params||{},s.op);
- if(s.target!==undefined)checkSchema(object({id:nonempty,number:nonempty,owner:nonempty,version:{type:'integer',minimum:0}}),s.target,'target');
+ if(s.target!==undefined)checkSchema(object({id:nonempty,number:nonempty,owner:nonempty,version:{type:'integer',minimum:0},versionFrom:nonempty}),s.target,'target');
  if(/^(node|edge|progress|review|graph)\./.test(s.op)||['task.merge','task.split','task.assign','task.updateStatus','plan.get','plan.update','plan.replace','plan.copy','plan.export','plan.archive','plan.delete','plan.restore','plan.restoreSnapshot','schedule.updateInputs','history.restore'].includes(s.op)){
   if(!s.target?.id&&!s.target?.number)invalid('target.id 或 target.number');
  }

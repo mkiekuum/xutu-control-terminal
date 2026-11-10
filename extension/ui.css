@@ -61,3 +61,5 @@ li{margin:6px 0}
 [hidden]{display:none!important}
 
 .help-links{display:flex;gap:16px;margin:10px 0;font-size:12px}.help-links a{color:var(--accent);text-decoration:none}.help-links a:hover{text-decoration:underline}
+
+#preferenceDetails label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0}#preferenceDetails select{max-width:240px}#changeSummary{overflow-wrap:anywhere;max-height:100px;overflow:auto}

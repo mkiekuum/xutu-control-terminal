@@ -1,24 +1,23 @@
-# 序图终端 2.3.0
+# 序图终端 2.4.0
 
-保留需求输入框，一键复制时连同需求、完整计划上下文和网站规则一起复制。“新建 / 管理”默认新建；管理涵盖增删任务、结构、人员、进度等操作。
+本版让局部修改更可控，并保留原有需求输入、JSON指令、复制提示词和本机CLI。
 
-指令区仅接收原始 JSON 或 Markdown JSON 代码块，删除 CLI / JavaScript 格式切换。显式 JSON script.execute、浏览器用户脚本权限及后台执行逻辑保留。本机 xutu 命令、JSONL 批量、context、preview/validate、doctor 保持兼容。
-
-“更多 → 本地 CLI”只保留“测试本地 CLI”“复制诊断结果”和安装/排查链接。每次测试分别验证宿主新响应，以及实际 CLI 子进程经认证管道查询主界面选中的网页；只有两步通过才显示整体成功，不改真实计划。
-
-打开自动查新版：访问 GitHub /releases/latest，要求 HTTP 200 且最终地址为本仓库有效版本发布页。404 即使有页面也不算发布；不再调用版本 API 或读取版本文件。成功结果缓存 2 分钟、失败 30 秒，显示真实检查时间。可复制完整 AI Agent 更新指令。
-
-![精简界面（本地预览）](https://raw.githubusercontent.com/mkiekuum/xutu-control-terminal/v2.3.0/docs/assets/ui-v230.png)
+- 批量改名与明确重编号：同步连线、引用、布局，保留未要求修改的工期、日期、人员和状态。
+- 中性默认与可选偏好：只有点“记住”才保存，按当前账号及新建/管理场景隔离，可查看、修改、重置。
+- 网站硬规则、评分建议、个人偏好分开；只问本次所缺信息，不强迫填完整计划问卷。
+- 粘贴后展示改动摘要；版本冲突独立回读，不覆盖新修改，不盲重试；多步用真实回读版本衔接。
+- 请求编号原值保留，重复提交不会重复写入；明确区分格式通过、回读确认、部分成功、未执行与结果未知。
+- 打开自动检查最新版、AI更新指令、本地CLI及JSON脚本能力继续保留；未增加浏览器权限。
 
 ## 第一次安装：先下载这个
 
-**只想让 AI 帮你改计划：下载 [xutu-control-terminal-v2.3.0-chrome.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v2.3.0/xutu-control-terminal-v2.3.0-chrome.zip)。** Chrome / Edge 都使用这份插件包；普通复制粘贴用法不需要 Node.js、CLI 或 API Key。当前优先支持 Windows，Chrome 最低版本 135；其他浏览器组合未全部实测。
+**只想让 AI 帮你改计划：下载 [xutu-control-terminal-v2.4.0-chrome.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v2.4.0/xutu-control-terminal-v2.4.0-chrome.zip)。** Chrome / Edge 都使用这份插件包；普通复制粘贴用法不需要 Node.js、CLI 或 API Key。当前优先支持 Windows，Chrome 最低版本 135；其他浏览器组合未全部实测。
 
 | 文件 | 用途 |
 | --- | --- |
-| `xutu-control-terminal-v2.3.0-chrome.zip` | 日常使用：浏览器插件，推荐新手 |
-| `xutu-control-terminal-v2.3.0-windows.zip` | 可选：插件、Windows CLI、宿主安装器与手册 |
-| `xutu-control-terminal-v2.3.0-source.zip` | 开发维护：完整源码、测试和发布配置 |
+| `xutu-control-terminal-v2.4.0-chrome.zip` | 日常使用：浏览器插件，推荐新手 |
+| `xutu-control-terminal-v2.4.0-windows.zip` | 可选：插件、Windows CLI、宿主安装器与手册 |
+| `xutu-control-terminal-v2.4.0-source.zip` | 开发维护：完整源码、测试和发布配置 |
 | `SHA256SUMS` | 下载文件的校验值 |
 
 GitHub 自动生成的 `Source code (zip)` / `Source code (tar.gz)` 是仓库源码，不是给新手直接安装的插件包。
@@ -49,11 +48,11 @@ GitHub 自动生成的 `Source code (zip)` / `Source code (tar.gz)` 是仓库源
 
 展开“更多 → 软件更新”，点击“复制 AI 更新指令”，交给能操作本机的 AI Agent。指令带当前版本、检查结果、扩展 ID、官方仓库、自动定位/下载/校验/备份/安装/回读/失败回滚步骤；要求不发维护问卷、不操作真实鼠标、不修改网站计划，换电脑要重新发现实际路径和 ID。复制本身不会更新软件，也不会向 AI 自动发送内容。
 
-本版为公共版本检查增加 GitHub 官网读取权限，不申请 API 或附件 CDN 主机权限；请求不携带网站账号、计划内容或 Cookie。浏览器若要求确认新增权限，请按浏览器提示操作。真实登录、强制人工授权等步骤不能由提示词绕过。详细说明见 [自动版本检测与 Agent 更新](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.3.0/docs/AUTO_UPDATE.md)。
+本版为公共版本检查增加 GitHub 官网读取权限，不申请 API 或附件 CDN 主机权限；请求不携带网站账号、计划内容或 Cookie。浏览器若要求确认新增权限，请按浏览器提示操作。真实登录、强制人工授权等步骤不能由提示词绕过。详细说明见 [自动版本检测与 Agent 更新](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.4.0/docs/AUTO_UPDATE.md)。
 
 ## 已装过旧版：怎么更新
 
-1. 下载新版插件 ZIP，把原来的插件目录备份后，将新包内容解压覆盖到**原来加载的目录**；确认该目录里的 `manifest.json` 版本是 `2.3.0`。若原来加载的是 Windows 整包下的 `extension`，只覆盖那个子目录。
+1. 下载新版插件 ZIP，把原来的插件目录备份后，将新包内容解压覆盖到**原来加载的目录**；确认该目录里的 `manifest.json` 版本是 `2.4.0`。若原来加载的是 Windows 整包下的 `extension`，只覆盖那个子目录。
 2. 在扩展管理页找到“序图终端”，点击一次“重新加载”（圆形箭头），再刷新序图网站。
 3. 重新打开插件即可。使用 CLI 的用户选中目标网页后，在“更多 → 本地 CLI”点击“测试本地 CLI”。
 
@@ -70,7 +69,7 @@ GitHub 自动生成的 `Source code (zip)` / `Source code (tar.gz)` 是仓库源
 5. 在主界面选中序图网页，展开“更多 → 本地 CLI”点击“测试本地 CLI”，分别查看宿主与网页两段结果。本机命令示例继续保留在安装手册中。
 6. 如果你的 JSON 显式使用 script.execute，再在扩展详情开启“允许用户脚本”（浏览器提供该开关时）；其他普通业务 JSON 无需这一步。
 
-详见 [Windows 手册](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.3.0/docs/WINDOWS_INSTALL.md)、[换电脑与分享](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.3.0/docs/CROSS_DEVICE.md)、[维护升级](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.3.0/docs/GITHUB_MAINTENANCE.md)。
+详见 [Windows 手册](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.4.0/docs/WINDOWS_INSTALL.md)、[换电脑与分享](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.4.0/docs/CROSS_DEVICE.md)、[维护升级](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.4.0/docs/GITHUB_MAINTENANCE.md)。
 
 ## 遇到问题
 
@@ -82,8 +81,8 @@ GitHub 自动生成的 `Source code (zip)` / `Source code (tar.gz)` 是仓库源
 
 ## 验证范围
 
-91 项本地测试通过，0 失败、0 跳过。覆盖 JSON/代码块解析、CLI/独立 JavaScript 拒绝、显式 JSON 脚本权限与执行、本机 CLI 子进程/认证管道、context/JSONL/preview/validate 兼容、宿主未连接/网页失败/未选目标/测试成功、无额外标签扫描、诊断脱敏及发布网页状态、404 判定、HEAD 回退 GET 与缓存。业务写入回归仅用本地契约模拟。
+106项本地测试通过，0失败、0跳过。包含单元、JSDOM、本地HTTP契约及真实Windows宿主/CLI连接模拟网页，不等同于公司后端写入验收。新增功能未在真实计划上执行；没有操作真实鼠标或创建测试计划。
 
-浏览器本地只读预览验证需求框、JSON 框及 CLI 面板；未点击浏览器界面、未操作真实鼠标、未修改网站计划。新版在当前登录浏览器的安装重载、两段 CLI 与用户脚本授权需由用户实际操作后核验；没有把模拟网页冒充真实站点。AI Agent 升级/回滚也未宣称已实际执行。
+本轮网站公开源码重新下载遇到TLS EOF，沿用此前已核实的import/change契约。实际Chrome扩展加载后验证、真实网站新增命令写入和同事新设备安装仍未验证。版本冲突采用保守拒写，不自动合并；多步骤不保证事务，完整回读不匹配报告结果未确认。复杂文字引用不能自动理解，只改明确标记和用户列明的精确原文。
 
-[CLI 测试与故障排查](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.3.0/docs/CLI_DIAGNOSTICS.md) · [完整测试报告](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.3.0/docs/TEST_REPORT.md)
+[局部修改与可靠性契约](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.4.0/docs/LOCAL_EDITING.md) · [完整测试报告](https://github.com/mkiekuum/xutu-control-terminal/blob/v2.4.0/docs/TEST_REPORT.md)

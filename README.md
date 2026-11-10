@@ -1,4 +1,4 @@
-# 序图终端 2.3.0
+# 序图终端 2.4.0
 
 把需求发给你常用的AI，信息清楚后复制聊天中的JSON代码块，在当前序图账号中一键执行。无需API Key。
 
@@ -19,3 +19,5 @@ CLI context同时提供完整网站说明和AI规则；compatibility命令提供
 公开仓库不含公司源码、真实计划和凭据；永久删除、完整历史和未验证权限功能不冒充支持。详情见测试报告。
 
 插件指令区只接收 JSON / Markdown JSON 代码块，没有 CLI 或 JavaScript 格式切换。JSON 的 script.execute 和本机终端 xutu 命令、JSONL 批量、context、preview/validate、doctor 保持可用；“新建 / 管理”只决定 AI 提示词意图，不削减显式 JSON 业务命令。
+
+局部批量改名、重编号、偏好隔离及版本冲突处理见[2.4操作契约](docs/LOCAL_EDITING.md)。新增功能通过本地模拟回归，真实网站写入尚未验收。

@@ -1,5 +1,5 @@
 import {checkSchema} from './validation.js';
-export const VERSION='2.3.0';
+export const VERSION='2.4.0';
 export function fail(code,message=code){throw Object.assign(new Error(message),{code});}
 export function assert(ok,message){if(!ok)fail('INVALID_SCHEMA',message);}
 export const clone=x=>structuredClone(x);
@@ -35,7 +35,7 @@ export function validatePlan(p){
  assert(p&&Array.isArray(p.nodes)&&Array.isArray(p.edges),'需要 nodes/edges');const ids=new Set();
  for(const n of p.nodes){assert(typeof n.id==='string'&&n.id.length>0&&n.id.length<=16&&!ids.has(n.id),'节点 ID 无效');assert(typeof n.name==='string'&&n.name.trim()&&n.name.length<=40,'节点名称无效');ids.add(n.id);}
  const out=new Map([...ids].map(id=>[id,[]])),degree=new Map([...ids].map(id=>[id,0])),pairs=new Set();
- for(const e of p.edges){assert(ids.has(e.from)&&ids.has(e.to)&&e.from!==e.to,'连线端点无效');let pair=JSON.stringify([e.from,e.to]);assert(!pairs.has(pair),'重复连线');pairs.add(pair);const parts=String(e.upper).trim().split('-');assert(parts.every(x=>/^\d+(?:\.\d+)?$/.test(x.trim())),'用时格式无效');const t=parts.map(Number);if(t.length===1)t.push(t[0],t[0]);assert(t.length===3&&t.every(n=>Number.isFinite(n)&&n>=0)&&t[0]<=t[1]&&t[1]<=t[2],'估时须为非负递增三元组');out.get(e.from).push(e.to);degree.set(e.to,degree.get(e.to)+1);}
+ for(const e of p.edges){assert(ids.has(e.from)&&ids.has(e.to)&&e.from!==e.to,'连线端点无效');let pair=JSON.stringify([e.from,e.to]);assert(!pairs.has(pair),'重复连线');pairs.add(pair);const parts=String(e.upper).trim().split('-');assert(parts.every(x=>/^\d+(?:\.\d+)?$/.test(x.trim())),'用时格式无效');const t=parts.map(Number);if(t.length===1)t.push(t[0],t[0]);assert(t.length===3&&t.every(n=>Number.isFinite(n)&&n>=0)&&t[0]<=t[1]&&t[1]<=t[2],'估时须为非负递增三元组');assert(!e.dashed||t.every(n=>n===0),'虚线只能表示零耗时关系');out.get(e.from).push(e.to);degree.set(e.to,degree.get(e.to)+1);}
  const q=[...ids].filter(id=>!degree.get(id));for(let i=0;i<q.length;i++)for(const id of out.get(q[i])){degree.set(id,degree.get(id)-1);if(!degree.get(id))q.push(id);}assert(q.length===ids.size,'依赖存在环');return p;
 }
 export function decimal(n){assert(typeof n==='number'&&Number.isFinite(n)&&n>=0,'时间必须是有限非负数字');const s=String(n);if(!/e/i.test(s))return s;const [c,e]=s.split('e'),digits=c.replace('.',''),point=(c.indexOf('.')<0?c.length:c.indexOf('.'))+Number(e);return point<=0?'0.'+'0'.repeat(-point)+digits:point>=digits.length?digits+'0'.repeat(point-digits.length):digits.slice(0,point)+'.'+digits.slice(point);}
@@ -49,7 +49,9 @@ export class Executor{
  const result={protocol:'xutu.result/v1',requestId:e.requestId,startedAt:new Date().toISOString(),steps:[],summary:{success:0,failed:0,skipped:0},logId:e.requestId};
  if(e.mode!=='validate'&&e.mode!=='preview')await this.store.set(key,{signature});
  let stop=false;for(const s of e.steps){if(stop||s.dependsOn?.some(id=>result.steps.find(x=>x.id===id)?.status!=='success')){result.steps.push({id:s.id,status:'skipped'});result.summary.skipped++;continue;}
- try{const data=await this.dispatch(s,e);result.steps.push({id:s.id,status:'success',...data});result.summary.success++;}catch(err){result.steps.push({id:s.id,status:'failed',code:err.code||'INTERNAL_ERROR',message:err.message,serverVerified:false});result.summary.failed++;stop=!e.execution?.continueOnError;}}
+ try{let actual=s;
+ if(s.target?.versionFrom){const previous=result.steps.find(x=>x.id===s.target.versionFrom);assert(previous?.status==='success'&&previous.serverVerified&&Number.isInteger(previous.afterVersion),'前一步尚未回读确认，不能传递版本');assert(s.target.id?previous.targetId===s.target.id:previous.data?.current?.planNumber===s.target.number,'版本来源不是同一计划');actual=clone(s);actual.target.version=previous.afterVersion;delete actual.target.versionFrom;}
+ const data=await this.dispatch(actual,e);result.steps.push({id:s.id,status:'success',...data});result.summary.success++;}catch(err){result.steps.push({id:s.id,status:'failed',code:err.code||'INTERNAL_ERROR',message:err.message,serverVerified:false,outcome:err.outcome||(['SCRIPT_TIMEOUT','SCRIPT_RUNTIME_ERROR','TIMEOUT_RESULT_UNKNOWN','NATIVE_DISCONNECTED_RESULT_UNKNOWN'].includes(err.code)?'unconfirmed':'not_executed'),...(err.diagnostic?{diagnostic:err.diagnostic}:{})});result.summary.failed++;stop=!e.execution?.continueOnError;}}
  result.status=result.summary.failed?(result.summary.success?'partial_success':'failed'):'success';result.finishedAt=new Date().toISOString();
  if(e.mode!=='validate'&&e.mode!=='preview')await this.store.set(key,{signature,result:clean(result)});return result;
  }

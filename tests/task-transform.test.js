@@ -19,5 +19,5 @@ test('合并实际走API版本控制与写入回读，预览不写入',async()=>
  let record={id:'TEST',revision:1,current:plan()},posts=0;
  const api=new ApiAdapter(async(path,method,body)=>{if(path==='/api/session')return {actor:'OWNER',role:'user'};if(method==='POST'){posts++;assert.equal(body.baseRevision,record.revision);record={...record,revision:record.revision+1,current:structuredClone(body.current)};}return structuredClone(record);});
  const s={id:'merge',op:'task.merge',target:{id:'TEST'},params:{nodeIds:['1','2','3'],name:'综合设计'}};
- await api.run(s,{requestId:'test',mode:'preview'});assert.equal(posts,0);const r=await api.run(s,{requestId:'test',mode:'execute'});assert.equal(r.serverVerified,true);assert.equal(posts,1);assert.equal(record.current.nodes.length,3);
+ await api.run(s,{requestId:'test',mode:'preview'});assert.equal(posts,0);const r=await api.run(s,{requestId:'test',mode:'execute'});assert.equal(r.serverVerified,true);assert.equal(posts,1);assert.equal(record.current.nodes.length,3);assert.equal(r.changes.durationComparison.beforeDays,r.changes.durationComparison.afterDays);
 });

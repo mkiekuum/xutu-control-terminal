@@ -48,6 +48,16 @@
           },
           "code": {
             "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "not_executed",
+              "unconfirmed"
+            ]
+          },
+          "diagnostic": {
+            "type": "object",
+            "description": "失败时独立只读回读，包含latest/changedSinceRead/requestedFields或读取失败状态；可能含私密业务数据，不公开上传"
           }
         }
       }

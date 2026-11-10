@@ -9,7 +9,7 @@ export async function contractServer(){
   if(req.url==='/api/session')return send(200,{actor,role:'user'});
   if(req.url==='/api/plans'&&req.method==='GET')return send(200,[{id:record.id,planNumber:record.current.planNumber,planOwner:record.current.planOwner}]);
   if(req.url==='/api/plans/SYNTHETIC_PLAN'&&req.method==='GET')return send(200,record);
-  if(req.url==='/api/plans/SYNTHETIC_PLAN/change'&&req.method==='POST'){
+  if(['/api/plans/SYNTHETIC_PLAN/change','/api/plans/SYNTHETIC_PLAN/import'].includes(req.url)&&req.method==='POST'){
    if(actor!==record.current.planOwner)return send(403,{error:'owner-only'});
    let bytes='';for await(const chunk of req){bytes+=chunk;if(bytes.length>200000){return send(413,{error:'too-large'});}}
    let body;try{body=JSON.parse(bytes);}catch{return send(400,{error:'invalid-json'});}

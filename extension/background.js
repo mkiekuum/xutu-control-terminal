@@ -6,6 +6,7 @@ import {collectContext} from './context.js';
 import {readNativeAnalysis} from './website-guide.js';
 import {buildIntake} from './ai-brief.js';
 import {collectCompatibility,probeNativeCompatibility} from './compatibility.js';
+import {preferencesFor} from './preferences.js';
 import {createUpdateChecker} from './updates.js';
 import {runCliDiagnostics} from './cli-diagnostics.js';
 const checkUpdates=createUpdateChecker({load:async()=>(await chrome.storage.local.get('releaseCheck')).releaseCheck,save:report=>chrome.storage.local.set({releaseCheck:report})});
@@ -41,6 +42,7 @@ export const executor=new Executor(store,async(s,e)=>{
    catch(error){context.siteAnalysis={available:false,reason:error.message};}
    if(!context.siteAnalysis.available){context.complete=false;context.warnings.push('原站评分/计算未读取成功，不能保证状态完整。');}
   }
+  context.preferences=await preferencesFor(store,context.account.actor,'manage');
   context.compatibility=await compatibilityFor(tab);
   context.aiGuidance.intake=buildIntake(context);
   return {data:{...context,tabId:tab.id},serverVerified:!!context.plan&&context.complete};
@@ -60,6 +62,7 @@ chrome.runtime.onMessage.addListener((message,sender,reply)=>{
   if(message.kind==='openSite'){const tabs=await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'});if(tabs.length)await chrome.tabs.update(tabs[0].id,{active:true});else await chrome.tabs.create({url:'https://plan.fpgabbs.cn/'});return {opened:true};}
   if(message.kind==='native'){try{await connectNative();return {connected:true,message:'CLI 已连接，可直接运行命令。'};}catch(e){return {connected:false,message:e.message};}}
   if(message.kind==='tabs')return (await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'})).map(t=>({id:t.id,title:t.title,active:t.active}));
+  if(message.kind==='preferences'){const tab=await tabFor({tabId:message.tabId});const session=await request(tab,'/api/session');if(!session.actor||session.mustChangePassword)fail('NOT_LOGGED_IN');return preferencesFor(store,session.actor,message.scene,message.action,message.values,message.scope);}
   if(message.kind==='updates')return checkUpdates();
   if(message.kind==='cliTest')return runCliDiagnostics({tabId:message.tabId,probeHost:async()=>{
    await connectNative();if(nativeInfo?.diagnostics!==1)throw {code:'HOST_TOO_OLD'};return nativeDiagnostic('ping');

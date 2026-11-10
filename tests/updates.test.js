@@ -16,7 +16,7 @@ test('自动检测只请求latest网页，不发API、版本文件或凭据，�
  assert.equal(calls.length,3);for(const c of calls){assert.equal(c.url,RELEASE_PAGE);assert.equal(c.options.method,'HEAD');assert.equal(c.options.credentials,'omit');assert.equal(c.options.redirect,'follow');assert.equal(c.options.cache,'no-store');assert.equal(c.options.headers,undefined);}
 });
 test('服务器不支持HEAD时仅对同一latest地址回退GET',async()=>{
- const methods=[];const result=await checkForUpdates({fetchImpl:async(url,o)=>{assert.equal(url,RELEASE_PAGE);methods.push(o.method);return o.method==='HEAD'?{status:405,body:null}:page();}});
+ const methods=[];const result=await checkForUpdates({currentVersion:'2.3.0',fetchImpl:async(url,o)=>{assert.equal(url,RELEASE_PAGE);methods.push(o.method);return o.method==='HEAD'?{status:405,body:null}:page();}});
  assert.equal(result.status,'current');assert.deepEqual(methods,['HEAD','GET']);
 });
 test('404、403、限流、离线和没有正式tag的200页面均不得宣称最新',async()=>{

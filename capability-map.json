@@ -516,5 +516,19 @@
     "role": "current-session/server-authoritative",
     "tested": "2.2.0 Windows live read-only passed; no write validation",
     "rollback": "no business writes"
+  },
+  {
+    "op": "node.batchUpdate",
+    "transport": "local transform + existing /api/plans/:id/import",
+    "role": "current-session/server-authoritative",
+    "tested": "unit and synthetic local HTTP; live write not verified in 2.4.0",
+    "rollback": "not_guaranteed"
+  },
+  {
+    "op": "node.renumber",
+    "transport": "local transform + existing /api/plans/:id/import",
+    "role": "current-session/server-authoritative",
+    "tested": "unit and synthetic local HTTP; live write not verified in 2.4.0",
+    "rollback": "not_guaranteed"
   }
 ]

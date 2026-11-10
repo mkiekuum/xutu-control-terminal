@@ -1,11 +1,19 @@
-import {prepareCommand,buildPrompt,summarize} from './terminal.js';
+import {prepareCommand,buildPrompt,summarize,commandSummary,stableRequestId} from './terminal.js';
 import {formatCompatibility} from './compatibility.js';
 import {VERSION} from './core.js';
 import {buildAgentUpdatePrompt,updateStatusText} from './updates.js';
 import {formatCliDiagnostics,stageText} from './cli-diagnostics.js';
-const $=id=>document.getElementById(id);let tabs=[],lastSignature='',lastRequestId='',compatibilityReport=null,compatibilityGeneration=0,refreshGeneration=0;
-let intent='create',updateReport=null,cliReport=null;
-function chooseIntent(value){intent=value;$('createPlan').setAttribute('aria-pressed',String(value==='create'));$('managePlan').setAttribute('aria-pressed',String(value==='manage'));$('requestLabel').textContent=value==='create'?'新建计划的需求':'管理计划的需求';$('request').placeholder=value==='create'?'想新建什么计划？写下目标和要求…':'要新增、删除任务，还是调整依赖、人员或进度？';}
+import {neutralPreferences,sanitizePreferences,preferenceKey} from './preferences.js';
+const $=id=>document.getElementById(id);let tabs=[],lastRequestId='',compatibilityReport=null,compatibilityGeneration=0,refreshGeneration=0;
+let intent='create',updateReport=null,cliReport=null,preferenceScope=null;
+const preferenceFields={audience:'prefAudience',detail:'prefDetail',naming:'prefNaming',scope:'prefScope',numbering:'prefNumbering'};
+const selectedPreferences=()=>sanitizePreferences(Object.fromEntries(Object.entries(preferenceFields).map(([key,id])=>[key,$(id).value])));
+function showPreferences(values){for(const[key,id]of Object.entries(preferenceFields))$(id).value=values[key];}
+async function loadPreferences(){const selected=tabId(),scene=intent;const report=await send({kind:'preferences',tabId:selected,scene,action:'get'});if(selected!==tabId()||scene!==intent)return null;if(!report.scope){preferenceScope=null;showPreferences(neutralPreferences);return null;}if(preferenceScope!==report.scope){preferenceScope=report.scope;showPreferences(report.values);}$('preferenceStatus').textContent=report.remembered?'已记住此账号、此场景的选择；可修改或重置。':'未保存，仅用于本次。';return report;}
+$('preferenceDetails').ontoggle=()=>{if($('preferenceDetails')?.open)return loadPreferences().catch(()=>{$('preferenceStatus').textContent='先登录网站，暂不读取或保存长期偏好。';});};
+$('rememberPreferences').onclick=()=>busy('rememberPreferences',async()=>{if(!preferenceScope)throw Error('请先展开偏好并登录网站。');const report=await send({kind:'preferences',tabId:tabId(),scene:intent,action:'save',values:selectedPreferences(),scope:preferenceScope});if(!report.scope)throw Error(report.message||'未能保存偏好');$('preferenceStatus').textContent='已记住，仅此账号、此场景使用。';});
+$('resetPreferences').onclick=()=>busy('resetPreferences',async()=>{if(!preferenceScope){showPreferences(neutralPreferences);return;}const report=await send({kind:'preferences',tabId:tabId(),scene:intent,action:'reset',scope:preferenceScope});if(!report.scope)throw Error(report.message||'未能重置');showPreferences(neutralPreferences);$('preferenceStatus').textContent='已重置，恢复中性默认。';});
+function chooseIntent(value){if(intent!==value){preferenceScope=null;showPreferences(neutralPreferences);}intent=value;$('createPlan').setAttribute('aria-pressed',String(value==='create'));$('managePlan').setAttribute('aria-pressed',String(value==='manage'));$('requestLabel').textContent=value==='create'?'新建计划的需求':'管理计划的需求';$('request').placeholder=value==='create'?'想新建什么计划？写下目标和要求…':'要新增、删除任务，还是调整依赖、人员或进度？';}
 $('createPlan').onclick=()=>chooseIntent('create');$('managePlan').onclick=()=>chooseIntent('manage');
 const tabId=()=>Number($('tabs').value)||undefined;
 const message=(text,error=false)=>{$('message').textContent=text;$('message').dataset.error=String(error);};
@@ -41,19 +49,21 @@ async function refresh(){
  const session=await send({kind:'run',command:envelope('site.session')});if(generation!==refreshGeneration)return;$('connection').textContent=session.status==='success'?'已连接 · 使用当前网站账号':'请在序图网站登录后重新打开插件';document.querySelector('.connection-strip').dataset.state=session.status==='success'?'connected':'error';await checkCompatibility();
 }
 $('openSite').onclick=()=>busy('openSite',async()=>{await send({kind:'openSite'});});
-$('tabs').onchange=()=>{cliReport=null;$('copyDiagnostics').disabled=true;$('hostTest').textContent='1. 宿主连接与响应：未测试';$('pageTest').textContent='2. 经本机 CLI 查询选中网页：未测试';$('cliStatus').textContent='目标已改变，请重新测试。';return refresh().catch(e=>message(e.message,true));};
+$('tabs').onchange=()=>{preferenceScope=null;showPreferences(neutralPreferences);cliReport=null;$('copyDiagnostics').disabled=true;$('hostTest').textContent='1. 宿主连接与响应：未测试';$('pageTest').textContent='2. 经本机 CLI 查询选中网页：未测试';$('cliStatus').textContent='目标已改变，请重新测试。';return refresh().catch(e=>message(e.message,true));};
 $('copyPrompt').onclick=()=>busy('copyPrompt',async()=>{
  if(!$('request').value.trim())throw Error('先写下你想做什么。');
  const selected=tabId(),selectedIntent=intent,requestText=$('request').value,context=await readContext();
+ await loadPreferences().catch(()=>{preferenceScope=null;showPreferences(neutralPreferences);});
+ if(context.account?.actor&&preferenceScope&&await preferenceKey(context.account.actor,selectedIntent)!==preferenceScope)throw Error('登录账号已变化，请重新复制以读取当前账号资料。');
  if(selected!==tabId()||selectedIntent!==intent||requestText!==$('request').value)throw Error('操作选择或需求已变化，请重新复制以获取对应资料。');
- await clipboard(buildPrompt(requestText,context,selected,{intent:selectedIntent}));message(intent==='create'?'已复制新建提示词，发给 AI 生成独立计划。':context?.plan?(context.complete?'已复制管理提示词与当前计划资料。':'已复制；部分状态未能读取，提示词中已注明。'):'已复制；涉及既有计划时，请先在网站选中目标，AI 会核对。');
+ await clipboard(buildPrompt(requestText,context,selected,{intent:selectedIntent,preferences:selectedPreferences()}));message(intent==='create'?'已复制新建提示词，发给 AI 生成独立计划。':context?.plan?(context.complete?'已复制管理提示词与当前计划资料。':'已复制；部分状态未能读取，提示词中已注明。'):'已复制；涉及既有计划时，请先在网站选中目标，AI 会核对。');
 });
 $('execute').onclick=()=>busy('execute',async()=>{
- const signature=JSON.stringify([$('editor').value,tabId()]);
- if(signature!==lastSignature){lastSignature=signature;lastRequestId=crypto.randomUUID();}
+ lastRequestId=await stableRequestId($('editor').value);
  const command=prepareCommand($('editor').value,tabId(),lastRequestId);
- message('正在执行，请稍候…');const result=await send({kind:'run',command});$('output').textContent=JSON.stringify(result,null,2);$('resultDetails').hidden=false;message(summarize(result),result.status!=='success');if(result.status!=='success')$('resultDetails').open=true;
+ $('changeSummary').textContent=commandSummary(command);message('格式校验通过，正在核对网站最新内容并执行…');await new Promise(resolve=>setTimeout(resolve,0));const result=await send({kind:'run',command});$('output').textContent=JSON.stringify(result,null,2);$('resultDetails').hidden=false;message(summarize(result),result.status!=='success');if(result.status!=='success')$('resultDetails').open=true;
 });
+$('editor').addEventListener('input',()=>{try{$('changeSummary').textContent=commandSummary(prepareCommand($('editor').value,tabId(),'preview-only'));}catch{$('changeSummary').textContent='请粘贴完整指令；格式校验通过后显示改动摘要。';}});
 $('copyResult').onclick=event=>{event.preventDefault();busy('copyResult',async()=>{await clipboard($('output').textContent);message('结果已复制。');});};
 $('testCli').onclick=()=>busy('testCli',async()=>{
  const selected=tabId();cliReport=null;$('copyDiagnostics').disabled=true;$('hostTest').textContent='1. 宿主连接与响应：测试中…';$('pageTest').textContent='2. 经本机 CLI 查询选中网页：等待宿主响应…';$('cliStatus').textContent='正在执行两段只读测试…';

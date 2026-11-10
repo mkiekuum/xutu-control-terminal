@@ -1,10 +1,11 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {JSDOM} from 'jsdom';
 import {prepareCommand,buildPrompt} from '../extension/terminal.js';
+import {preferencesFor} from '../extension/preferences.js';
 import {runCliDiagnostics} from '../extension/cli-diagnostics.js';
 
 test('界面只接收原始JSON和JSON代码块；CLI与独立JavaScript提示改用JSON',()=>{
  const json=JSON.stringify({protocol:'xutu.command/v1',requestId:'ai-id',mode:'preview',tabId:999,steps:[{id:'a',op:'plan.list'}]});
- for(const text of [json,'```json\n'+json+'\n```']){const c=prepareCommand(text,123,'local-job');assert.equal(c.mode,'execute');assert.equal(c.requestId,'local-job');assert.equal(c.tabId,123);}
+ for(const text of [json,'```json\n'+json+'\n```']){const c=prepareCommand(text,123,'local-job');assert.equal(c.mode,'execute');assert.equal(c.requestId,'ai-id');assert.equal(c.tabId,123);}
  for(const text of ['plan list','xutu context','alert(1)','```javascript\nalert(1)\n```','{foo:1}'])assert.throws(()=>prepareCommand(text,123,'bad'),/JSON/);
  assert.throws(()=>prepareCommand(JSON.stringify({protocol:'xutu.command/v1',steps:[{id:'a',op:'theme.reset'}]}),123,'removed'),/已移除/);
 });
@@ -23,10 +24,11 @@ test('完整计划进入提示词且脚本限制仍保留',()=>{
 async function openUi(tabList,caseName){
  const dom=new JSDOM(fs.readFileSync('extension/ui.html','utf8'),{url:'https://extension.test/ui.html'});
  globalThis.window=dom.window;globalThis.document=dom.window.document;
- const state={calls:[],copied:'',clipboardFails:false,contextFails:false,diagnostic:'success'};
+ const state={calls:[],copied:'',clipboardFails:false,contextFails:false,diagnostic:'success',actor:'USER_A',preferences:new Map()};
  Object.defineProperty(globalThis,'navigator',{configurable:true,value:{clipboard:{writeText:async text=>{if(state.clipboardFails)throw Error('denied');state.copied=text;}}}});
  globalThis.chrome={runtime:{id:'a'.repeat(32),sendMessage:async m=>{
   state.calls.push(structuredClone(m));
+  if(m.kind==='preferences'){try{return await preferencesFor({get:async k=>state.preferences.get(k),set:async(k,v)=>state.preferences.set(k,v)},state.actor,m.scene,m.action,m.values,m.scope);}catch(e){return {status:'failed',message:e.message};}}
   if(m.kind==='tabs')return tabList;
   if(m.kind==='updates')return {status:'available',currentVersion:'2.3.0',latestVersion:'2.4.0',checkedAt:'2026-11-10T00:00:00Z'};
   if(m.kind==='cliTest')return {...await runCliDiagnostics({tabId:m.tabId,probeHost:async()=>{if(state.diagnostic==='host')throw {code:'HOST_NOT_FOUND',message:'C:/SECRET/token=secret'};return {pong:true};},query:async()=>state.diagnostic==='page'?{ok:false,code:'NOT_LOGGED_IN'}:{ok:true}}),privatePlan:'PRIVATE_PLAN',account:'PRIVATE_NAME',path:'C:/SECRET'};
@@ -77,5 +79,16 @@ test('多个标签页必须在主界面明确选择；CLI测试不会扫描或�
   const scans=state.calls.filter(m=>m.kind==='tabs').length;await $('testCli').onclick();assert.equal(state.calls.at(-1).tabId,undefined);assert($('hostTest').textContent.includes('主界面选择'));assert.equal(state.calls.filter(m=>m.kind==='tabs').length,scans);
   $('tabs').value='456';await $('tabs').onchange();assert.equal($('tabs').value,'456');assert($('copyDiagnostics').disabled);
   const before=state.calls.filter(m=>m.kind==='tabs').length;await $('testCli').onclick();assert.equal(state.calls.at(-1).tabId,456);assert.equal(state.calls.filter(m=>m.kind==='tabs').length,before);assert($('cliStatus').textContent.includes('测试成功'));
+ }finally{dom.window.close();}
+});
+
+test('偏好UI可查看、编辑、保存、重置；切换账号不复制前一人的选择',async()=>{
+ const {dom,state,$}=await openUi([{id:123,title:'序图'}],'preferences');try{
+ $('preferenceDetails').open=true;await $('preferenceDetails').ontoggle();await new Promise(r=>setTimeout(r,10));
+ $('prefDetail').value='brief';await $('rememberPreferences').onclick();assert($('preferenceStatus').textContent.includes('已记住'));
+ $('request').value='只调整名称';await $('copyPrompt').onclick();assert(state.copied.includes('"detail":"brief"'));
+ state.actor='USER_B';await $('copyPrompt').onclick();assert.equal($('prefDetail').value,'neutral');assert(!state.copied.includes('"detail":"brief"'));
+ state.actor='USER_A';await $('copyPrompt').onclick();assert.equal($('prefDetail').value,'brief');await $('resetPreferences').onclick();assert.equal($('prefDetail').value,'neutral');
+ $('editor').value=JSON.stringify({protocol:'xutu.command/v1',requestId:'track-me',steps:[{id:'s',op:'node.batchUpdate',target:{id:'TEST',version:1},params:{updates:[{id:'1',set:{name:'成果'}}]}}]});$('editor').dispatchEvent(new window.Event('input'));assert($('changeSummary').textContent.includes('1个名称'));await $('execute').onclick();assert(state.calls.some(m=>m.command?.requestId==='track-me'));
  }finally{dom.window.close();}
 });
