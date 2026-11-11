@@ -28,6 +28,7 @@ test('仅改边端点和增加汇合节点，原节点、引用、日期、位�
  assert.deepEqual(plan.nodes.slice(0,original.nodes.length),original.nodes);
  for(const key of Object.keys(original).filter(k=>!['nodes','edges'].includes(k)))assert.deepEqual(plan[key],original[key],key);
  assert.equal(auxiliary.length,5);
+ assert(plan.nodes.filter(n=>auxiliary.includes(n.id)).every(n=>n.name.startsWith('辅助：')));
  for(const work of original.edges){const repaired=plan.edges.filter(e=>!e.dashed&&e.to===work.to);assert.equal(repaired.length,1);assert.deepEqual({...repaired[0],from:work.from},work);}
  assert.equal(plan.edges.find(e=>e.to==='1').upper,'1440');
 });

@@ -15,7 +15,7 @@ export function restoreOutcomeNetwork(original,{dependencies,workEdges,startId})
  assert(original.nodes.every(n=>n.id===startId||ids.includes(n.id)),'存在旧辅助节点，需先核实其用途和引用，不能自动删除');
  const plan=clone(original);plan.edges=[];const auxiliary=[];
  const dummy=(from,to)=>({from,to,upper:'0-0-0',lower:'',dashed:true,executor:'',completedAt:''});
- for(const id of ids){const deps=dependencies[id];let from=startId;if(deps.length===1)from=deps[0];else if(deps.length>1){let n=1;while(known.has('J'+n))n++;from='J'+n;known.add(from);auxiliary.push(from);plan.nodes.push({id:from,name:'前置条件汇合',content:'成果 '+deps.join('、')+' 均已完成后，开始通向成果 '+id+' 的工作。',owner:''});for(const p of deps)plan.edges.push(dummy(p,from));}plan.edges.push({...works[id],from,to:id});}
+ for(const id of ids){const deps=dependencies[id];let from=startId;if(deps.length===1)from=deps[0];else if(deps.length>1){let n=1;while(known.has('J'+n))n++;from='J'+n;known.add(from);auxiliary.push(from);plan.nodes.push({id:from,name:'辅助：前置条件汇合',content:'成果 '+deps.join('、')+' 均已完成后，开始通向成果 '+id+' 的工作。',owner:''});for(const p of deps)plan.edges.push(dummy(p,from));}plan.edges.push({...works[id],from,to:id});}
  validatePlan(plan);assert(!auditGraph(plan).findings.some(f=>f.code==='TRANSITIVE_EDGE'&&f.safeToRemove),'生成了冗余虚线');
  return {plan,auxiliary,resourceNote:'相同执行人需在实际排程中错开；业务网络不添加人员串行边。网络关键路径不是单人实际完成时间。',references:'原成果编号保持，原正文引用无需重编号；辅助节点使用未占用J编号。'};
 }
