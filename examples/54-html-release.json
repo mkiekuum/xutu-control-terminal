@@ -1,0 +1,14 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "54-html-release",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "release",
+      "op": "site.html.release",
+      "params": {
+        "exportId": "EXPORT_ID_FROM_BEGIN"
+      }
+    }
+  ]
+}

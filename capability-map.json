@@ -322,20 +322,6 @@
     "rollback": "not_guaranteed"
   },
   {
-    "op": "history.list",
-    "transport": "unavailable",
-    "role": "current-session/server-authoritative",
-    "tested": "local tests/frontend contract; live write not verified",
-    "rollback": "not_guaranteed"
-  },
-  {
-    "op": "history.diff",
-    "transport": "unavailable",
-    "role": "current-session/server-authoritative",
-    "tested": "unit/mock only; authenticated E2E pending",
-    "rollback": "not_guaranteed"
-  },
-  {
     "op": "schedule.read",
     "transport": "unavailable",
     "role": "current-session/server-authoritative",
@@ -530,5 +516,89 @@
     "role": "current-session/server-authoritative",
     "tested": "unit and synthetic local HTTP; live write not verified in 2.4.0",
     "rollback": "not_guaranteed"
+  },
+  {
+    "op": "history.list",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "per-record capability and conflict checks"
+  },
+  {
+    "op": "intake.inspect",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "not_applicable"
+  },
+  {
+    "op": "intake.answer",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "not_applicable"
+  },
+  {
+    "op": "intake.status",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "not_applicable"
+  },
+  {
+    "op": "history.undo",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "per-record capability and conflict checks"
+  },
+  {
+    "op": "history.redo",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "per-record capability and conflict checks"
+  },
+  {
+    "op": "history.diff",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "per-record capability and conflict checks"
+  },
+  {
+    "op": "history.restorePoint",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "per-record capability and conflict checks"
+  },
+  {
+    "op": "history.resolvePending",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "per-record capability and conflict checks"
+  },
+  {
+    "op": "site.html.begin",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "not_applicable"
+  },
+  {
+    "op": "site.html.chunk",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "not_applicable"
+  },
+  {
+    "op": "site.html.release",
+    "transport": "extension-local; selected authorized site tab",
+    "role": "current-session/account-isolated",
+    "tested": "synthetic local tests; real website new writes not verified",
+    "rollback": "not_applicable"
   }
 ]

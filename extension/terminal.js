@@ -8,8 +8,8 @@ export function prepareCommand(text,tabId,requestId){
  if(!source.startsWith('{')){
   const blocks=[...source.matchAll(/```([^\n]*)\r?\n([\s\S]*?)```/g)];
   if(blocks.length>1)throw Error('检测到多个代码块，请只粘贴本次要执行的一个完整JSON代码块。');
-  if(blocks.length===1){if(!['','json'].includes(blocks[0][1].trim().toLowerCase()))throw Error('插件只接收 JSON，请改用完整 JSON 或 Markdown JSON 代码块。CLI 请在本机终端运行；脚本需显式封装为 JSON 的 script.execute。');source=blocks[0][2].trim();}
-  if(!source.startsWith('{'))throw Error('插件只接收 JSON，请让 AI 直接给出完整 JSON 代码块。CLI 文本、独立 JavaScript、文件路径和问卷不能直接执行。');
+  if(blocks.length===1){if(!['','json'].includes(blocks[0][1].trim().toLowerCase()))throw Error('插件只接收 JSON，请改用完整 JSON 或 Markdown JSON 代码块。脚本需显式封装为 JSON 的 script.execute。');source=blocks[0][2].trim();}
+  if(!source.startsWith('{'))throw Error('插件只接收 JSON，请让 AI 直接给出完整 JSON 代码块。命令行文本、独立 JavaScript、文件路径和问卷不能直接执行。');
  }
  if(!source)throw Error('先粘贴 AI 返回的指令。');
  let command;try{command=JSON.parse(source);}catch{throw Error('JSON 格式无效，请粘贴完整 JSON 对象或 Markdown JSON 代码块。');}
@@ -17,15 +17,18 @@ export function prepareCommand(text,tabId,requestId){
  validate(command);for(const step of command.steps){if(/^(theme|layout)\./.test(step.op))throw Error('外观功能已移除。');validateStep(step);}
  return command;
 }
-export function buildPrompt(request,context,tabId,{intent,preferences}={}){
+export function buildPrompt(request,context,tabId,{intent,preferences,intakeLedger}={}){
  if(!request.trim())throw Error('先写下你想做什么。');
  const businessContext=context?Object.fromEntries(Object.entries(context).filter(([key])=>!['websiteGuide','commandContract','aiGuidance','preferences'].includes(key))):null;
- const contracts=Object.fromEntries(Object.entries(parameterSchemas).filter(([op])=>op!=='script.execute'&&op!=='history.list'));
+ const contracts=Object.fromEntries(Object.entries(parameterSchemas).filter(([op])=>op!=='script.execute'));
  const intake=buildIntake(intent==='create'?{...context,plan:null,target:null,status:null,permissions:null}:context);
  if(intent){intake.selectedIntent=intent;intake.unknowns=intake.unknowns.slice(1);}
  const intentGuide=intent==='create'?'用户已在插件明确选择【新建】。创建独立的新计划，优先一次plan.create提交完整节点与连线；不得用plan.replace/plan.update覆盖当前计划。当前选中计划只是参考，不自动继承其编号、负责人、执行人、日期、审核、基线或进度；新计划编号应核对未占用。不要再追问新建还是管理；若用户文字与此选择冲突，先澄清。':intent==='manage'?'用户已在插件明确选择【管理】。这包括新增/删除任务、合并拆分、调整依赖与结构、人员、日期、进度和审核等现有命令支持的操作，不局限于微调任务内部文字。根据用户具体授权选择命令，保留未要求改动的其他内容；不擅自扩大删除或审核范围。涉及既有计划时须确认目标和版本；未选中计划或目标不清楚先澄清，不猜目标。':'';
  return aiInstructions+'\n\n本次资料生成时间：'+new Date().toISOString()+'；用户浏览器时区：'+(context?.clientTimeZone||Intl.DateTimeFormat().resolvedOptions().timeZone||'未确认')+
- '\n本次表达偏好（仅本次；不扩张授权）：'+JSON.stringify(preferences||{})+
+ '\n本次表达偏好（来自问卷；不扩张授权）：'+JSON.stringify(intakeLedger?.facts?.expression?.value||preferences||{})+
+ '\n插件问卷台账（由本地保存；不得伪造已答或确认状态）：'+JSON.stringify(intakeLedger||null)+
+ '\n执行门禁：新建及复杂调整必须使用本地问卷 intakeId；先回答首轮3–6题，优先复用事实，追问仅限缺项。未答完只讨论不生成执行JSON；用户将答复保存到插件。答完后在聊天中直接给一个完整JSON代码块，顶层携带intakeId='+String(intakeLedger?.id||'尚未建立')+'。不得交付JSON文件链接。提议估时/分工需在插件核实具体方案，不能声称AI自己已批准。简单改名不要求整计划问卷。表达偏好在问卷中选择，默认中性。'+
+ '\n项目组关联：project.assignPlan.params.planIdFrom={stepId:前面plan.create步骤id,field:"targetId"}，并dependsOn依赖该创建步骤；不得猜新建ID。网站截止是硬约束，预测完成不是deadline；owner默认当前账号，但节点负责人/连线executor须分别核实。'+
  '\n本次操作选择：'+intentGuide+
  '\n信息核对摘要：'+JSON.stringify(intake)+
  '\n网站详细说明与规划守则：'+JSON.stringify(context?.websiteGuide||websiteGuide)+
@@ -35,9 +38,10 @@ export function buildPrompt(request,context,tabId,{intent,preferences}={}){
  '\n用户本次需求：'+request.trim();
 }
 export function summarize(result){
+ if(['partial_undo','partial_redo'].includes(result?.status))return (result.status==='partial_undo'?'部分撤销完成。':'部分重做完成。')+'已完成目标保留，其他目标未恢复；请查看详情与差异。';
  if(result?.status==='success'){if(result.steps?.every(s=>s.data?.valid))return '格式校验通过，尚未写入网站。';if(result.steps?.some(s=>s.data?.after&&s.serverVerified===false))return '已生成预览，尚未写入网站。';return result.steps?.every(s=>s.serverVerified)?'网站操作成功，已回读确认。':'执行已返回；详见结果中的确认状态。';}
  const failure=result?.steps?.find(s=>s.status==='failed');
- const plain={INVALID_SCHEMA:'指令格式或参数不正确，请复制详情给 AI 修正。',PERMISSION_DENIED:'当前账号无权执行这项修改，网站内容未被强行覆盖。',NOT_LOGGED_IN:'请先在序图网站登录，再重新打开插件。',TARGET_AMBIGUOUS:'请先明确选择要操作的计划或网页。',TARGET_NOT_FOUND:'没有找到指定计划，请核对目标。'};
+ const plain={INTAKE_REQUIRED:'先完成需求问卷，再让 AI 生成指令。',ESTIMATE_NOT_CONFIRMED:'先展开人员与工期方案，核实后再执行。',INTAKE_CONTEXT_CHANGED:'账号、网页或计划内容已变化，请重新核对问卷。',REQUIRED_FIELD_UNKNOWN:'还有必需信息未明确，请查看提示补充。',UNDO_CONFLICT:'网站内容已变化，本次未覆盖；请展开结果查看差异。',REDO_CONFLICT:'网站内容已变化，本次未覆盖；请展开结果查看差异。',RESTORE_UNSUPPORTED:'该记录包含无法安全恢复的操作，未执行恢复。',HISTORY_SNAPSHOT_INCOMPLETE:'有尚未确认的执行或恢复，请先打开历史核对现状。',HISTORY_EMPTY:'没有可用的历史记录。',INVALID_SCHEMA:'指令格式或参数不正确，请复制详情给 AI 修正。',PERMISSION_DENIED:'当前账号无权执行这项修改，网站内容未被强行覆盖。',NOT_LOGGED_IN:'请先在序图网站登录，再重新打开插件。',TARGET_AMBIGUOUS:'请先明确选择要操作的计划或网页。',TARGET_NOT_FOUND:'没有找到指定计划，请核对目标。'};
  if(failure?.outcome==='unconfirmed'||['NON_IDEMPOTENT_RETRY_BLOCKED','TIMEOUT_RESULT_UNKNOWN','SCRIPT_TIMEOUT'].includes(result?.code||failure?.code))return '结果尚未确认。请先读取网站最新内容或复制结果求助，不要换编号重复执行。';
  if(failure?.code==='VERSION_CONFLICT')return (result.status==='partial_success'?'部分步骤已完成。':'')+failure.message;
  return (result?.status==='partial_success'?'部分完成：':'未执行成功：')+(plain[failure?.code||result?.code]||failure?.message||result?.message||failure?.code||result?.code||'连接异常，请重试。');

@@ -1,0 +1,11 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "56-history-undo",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "undo",
+      "op": "history.undo"
+    }
+  ]
+}

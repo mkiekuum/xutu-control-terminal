@@ -1,0 +1,16 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "61-history-compare",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "diff",
+      "op": "history.diff",
+      "params": {
+        "historyId": "HISTORY_ID_FROM_LIST",
+        "compareId": "OTHER_HISTORY_ID",
+        "point": "after"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "52-html-offline",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "capture",
+      "op": "site.html.begin",
+      "params": {
+        "kind": "offline"
+      }
+    }
+  ]
+}

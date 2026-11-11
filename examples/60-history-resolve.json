@@ -1,0 +1,14 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "60-history-resolve",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "read",
+      "op": "history.resolvePending",
+      "params": {
+        "acknowledge": true
+      }
+    }
+  ]
+}

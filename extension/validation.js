@@ -29,7 +29,7 @@ export const parameterSchemas={
  'review.reject':object({note:nonempty},['note']),
  'history.restore':object({targetRevision:{type:'integer',minimum:1}},['targetRevision']),
  'project.create':object({number:nonempty,name:nonempty,owner:nonempty},['number','name','owner']),
- 'project.assignPlan':object({planId:nonempty,groupId:string},['planId','groupId']),
+ 'project.assignPlan':{...object({planId:nonempty,planIdFrom:object({stepId:nonempty,field:{const:'targetId'}},['stepId','field']),groupId:string},['groupId']),oneOf:[{required:['planId'],not:{required:['planIdFrom']}},{required:['planIdFrom'],not:{required:['planId']}}]},
  'group.create':object({name:nonempty},['name']),
  'group.update':object({groupId:nonempty,name:nonempty},['groupId','name']),
  'group.remove':object({groupId:nonempty},['groupId']),
@@ -42,8 +42,20 @@ export const parameterSchemas={
 parameterSchemas['schedule.updateInputs']=parameterSchemas['plan.update'];
 parameterSchemas['progress.complete']=parameterSchemas['progress.update'];
 for(const op of ['graph.inspect','graph.simplify','plan.list','plan.get','plan.export','plan.archive','plan.restore','node.list','edge.list','progress.read','review.status','review.submit','review.approve','history.list','project.list','group.list','task.list','user.list','site.session','system.version','system.health','system.capabilities','site.inspect','site.capabilities','site.context','site.tabs','site.compatibility'])parameterSchemas[op]=object({});
+parameterSchemas['intake.inspect']=object({request:nonempty,intent:{enum:['create','manage']}},['request','intent']);
+parameterSchemas['intake.answer']=object({intakeId:nonempty,rememberExpression:boolean,answers:object(Object.fromEntries(['title','number','startDate','deadlineDate','projectGroupId','goal','resources','expression'].map(k=>[k,string])))},['intakeId','answers']);
+parameterSchemas['intake.status']=object({intakeId:nonempty},['intakeId']);
+for(const op of ['history.undo','history.redo','history.list'])parameterSchemas[op]=object({});
+for(const op of ['history.diff','history.restorePoint'])parameterSchemas[op]=object({historyId:nonempty,point:{enum:['before','after']},...(op==='history.diff'?{compareId:nonempty}:{})},['historyId']);
+parameterSchemas['history.resolvePending']=object({acknowledge:{const:true}},['acknowledge']);
+parameterSchemas['site.html.begin']=object({kind:{enum:['raw','offline']}},['kind']);
+parameterSchemas['site.html.chunk']=object({exportId:nonempty,offset:{type:'integer',minimum:0}},['exportId','offset']);
+parameterSchemas['site.html.release']=object({exportId:nonempty},['exportId']);
 function invalid(path){throw Object.assign(Error('参数不符合约束：'+path),{code:'INVALID_SCHEMA'});}
 export function checkSchema(schema,value,path='$'){
+ if(schema.oneOf){const matches=schema.oneOf.filter(choice=>{try{checkSchema(choice,value,path);return true;}catch{return false;}});if(matches.length!==1)invalid(path);}
+ if(schema.not){let match=true;try{checkSchema(schema.not,value,path);}catch{match=false;}if(match)invalid(path);}
+ if(schema.required&&value&&typeof value==='object')for(const key of schema.required)if(!Object.hasOwn(value,key))invalid(path+'.'+key);
  if(schema.const!==undefined&&value!==schema.const)invalid(path);
  if(schema.enum&&!schema.enum.includes(value))invalid(path);
  if(schema.type){const actual=Array.isArray(value)?'array':value===null?'null':typeof value;if(schema.type==='integer'?!Number.isInteger(value):actual!==schema.type)invalid(path);}

@@ -1,0 +1,24 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "48-intake-answer",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "a",
+      "op": "intake.answer",
+      "params": {
+        "intakeId": "INTAKE_ID_FROM_INSPECT",
+        "answers": {
+          "title": "合成验收计划",
+          "number": "SYNTHETIC-25",
+          "startDate": "__unset__",
+          "deadlineDate": "__unset__",
+          "projectGroupId": "__unset__",
+          "goal": "验证合成业务流程，交付与验收优先",
+          "resources": "模拟角色；使用建议估时",
+          "expression": "中性、易懂、适中，保留未要求修改部分"
+        }
+      }
+    }
+  ]
+}

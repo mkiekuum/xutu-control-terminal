@@ -1,0 +1,15 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "53-html-chunk",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "chunk",
+      "op": "site.html.chunk",
+      "params": {
+        "exportId": "EXPORT_ID_FROM_BEGIN",
+        "offset": 0
+      }
+    }
+  ]
+}

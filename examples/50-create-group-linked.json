@@ -1,0 +1,53 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "50-create-group-linked",
+  "mode": "execute",
+  "intakeId": "INTAKE_ID_FROM_INSPECT",
+  "steps": [
+    {
+      "id": "create",
+      "op": "plan.create",
+      "params": {
+        "title": "合成验收计划",
+        "number": "SYNTHETIC-25",
+        "startDate": "",
+        "deadlineDate": "",
+        "nodes": [
+          {
+            "id": "0",
+            "name": "需求确定"
+          },
+          {
+            "id": "1",
+            "name": "成果验收"
+          }
+        ],
+        "edges": [
+          {
+            "fromNodeId": "0",
+            "toNodeId": "1",
+            "estimateDays": {
+              "minimum": 1,
+              "likely": 2,
+              "maximum": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "assign",
+      "op": "project.assignPlan",
+      "dependsOn": [
+        "create"
+      ],
+      "params": {
+        "planIdFrom": {
+          "stepId": "create",
+          "field": "targetId"
+        },
+        "groupId": "VERIFIED_GROUP_ID"
+      }
+    }
+  ]
+}

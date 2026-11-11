@@ -20,7 +20,9 @@
       "enum": [
         "success",
         "partial_success",
-        "failed"
+        "failed",
+        "partial_undo",
+        "partial_redo"
       ]
     },
     "steps": {
@@ -52,7 +54,8 @@
           "outcome": {
             "enum": [
               "not_executed",
-              "unconfirmed"
+              "unconfirmed",
+              "partially_executed"
             ]
           },
           "diagnostic": {
@@ -84,6 +87,40 @@
         "failed",
         "skipped"
       ]
+    },
+    "historySummary": {
+      "type": "object",
+      "description": "本机批次快照状态；recorded不是全部步骤成功；unconfirmed表示不能保证恢复",
+      "properties": {
+        "recorded": {
+          "type": "boolean"
+        },
+        "historyId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "cursor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "reversibleState": {
+          "enum": [
+            "reversible",
+            "unsupported"
+          ]
+        },
+        "unconfirmed": {
+          "type": "boolean"
+        }
+      }
     }
   }
 }

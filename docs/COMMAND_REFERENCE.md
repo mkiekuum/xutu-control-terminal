@@ -1,10 +1,16 @@
-# 命令参考
+# 命令参考 v2.5
 
-本版仅终端。参数与权限边界见CURRENT_STATUS.md。普通界面一键执行；CLI/API可自行使用preview/validate。site.context可指定target.id/number，否则读取所选网页当前计划；site.tabs列出可操作网页。
+插件仅接收 JSON/Markdown JSON。信封 protocol=xutu.command/v1、requestId、steps，按需 mode/tabId/intakeId。普通执行器保留参数、权限、版本、去重、独立失败回读。复杂写入使用本地问卷；script.execute 不得绕过正式契约。CLI 已删除。
+
+扩展本地接口：intake.*、history.list/diff/undo/redo/restorePoint/resolvePending、site.html.*；不冒称网站有这些 API。网页导出必须是独立请求，不进日志或历史。intake 确认提案仅在 UI 操作，不开放 AI 自行批准命令。
+
+project.assignPlan 可填写 planId，或 planIdFrom={stepId,field:"targetId"} 并依赖已回读成功的 plan.create，两者互斥。创建与分组可能部分成功。history.restore 仍是旧的服务器版本恢复，与扩展 restorePoint 不同。
+
+[问卷](V2.5_INTAKE_MANUAL.md)、[字段](V2.5_PLAN_FIELDS.md)、[历史](V2.5_UNDO_HISTORY.md)、[导出](V2.5_HTML_EXPORT.md)、[局部修改](LOCAL_EDITING.md) 解释执行条件。以下参数契约由 validation.js 生成；服务器仍最终决定权限。
 
 ## plan.create
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -117,11 +123,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.update
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -148,11 +154,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.replace
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -270,11 +276,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.copy
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -296,11 +302,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.delete
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -311,11 +317,11 @@
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.restoreSnapshot
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -329,11 +335,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## node.create
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -358,11 +364,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## node.update
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -394,11 +400,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## node.remove
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -412,11 +418,125 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
+
+## node.batchUpdate
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "updates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "set": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "content": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "set"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "updates"
+  ],
+  "additionalProperties": false
+}
+```
+
+## node.renumber
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "mapping": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "minLength": 1
+          },
+          "to": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "field": {
+            "enum": [
+              "name",
+              "content"
+            ]
+          },
+          "before": {
+            "type": "string"
+          },
+          "after": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "nodeId",
+          "field",
+          "before",
+          "after"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "mapping"
+  ],
+  "additionalProperties": false
+}
+```
 
 ## node.reorder
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -434,11 +554,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## edge.create
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -490,11 +610,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## edge.update
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -545,11 +665,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## edge.remove
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -568,11 +688,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## task.merge
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -607,11 +727,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## task.split
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -703,11 +823,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## task.assign
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -730,11 +850,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## task.updateStatus
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -757,11 +877,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## progress.update
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -784,11 +904,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## review.reject
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -802,11 +922,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## history.restore
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -820,11 +940,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## project.create
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -848,11 +968,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## project.assignPlan
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -860,21 +980,59 @@
       "type": "string",
       "minLength": 1
     },
+    "planIdFrom": {
+      "type": "object",
+      "properties": {
+        "stepId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "field": {
+          "const": "targetId"
+        }
+      },
+      "required": [
+        "stepId",
+        "field"
+      ],
+      "additionalProperties": false
+    },
     "groupId": {
       "type": "string"
     }
   },
   "required": [
-    "planId",
     "groupId"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "required": [
+        "planId"
+      ],
+      "not": {
+        "required": [
+          "planIdFrom"
+        ]
+      }
+    },
+    {
+      "required": [
+        "planIdFrom"
+      ],
+      "not": {
+        "required": [
+          "planId"
+        ]
+      }
+    }
+  ]
 }
-~~~
+```
 
 ## group.create
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -888,11 +1046,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## group.update
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -911,11 +1069,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## group.remove
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -929,11 +1087,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## group.assign
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -951,11 +1109,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## script.execute
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -976,11 +1134,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## system.logs
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -994,11 +1152,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## system.status
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -1012,11 +1170,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## system.backup.get
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -1030,11 +1188,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## schedule.updateInputs
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -1061,11 +1219,11 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## progress.complete
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {
@@ -1088,294 +1246,549 @@
   ],
   "additionalProperties": false
 }
-~~~
+```
 
 ## graph.inspect
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## graph.simplify
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.list
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.get
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.export
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.archive
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## plan.restore
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## node.list
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## edge.list
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## progress.read
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## review.status
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## review.submit
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## review.approve
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## history.list
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## project.list
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## group.list
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## task.list
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## user.list
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## site.session
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## system.version
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## system.health
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## system.capabilities
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## site.inspect
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## site.capabilities
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## site.context
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## site.tabs
 
-~~~json
+```json
 {
   "type": "object",
   "properties": {},
   "required": [],
   "additionalProperties": false
 }
-~~~
+```
 
 ## site.compatibility
 
-只读，无params；返回基础兼容检查、时间、版本、范围与未验证限制，不含业务数据。CLI别名：compatibility。serverVerified=false，因为不是业务写入回读。检查正常不代表所有写接口和权限均已验收。site.context新增aiGuidance（详细指引/缺项摘要）和compatibility；这些字段不会修改业务计划。
+```json
+{
+  "type": "object",
+  "properties": {},
+  "required": [],
+  "additionalProperties": false
+}
+```
+
+## intake.inspect
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "request": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intent": {
+      "enum": [
+        "create",
+        "manage"
+      ]
+    }
+  },
+  "required": [
+    "request",
+    "intent"
+  ],
+  "additionalProperties": false
+}
+```
+
+## intake.answer
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "intakeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rememberExpression": {
+      "type": "boolean"
+    },
+    "answers": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "number": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string"
+        },
+        "deadlineDate": {
+          "type": "string"
+        },
+        "projectGroupId": {
+          "type": "string"
+        },
+        "goal": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "string"
+        },
+        "expression": {
+          "type": "string"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "intakeId",
+    "answers"
+  ],
+  "additionalProperties": false
+}
+```
+
+## intake.status
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "intakeId": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "intakeId"
+  ],
+  "additionalProperties": false
+}
+```
+
+## history.undo
+
+```json
+{
+  "type": "object",
+  "properties": {},
+  "required": [],
+  "additionalProperties": false
+}
+```
+
+## history.redo
+
+```json
+{
+  "type": "object",
+  "properties": {},
+  "required": [],
+  "additionalProperties": false
+}
+```
+
+## history.diff
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "historyId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "point": {
+      "enum": [
+        "before",
+        "after"
+      ]
+    },
+    "compareId": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "historyId"
+  ],
+  "additionalProperties": false
+}
+```
+
+## history.restorePoint
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "historyId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "point": {
+      "enum": [
+        "before",
+        "after"
+      ]
+    }
+  },
+  "required": [
+    "historyId"
+  ],
+  "additionalProperties": false
+}
+```
+
+## history.resolvePending
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "acknowledge": {
+      "const": true
+    }
+  },
+  "required": [
+    "acknowledge"
+  ],
+  "additionalProperties": false
+}
+```
+
+## site.html.begin
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "kind": {
+      "enum": [
+        "raw",
+        "offline"
+      ]
+    }
+  },
+  "required": [
+    "kind"
+  ],
+  "additionalProperties": false
+}
+```
+
+## site.html.chunk
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "exportId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "offset": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "exportId",
+    "offset"
+  ],
+  "additionalProperties": false
+}
+```
+
+## site.html.release
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "exportId": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "exportId"
+  ],
+  "additionalProperties": false
+}
+```

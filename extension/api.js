@@ -23,7 +23,7 @@ export class ApiAdapter{
      }catch(readError){error.diagnostic={status:'failed',code:readError.code||'READ_FAILED',automaticRetry:false};}
      if(conflict)error.message='网站上的计划刚刚发生了变化，本次修改未执行。'+(error.diagnostic.status==='read'?'已读取最新内容，请查看差异。':'最新内容暂未读到，请稍后只读查询。');
     }
-   }throw error;
+   }if(trace.id)error.targetId=trace.id;throw error;
   }
  }
  async runInternal(s,e,trace){validateStep(s);const p=s.params||{},t=s.target||{},op=s.op;
@@ -31,6 +31,7 @@ export class ApiAdapter{
  const isWrite=writes.includes(op);if(!isWrite&&!reads[op]&&!['plan.get','plan.export','node.list','edge.list','progress.read','review.status','history.list','graph.inspect'].includes(op))fail('UNSUPPORTED_BY_SITE','未核实此操作的真实站点契约');
  if(e.mode==='validate')return {data:{valid:true,contract:'frontend-observed',authorization:'not_checked'},serverVerified:false};
  const session=await this.request('/api/session');
+ if(this.options.expectedActor&&session.actor!==this.options.expectedActor)fail('HISTORY_CONTEXT_MISMATCH','账号发生变化，停止执行');
  if(!session.actor)fail('NOT_LOGGED_IN');if(session.mustChangePassword)fail('PERMISSION_DENIED','请先在网站完成密码设置');
  if((op.startsWith('group.')||['review.approve','review.reject'].includes(op))&&session.role!=='admin')fail('PERMISSION_DENIED');
  if(reads[op])return {data:await this.request(reads[op]),serverVerified:true};
@@ -67,7 +68,7 @@ export class ApiAdapter{
  return {data,serverVerified:true};
  }else{
  if(op==='plan.restore'){
- assert(typeof t.id==='string'&&t.id,'恢复必须指定稳定 ID');const trash=await this.request('/api/trash'),entry=trash.find(x=>x.id===t.id);if(!entry)fail('TARGET_NOT_FOUND');if(session.role!=='admin'&&entry.planOwner!==session.actor)fail('PERMISSION_DENIED');if(e.mode==='preview')return {data:{operation:op,targetId:t.id,revision:entry.revision},serverVerified:false};trace.submitted=true;trace.id=t.id;const result=await this.request('/api/plans/'+encodeURIComponent(t.id)+'/undelete','POST',{baseRevision:entry.revision,operation:await operationId(e.requestId,s.id)});const after=await this.request('/api/plans/'+encodeURIComponent(t.id));if(after.revision!==result.revision)fail('SERVER_NOT_CONFIRMED');return {targetId:t.id,data:after,serverVerified:true};
+ assert(typeof t.id==='string'&&t.id,'恢复必须指定稳定 ID');const trash=await this.request('/api/trash'),entry=trash.find(x=>x.id===t.id);if(!entry)fail('TARGET_NOT_FOUND');if(t.version!==undefined&&t.version!==entry.revision)fail('VERSION_CONFLICT');if(session.role!=='admin'&&entry.planOwner!==session.actor)fail('PERMISSION_DENIED');if(e.mode==='preview')return {data:{operation:op,targetId:t.id,revision:entry.revision},serverVerified:false};trace.submitted=true;trace.id=t.id;const result=await this.request('/api/plans/'+encodeURIComponent(t.id)+'/undelete','POST',{baseRevision:entry.revision,operation:await operationId(e.requestId,s.id)});const after=await this.request('/api/plans/'+encodeURIComponent(t.id));if(after.revision!==result.revision)fail('SERVER_NOT_CONFIRMED');return {targetId:t.id,afterVersion:after.revision,data:after,serverVerified:true};
  }
  id=await this.resolve(t);path='/api/plans/'+encodeURIComponent(id);before=await this.request(path);current=clone(before.current);
  if(['plan.get','plan.export'].includes(op))return {data:before,serverVerified:true};

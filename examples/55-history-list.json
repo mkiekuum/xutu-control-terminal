@@ -1,0 +1,11 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "55-history-list",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "list",
+      "op": "history.list"
+    }
+  ]
+}

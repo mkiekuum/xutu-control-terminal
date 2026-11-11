@@ -1,14 +1,13 @@
 {
   "manifest_version": 3,
   "name": "序图终端",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "minimum_chrome_version": "135",
-  "description": "复制提示词给 AI，粘贴指令一键执行；支持本地 CLI。",
+  "description": "说明需求、核实问卷，粘贴 JSON 执行；支持本地十步历史与离线网页快照。",
   "permissions": [
     "storage",
     "scripting",
-    "userScripts",
-    "nativeMessaging"
+    "userScripts"
   ],
   "host_permissions": [
     "https://plan.fpgabbs.cn/*",

@@ -64,5 +64,23 @@
     "session": 401,
     "plans": 401
   },
-  "authenticatedTests": false
+  "authenticatedTests": false,
+  "extensionLocal": {
+    "version": "2.5.0",
+    "operations": [
+      "history.list",
+      "intake.inspect",
+      "intake.answer",
+      "intake.status",
+      "history.undo",
+      "history.redo",
+      "history.diff",
+      "history.restorePoint",
+      "history.resolvePending",
+      "site.html.begin",
+      "site.html.chunk",
+      "site.html.release"
+    ],
+    "notice": "Not server endpoints; CLI and Native Messaging removed; real website recovery not yet verified"
+  }
 }

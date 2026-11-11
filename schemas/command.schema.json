@@ -186,7 +186,18 @@
                     "site.capabilities",
                     "site.context",
                     "site.tabs",
-                    "site.compatibility"
+                    "site.compatibility",
+                    "intake.inspect",
+                    "intake.answer",
+                    "intake.status",
+                    "history.undo",
+                    "history.redo",
+                    "history.diff",
+                    "history.restorePoint",
+                    "history.resolvePending",
+                    "site.html.begin",
+                    "site.html.chunk",
+                    "site.html.release"
                   ]
                 }
               },
@@ -200,6 +211,11 @@
           }
         ]
       }
+    },
+    "intakeId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "插件本机问卷 ID，不能通过 JSON 伪造完成状态"
     }
   },
   "additionalProperties": false,

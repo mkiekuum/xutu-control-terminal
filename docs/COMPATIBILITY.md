@@ -1,7 +1,7 @@
 # 兼容性
 
-2026-11-10 核对公开前端引用资源，API 取自实际 cloud.js/assignees-ui.js。未取得后端仓库；公司私有测试环境未提供。匿名 GET /api/session、/api/plans 返回401，证明没有借匿名请求绕过登录。Windows已完成真实扩展/Native Messaging/CLI连接、普通账号核心计划读写及权限负例；本轮5份授权演示作业替换后服务端回读一致。管理员正例和任务表写入仍未实测，详见TEST_REPORT.md和LIVE_TEST_RESULTS.md。
+Chrome MV3 最低版本 135；具体用户脚本授权由浏览器决定。打开插件自动检查会话、目标字段、只读计划列表及原生计算/评分函数，报告不含姓名/计划正文。基础检查通过不是全功能或写权限认证。
 
-site-baseline.json 保存静态资源 SHA256，无业务 HTML。每日 workflow 检测变化，生成报告并去重创建 Issue；网络失败同样报告，不推断一定不兼容。资源变化需人工复核更新基线；当前没有公司 Agent 事件接入，自动修复 PR 未完成。
+v2.5 增加本地问卷、IndexedDB 十批历史、DOM 分块和离线导出，删除 CLI/Native Messaging。JSON 简单命令、脚本后台能力、版本保护和原生计算仍保留。复杂创建/调整需要问卷，这是明确的新门禁而不是旧示例可直接重放的承诺。
 
-浏览器接口依据 [Chrome userScripts](https://developer.chrome.com/docs/extensions/reference/api/userScripts/) 和 [Native Messaging](https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging)。最低Chrome135；138+需单独允许用户脚本。
+Chrome 157 隔离合成页面和离线渲染实测通过；实际扩展安装、公司网站新增写入及其它设备未验证。公开资源检查本次连接超时，未更新站点基线。详见 [V2.5_TEST_REPORT.md](V2.5_TEST_REPORT.md)。

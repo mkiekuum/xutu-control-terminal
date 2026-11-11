@@ -1,0 +1,10 @@
+import {JSDOM} from 'jsdom';
+import {capturePage,pageChunk} from '../extension/html-export.js';
+export async function fixture(){
+ const dom=new JSDOM('<!doctype html><html lang="zh-CN"><head><title>合成离线验收</title><link rel="stylesheet" href="/local.css"><link rel="stylesheet" href="https://external.invalid/x.css"></head><body onload="fetch(\'/api/write\')"><h1>合成计划，不含真实公司资料</h1><svg viewBox="0 0 120 50"><line x1="0" x2="100" y1="20" y2="20"/><text x="1" y="15">节点 1 → 2</text><script>fetch("/api/write")</script></svg><table><tr><td>验收完成</td><td>2天</td></tr></table><dialog open>可见说明</dialog><div id="shadow"></div><input id="input" value="旧值"><textarea>旧文本</textarea><form action="/api/write"><button type="submit" onclick="fetch(\'/api/write\')">提交</button></form><iframe src="https://external.invalid/"></iframe><a href="javascript:alert(1)">链接</a><img src="/sample.png"><script>navigator.sendBeacon("/api/write","x")</script><div id="large"></div></body></html>',{url:'https://plan.fpgabbs.cn/',runScripts:'outside-only'});
+ const w=dom.window;Object.defineProperty(w,'crypto',{value:globalThis.crypto});w.TextEncoder=TextEncoder;w.AbortSignal=AbortSignal;const fetches=[];
+ w.fetch=async(url,opts)=>{fetches.push({url,opts});if(url.endsWith('.css'))return {ok:true,text:async()=>'.test{color:green;background:url("/sample.png")} @import "https://external.invalid/more.css";'};return {ok:true,blob:async()=>new w.Blob([Uint8Array.from(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aR1sAAAAASUVORK5CYII=','base64'))],{type:'image/png'})};};
+ w.document.querySelector('#input').value='仅property中的新值';w.document.querySelector('textarea').value='新文本';w.document.querySelector('#shadow').attachShadow({mode:'open'}).innerHTML='<style>:host{color:red}</style><b>影子树内文</b><script>fetch("/api/write")</script>';
+ w.document.querySelector('#large').textContent='汉字完整 '.repeat(100000);
+ const capture=kind=>w.eval('('+capturePage.toString()+')('+JSON.stringify(kind)+')'),chunk=(id,offset)=>w.eval('('+pageChunk.toString()+')('+JSON.stringify(id)+','+offset+')');return {dom,w,fetches,capture,chunk};
+}

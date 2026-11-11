@@ -1,0 +1,15 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "59-history-restore-point",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "restore",
+      "op": "history.restorePoint",
+      "params": {
+        "historyId": "HISTORY_ID_FROM_LIST",
+        "point": "before"
+      }
+    }
+  ]
+}

@@ -1,23 +1,20 @@
-# 序图终端 2.4.0
+# 序图终端 v2.5.0
 
-把需求发给你常用的AI，信息清楚后复制聊天中的JSON代码块，在当前序图账号中一键执行。无需API Key。
+给同事使用的 JSON 计划助手：说明需求 → 核实必要问题 → 复制提示词给任意 AI → 粘贴 JSON → 查看改动并执行 → 看懂结果。
 
-1. 登录序图。默认“新建”；修改已有计划时选“管理”，并在网站选中目标计划。
-2. 在插件写下新建或管理需求，复制AI提示词。资料不清楚时先回答AI的问题。
-3. 复制AI直接给出的JSON代码块，粘贴并执行。
+主界面保留需求框、JSON 输入、使用帮助和最近十批历史。新建及复杂调整必须完成本地问卷，人员与估时先核实；简单改名不追问整份业务资料。表达习惯在问卷中选择。v2.5 全面移除本地 CLI、Native Messaging、安装器与相关权限，不恢复外观编辑、AI API 或 MCP。
 
-极简界面只保留需求、指令和主要按钮；本地 CLI 的两段只读测试、兼容性与帮助统一收在“更多”。打开插件自动做基础只读兼容检查；展开“更多 → 兼容性与排查”可复制不含业务内容的报告。提示词会包含完整计划，复制后由你选择发送给哪个AI。
+[下载正式版本](https://github.com/mkiekuum/xutu-control-terminal/releases/latest) · [新手安装](docs/WINDOWS_INSTALL.md) · [两分钟入门](docs/AI_QUICK_START.md) · [完整验收](docs/V2.5_TEST_REPORT.md)
 
-[本地 CLI 测试与排查](docs/CLI_DIAGNOSTICS.md) · [自动版本检测与 Agent 更新](docs/AUTO_UPDATE.md) · [两分钟入门](docs/AI_QUICK_START.md) · [提示词规则](docs/AI_PROMPT_GUIDE.md) · [Windows安装](docs/WINDOWS_INSTALL.md) · [换电脑与分享](docs/CROSS_DEVICE.md) · [自主维护/升级](docs/GITHUB_MAINTENANCE.md) · [终端手册](docs/TERMINAL_MANUAL.md) · [45份示例](docs/COPY_PASTE_RECIPES.md) · [验收和边界](docs/CURRENT_STATUS.md)
+1. 下载 chrome.zip 并解压到固定目录。在 Chrome 扩展管理页开启开发者模式，加载包含 manifest.json 的文件夹；Edge 对应扩展页。
+2. 登录序图网站并打开插件，默认新建，已有计划增删调整选管理；多标签时选择目标网页。
+3. 写需求、复制提示词。先完成下方问卷，再让 AI 提供一个聊天内可直接复制的 JSON 代码块。
+4. 粘贴 JSON，核对改动和具体人员/工期，执行后查看写入及回读状态。
 
-CLI context同时提供完整网站说明和AI规则；compatibility命令提供脱敏检查结果。插件使用当前网站真实身份，没有固定个人账号、计划编号或原作者机器路径。
+[需求问卷](docs/V2.5_INTAKE_MANUAL.md) · [字段核实](docs/V2.5_PLAN_FIELDS.md) · [DOM/离线 HTML](docs/V2.5_HTML_EXPORT.md) · [十步历史](docs/V2.5_UNDO_HISTORY.md) · [局部修改](docs/LOCAL_EDITING.md) · [命令参考](docs/COMMAND_REFERENCE.md) · [61份示例](docs/COPY_PASTE_RECIPES.md) · [换电脑](docs/CROSS_DEVICE.md) · [维护与发布](docs/GITHUB_MAINTENANCE.md)
 
-打开插件自动检测 GitHub 最新正式版，有新版时在“更多”提示；可一键复制 AI Agent 更新指令，无需手动点检查。失败会明确显示无法确认。维护与升级由用户授权的本机AI按手册执行，可维护UI和功能，不发业务问卷。本版不新增自动升级器或云同步；保留既有GitHub测试、发布和公开资源监测配置。
+权限和工期计算仍由网站决定。质量建议不是错误；个人习惯不是所有同事的规则。只改名称就只改名称，不重估工期、不改人员依赖。撤销严格比较最新版本，部分成功或不可恢复会明确报告。
 
-开发：Node.js22+，pnpm install --frozen-lockfile，node --test tests/*.test.js。构建：node tools/build.mjs；Windows整包：node tools/package-windows.mjs；源码包：node tools/package-source.mjs。
+打开插件自动检查 GitHub latest 网页，HTTP 200 与合法正式 tag 才算找到版本；失败不冒充最新。更多里可复制 AI 更新指令。网页原文与离线文件仅主动复制/保存，可能包含私密信息，不自动上传。
 
-公开仓库不含公司源码、真实计划和凭据；永久删除、完整历史和未验证权限功能不冒充支持。详情见测试报告。
-
-插件指令区只接收 JSON / Markdown JSON 代码块，没有 CLI 或 JavaScript 格式切换。JSON 的 script.execute 和本机终端 xutu 命令、JSONL 批量、context、preview/validate、doctor 保持可用；“新建 / 管理”只决定 AI 提示词意图，不削减显式 JSON 业务命令。
-
-局部批量改名、重编号、偏好隔离及版本冲突处理见[2.4操作契约](docs/LOCAL_EDITING.md)。新增功能通过本地模拟回归，真实网站写入尚未验收。
+开发：pnpm install --frozen-lockfile；node --test tests/*.test.js；node tools/build.mjs；node tools/package-source.mjs。完整源码包不包含公司源码、实际计划或机器凭据。真实新增网站写入/安装验证范围见验收报告。

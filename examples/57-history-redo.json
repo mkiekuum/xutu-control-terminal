@@ -1,0 +1,11 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "57-history-redo",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "redo",
+      "op": "history.redo"
+    }
+  ]
+}

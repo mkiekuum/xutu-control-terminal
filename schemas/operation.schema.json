@@ -1141,15 +1141,53 @@
               "type": "string",
               "minLength": 1
             },
+            "planIdFrom": {
+              "type": "object",
+              "properties": {
+                "stepId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "field": {
+                  "const": "targetId"
+                }
+              },
+              "required": [
+                "stepId",
+                "field"
+              ],
+              "additionalProperties": false
+            },
             "groupId": {
               "type": "string"
             }
           },
           "required": [
-            "planId",
             "groupId"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "oneOf": [
+            {
+              "required": [
+                "planId"
+              ],
+              "not": {
+                "required": [
+                  "planIdFrom"
+                ]
+              }
+            },
+            {
+              "required": [
+                "planIdFrom"
+              ],
+              "not": {
+                "required": [
+                  "planId"
+                ]
+              }
+            }
+          ]
         }
       }
     },
@@ -1896,6 +1934,329 @@
           "type": "object",
           "properties": {},
           "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "intake.inspect"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string",
+              "minLength": 1
+            },
+            "intent": {
+              "enum": [
+                "create",
+                "manage"
+              ]
+            }
+          },
+          "required": [
+            "request",
+            "intent"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "intake.answer"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "intakeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "rememberExpression": {
+              "type": "boolean"
+            },
+            "answers": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "number": {
+                  "type": "string"
+                },
+                "startDate": {
+                  "type": "string"
+                },
+                "deadlineDate": {
+                  "type": "string"
+                },
+                "projectGroupId": {
+                  "type": "string"
+                },
+                "goal": {
+                  "type": "string"
+                },
+                "resources": {
+                  "type": "string"
+                },
+                "expression": {
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "intakeId",
+            "answers"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "intake.status"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "intakeId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "intakeId"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "const": "history.undo"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "const": "history.redo"
+        },
+        "params": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "history.diff"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "historyId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "point": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            },
+            "compareId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "historyId"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "history.restorePoint"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "historyId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "point": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            }
+          },
+          "required": [
+            "historyId"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "history.resolvePending"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "acknowledge": {
+              "const": true
+            }
+          },
+          "required": [
+            "acknowledge"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "site.html.begin"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "enum": [
+                "raw",
+                "offline"
+              ]
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "site.html.chunk"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "exportId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "exportId",
+            "offset"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "site.html.release"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "exportId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "exportId"
+          ],
           "additionalProperties": false
         }
       }

@@ -36,9 +36,9 @@ export const websiteGuide={
   '当前登录网站身份是唯一授权来源。创建默认草稿，不自动提交审核；审核通过/退回仅真实管理员可做。已有baseline或完成进度的合并拆分会拒绝，以防丢失状态。',
   '工作任务表的canAssign/canComplete为该任务权限依据；普通计划所有者权限不能替代这些字段。',
   '修改前刷新context，明确target.id和target.version；完成后用plan.get/context回读。批量步骤依赖失败则跳过，不把部分成功说成全部成功。',
-  '执行按钮默认直接执行。CLI/API支持校验和预览；requestId去重，可选backup:true快照。未知写入或超时须先查状态，不盲目换ID重试。',
+  '执行按钮默认直接执行。JSON支持校验和预览；requestId去重，写入批次自动保存本地快照。未知写入或超时须先查状态，不盲目换ID重试。',
   '删除目前是垃圾桶，未核实永久清空；完整历史、用户/角色管理不可冒充已支持。快照只在本机，恢复依赖当前权限，不保证任意操作可撤销。',
-  '外观、AI API和MCP功能已移除。外部AI只通过复制提示词或本地CLI；CLI tabs发现网页，context读取上下文，run执行JSON。'
+  '外观、AI API和MCP功能已移除。外部AI通过复制提示词和粘贴JSON；本地CLI已移除。'
  ]
 };
 // Runs in the website MAIN world; calls the site's own functions without editing state.

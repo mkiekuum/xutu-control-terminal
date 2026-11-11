@@ -35,17 +35,7 @@ node tools/site-watch.mjs
 
 维护AI还应根据当前HTML资源引用，检查相关HTML、CSS、score.js及新增本站脚本。只读下载到不公开的临时审查目录，与已审查版本比较。区分UI/选择器变化、API请求结构变化、权限/状态变化、评分或计算变化、新功能。不要将公司原始源码提交到公开仓库；公开报告只记录必要的哈希、变化摘要和测试结论。
 
-通过已连接的本机CLI读取当前浏览器：
-
-```powershell
-$xutuCli = Join-Path $env:USERPROFILE '.xutu\windows\xutu.cmd'
-& $xutuCli tabs
-# 将实际网页ID填入下面命令；每台电脑、每次会话都重新发现。
-& $xutuCli compatibility --tab-id YOUR_TAB_ID
-& $xutuCli context --tab-id YOUR_TAB_ID
-```
-
-compatibility报告可分享；context包含完整业务信息，留在本机，不上传公开Issue。无浏览器登录或宿主连接时继续完成公开资源检查和本地测试，将登录回归明确标为未完成，不能伪造通过。插件兼容检查只覆盖基础只读能力，不能代替全部API写入测试。
+在插件“更多→兼容性与排查”读取/复制基础只读报告；需要业务上下文时使用主界面的提示词或 JSON site.context。上下文含私密业务资料，留在本机。v2.5 已删除 CLI/Native Messaging，不再注册宿主。没有登录或不能重载插件时继续公开资源和本地测试，真实登录回归标未完成。
 
 检查评分变化时使用合成计划对照分数、扣分项、PERT、TE/TL、时差和关键边。新字段要核实含义、类型、必填性、权限和服务端回读；新按钮本身不是写权限证明。没有测试站时，写入正例只做本地模拟，不新建别人可见的测试计划。
 
@@ -53,7 +43,7 @@ compatibility报告可分享；context包含完整业务信息，留在本机，
 
 ## 3. 自主修复UI、功能和适配
 
-在codex/前缀的新分支或已有获授权分支工作。可修改UI布局/交互、提示词、只读兼容检查、API适配、Schema、CLI与文档。保持用户选定的简洁终端、提示词/CLI入口，不擅自恢复外观修改器、AI Key或MCP。新功能按已确认范围实现，未验证能力保持不可用或说明限制。
+在codex/前缀的新分支或已有获授权分支工作。可修改UI布局/交互、提示词、只读兼容检查、API适配、Schema与文档。保持用户选定的简洁终端、提示词/JSON入口，不擅自恢复外观修改器、AI Key或MCP。新功能按已确认范围实现，未验证能力保持不可用或说明限制。
 
 网页变化引起旧功能故障时，自动修复并提交PR/按仓库已有流程交付。若用户已授权维护发布，不再人为增加一次“确认发布”；遵守仓库实际分支保护、必要审核和环境授权。保护规则未满足时保留可评审成果并报告，不绕过。
 
@@ -63,10 +53,8 @@ compatibility报告可分享；context包含完整业务信息，留在本机，
 
 ```powershell
 pnpm install --frozen-lockfile
-node native-host/install-windows.mjs build-only
 node --test tests/*.test.js
 node tools/build.mjs
-node tools/package-windows.mjs
 node tools/package-source.mjs
 git diff --check
 ```
@@ -87,7 +75,7 @@ git push origin vX.Y.Z
 gh workflow run release.yml -f tag=vX.Y.Z
 ```
 
-等待对应提交的CI和发布工作流成功；检查草稿中的Chrome/Windows/源码ZIP、SHA256SUMS。用户已授权发布且无额外仓库保护阻塞时，维护AI自行发布：
+等待对应提交的CI和发布工作流成功；检查草稿中的Chrome/源码ZIP、SHA256SUMS。用户已授权发布且无额外仓库保护阻塞时，维护AI自行发布：
 
 ```powershell
 gh release edit vX.Y.Z --draft=false --latest
@@ -98,9 +86,7 @@ gh release download vX.Y.Z --dir RELEASE_DIRECTORY
 
 本机升级按CROSS_DEVICE.md执行。保留原扩展目录有助于维持开发者安装身份；先在新临时目录解压校验，再替换受管理的代码文件，备份原安装。不要把旧版已删除模块留在新目录中。替换/递归移动前核对绝对路径确在目标安装目录，不使用字符串拼接跨shell删除命令。
 
-关闭或重载扩展会中断宿主；只有已确认无写入在途时切换。不要关闭所有Chrome/Node进程。若宿主占用文件，只处理核实路径属于本工具的空闲宿主；无法确认空闲则推迟切换并保留旧版。新旧快照不自动重放。
-
-安装完成后读取版本、tabs、compatibility及必要的context并核验；失败按保存的旧目录和版本回退，再核验。若当前浏览器自动化接口允许且用户已授权，可自行完成扩展重载；否则只列出必须由用户完成的最少一步，不反复询问意愿。
+重载扩展前确认没有在途写入。不要关闭所有Chrome/Node进程，不重放新旧快照。安装后检查实际加载版本与UI、兼容报告。工具不能操作扩展管理页时仅列出必要的用户重新加载步骤，不能绕过授权或接管真实鼠标。
 
 ## 6. 无人值守的完成条件
 
@@ -110,7 +96,7 @@ gh release download vX.Y.Z --dir RELEASE_DIRECTORY
 
 ## 发布页必须保留新手安装说明
 
-每次生成 docs/RELEASE_NOTES.md 时，除改动与真实测试边界外，保留：当前版本下载文件表及直达链接、普通用户只装 chrome.zip 的步骤、首次使用、原目录覆盖更新、可选 Windows CLI、常见问题。链接与文件名必须对应本次 tag，不沿用旧版本。普通插件用法无需 Node.js；不要把 CLI 安装列为所有用户的前置条件。发布工作流使用此文件作为 Release 正文，发布后回读正文与附件确认。同步更新包内中文 START-HERE.txt 和安装手册中的 UI 入口。
+每次生成 docs/RELEASE_NOTES.md 时，除改动与真实测试边界外，保留：当前版本下载文件表及直达链接、普通用户只装 chrome.zip 的步骤、首次使用、原目录覆盖更新、本版移除CLI与宿主的说明、常见问题。链接与文件名必须对应本次 tag，不沿用旧版本。普通插件用法无需 Node.js；不再交付或安装本机CLI。发布工作流使用此文件作为 Release 正文，发布后回读正文与附件确认。同步更新包内中文 START-HERE.txt 和安装手册中的 UI 入口。
 
 ## 2.3 版本检测入口
 
@@ -122,4 +108,8 @@ gh release download vX.Y.Z --dir RELEASE_DIRECTORY
 
 变更局部编辑时必测名称之外字段不变、ID/端点/布局对应、普通数字不被替换、精确引用前置校验，以及import的完整写后回读。没有真实后端测试时标明模拟契约，不许称原子事务。发生版本冲突的诊断必须在失败处理器独立回读，不受dependsOn跳过；未知写入不能重发。
 
-偏好只存固定枚举，按实际网站actor及create/manage场景隔离；禁止提交浏览器存储、计划或账号资料。验证保存/重置时账号切换的scope失效。更换版本不得清除用户偏好或已有防重日志。发布仍使用latest网页跳转和SHA256SUMS，无新增更新元数据文件。
+表达偏好通过问卷记录，只在用户明确勾选记住时长期保存，按实际网站actor及create/manage场景隔离；禁止提交浏览器存储、计划或账号资料。验证保存/重置时账号切换的scope失效。更换版本不得清除用户偏好或已有防重日志。发布仍使用latest网页跳转和SHA256SUMS，无新增更新元数据文件。
+
+## 2.5 回归
+
+必须区分单元/JSDOM/fake-indexeddb、合成接口、实际浏览器隔离页、真实网站写入。node tools/verify-browser.mjs CHROME_PATH PRIVATE_OUTPUT_DIR 使用独立headless配置，离线检验合成快照，并验证网页模式UI；不接触真实鼠标。发布前核对六题门禁、组ID引用、十批历史与未知结果、完整DOM哈希、无CLI权限、使用帮助在主界面。新版 history.list 是扩展本地历史；公司完整编辑历史接口不能冒称存在。

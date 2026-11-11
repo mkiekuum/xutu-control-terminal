@@ -1,16 +1,35 @@
-import {Executor,parseCLI,fail,VERSION,clean} from './core.js';
+import {Executor,validate,fail,VERSION,clean} from './core.js';
 import {ApiAdapter,reads,writes} from './api.js';
 import {legacyToNative,nativeToLegacy} from './converter.js';
-import {validateStep} from './validation.js';
+import {validateStep,parameterSchemas} from './validation.js';
 import {collectContext} from './context.js';
 import {readNativeAnalysis} from './website-guide.js';
 import {buildIntake} from './ai-brief.js';
 import {collectCompatibility,probeNativeCompatibility} from './compatibility.js';
-import {preferencesFor} from './preferences.js';
 import {createUpdateChecker} from './updates.js';
-import {runCliDiagnostics} from './cli-diagnostics.js';
+import {LocalStore,accountKey} from './local-store.js';
+import {IntakeEngine,classify} from './intake.js';
+import {HistoryManager,isBusinessWrite} from './history.js';
+import {capturePage,pageChunk,releasePageExport} from './html-export.js';
+const privateStore=new LocalStore(),intake=new IntakeEngine(privateStore);
+const exportHandles=new Map();
+async function sessionFor(tab){const session=await request(tab,'/api/session');if(!session.actor||session.mustChangePassword)fail('NOT_LOGGED_IN','请先在序图网站登录并完成账号设置。');return session;}
+async function intakeContext(tab,intent='manage'){
+ const session=await sessionFor(tab),raw=await request(tab,'/api/project-groups'),groups=Array.isArray(raw)?raw:raw.groups;
+ if(!Array.isArray(groups))fail('PROJECT_GROUP_UNAVAILABLE','无法核实项目组清单，请稍后重试。');
+ let target=null;if(intent==='manage'){const inspect=await bridge(tab.id,{kind:'inspect'});if(inspect.activeTarget){const api=new ApiAdapter((...a)=>request(tab,...a)),id=await api.resolve(inspect.activeTarget),record=await request(tab,'/api/plans/'+encodeURIComponent(id));target={id,version:record.revision};}}
+ return {...session,tabId:tab.id,groups,target};
+}
+async function exportCommand(tab,op,p){
+ const session=await sessionFor(tab);let func,args;
+ if(op==='site.html.begin'){func=capturePage;args=[p.kind];}
+ else {const handle=exportHandles.get(p.exportId);if(!handle||handle.actor!==session.actor||handle.tabId!==tab.id)fail('EXPORT_CONTEXT_CHANGED','导出已过期或账号/网页变化，请重新导出。');func=op==='site.html.chunk'?pageChunk:releasePageExport;args=[p.exportId,p.offset];}
+ const data=(await chrome.scripting.executeScript({target:{tabId:tab.id},world:'ISOLATED',func,args}))[0]?.result;
+ if(op==='site.html.begin'){if(!data?.exportId)fail('EXPORT_FAILED');exportHandles.set(data.exportId,{actor:session.actor,tabId:tab.id});if(exportHandles.size>16)exportHandles.delete(exportHandles.keys().next().value);}
+ if(op==='site.html.release')exportHandles.delete(p.exportId);return data;
+}
 const checkUpdates=createUpdateChecker({load:async()=>(await chrome.storage.local.get('releaseCheck')).releaseCheck,save:report=>chrome.storage.local.set({releaseCheck:report})});
-async function compatibilityFor(tab){return collectCompatibility({inspect:()=>bridge(tab.id,{kind:'inspect'}),session:()=>request(tab,'/api/session'),plans:()=>request(tab,'/api/plans'),probe:async()=>(await chrome.scripting.executeScript({target:{tabId:tab.id},world:'MAIN',func:probeNativeCompatibility}))[0]?.result,userScripts:async()=>{if(!chrome.userScripts?.getScripts)return false;await chrome.userScripts.getScripts();return true;},nativeConnected:ready});}
+async function compatibilityFor(tab){return collectCompatibility({inspect:()=>bridge(tab.id,{kind:'inspect'}),session:()=>request(tab,'/api/session'),plans:()=>request(tab,'/api/plans'),probe:async()=>(await chrome.scripting.executeScript({target:{tabId:tab.id},world:'MAIN',func:probeNativeCompatibility}))[0]?.result,userScripts:async()=>{if(!chrome.userScripts?.getScripts)return false;await chrome.userScripts.getScripts();return true;}});}
 const store={get:async k=>(await chrome.storage.local.get(k))[k],set:async(k,v)=>chrome.storage.local.set({[k]:v})};
 async function tabFor(e){if(e.tabId){const t=await chrome.tabs.get(e.tabId);if(new URL(t.url).origin!=='https://plan.fpgabbs.cn')fail('PERMISSION_DENIED');return t;}const tabs=await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'});if(tabs.length!==1)fail('TARGET_AMBIGUOUS','请打开唯一序图标签页或指定 tabId');return tabs[0];}
 async function request(tab,path,method='GET',body){
@@ -23,16 +42,25 @@ async function bridge(tabId,message){
  return chrome.tabs.sendMessage(tabId,message);
  }
 }
-export const executor=new Executor(store,async(s,e)=>{
+export const executor=new Executor(store,async(s,e,batch)=>{
  validateStep(s);
  if(s.op==='convert.legacyToNative')return {data:legacyToNative(s.params),serverVerified:false};
  if(s.op==='convert.nativeToLegacy')return {data:nativeToLegacy(s.params),serverVerified:false};
  if(s.op==='system.version')return {data:{version:VERSION},serverVerified:false};
  if(s.op==='site.tabs')return {data:(await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'})).map(t=>({id:t.id,title:t.title,active:t.active})),serverVerified:false};
- if(s.op==='system.capabilities'||s.op==='site.capabilities')return {data:{api:Object.keys(reads).concat(writes,['site.context','site.tabs','site.compatibility']),unavailable:['plan.delete permanent','user.create','user.update','user.disable','role.*','schedule.recalculate','history.diff'],testStatus:'contract observed; test status varies by operation; see docs/LIVE_TEST_RESULTS.md'},serverVerified:false};
- if(s.op==='system.logs'||s.op==='system.status')return {data:(await store.get('job:'+s.params?.requestId))?.result||{status:'unknown'},serverVerified:false};
+ if(s.op==='system.capabilities'||s.op==='site.capabilities')return {data:{api:Object.keys(reads).concat(writes,['site.context','site.tabs','site.compatibility']),local:Object.keys(parameterSchemas).filter(op=>op.startsWith('intake.')||op.startsWith('site.html.')||['history.list','history.diff','history.undo','history.redo','history.restorePoint','history.resolvePending'].includes(op)),unavailable:['plan.delete permanent','user.create','user.update','user.disable','role.*','schedule.recalculate','server history'],testStatus:'contract observed; test status varies by operation; see docs/LIVE_TEST_RESULTS.md'},serverVerified:false};
+ if(s.op==='system.logs'||s.op==='system.status')return {data:(await store.get('job:'+(batch?.scope?batch.scope+':':'')+s.params?.requestId))?.result||{status:'unknown'},serverVerified:false};
  if(s.op==='system.backup.get')return {data:await store.get('snapshot:'+s.params.backupId)||null,serverVerified:false};
  const tab=await tabFor(e);
+ if(batch?.actor&&(await sessionFor(tab)).actor!==batch.actor)fail('HISTORY_CONTEXT_MISMATCH','登录账号在执行期间变化，已停止后续操作。');
+ if(s.op.startsWith('site.html.'))fail('EXPORT_USER_ACTION_REQUIRED','网页原文只通过主界面的复制/导出按钮读取，不进入执行日志。');
+ if(s.op.startsWith('intake.')){const ctx=await intakeContext(tab,s.params?.intent||'manage');if(s.op==='intake.inspect')return {data:await intake.inspect(ctx,s.params),serverVerified:false};const existing=await privateStore.get('intake:'+s.params.intakeId);if(existing?.intent==='create')ctx.target=null;return {data:s.op==='intake.answer'?await intake.answer(ctx,s.params.intakeId,s.params.answers,s.params.rememberExpression):await intake.get(ctx,s.params.intakeId),serverVerified:false};}
+ if(['history.list','history.diff','history.undo','history.redo','history.restorePoint','history.resolvePending'].includes(s.op)){
+ const session=await sessionFor(tab),history=new HistoryManager(privateStore,async(...args)=>{if(args[1]==='POST'&&(await sessionFor(tab)).actor!==session.actor)fail('HISTORY_CONTEXT_MISMATCH');return request(tab,...args);});let data;
+ if(s.op==='history.list')data=await history.list(session.actor);else if(s.op==='history.diff')data=await history.diff(session.actor,s.params);else if(e.mode==='preview'||e.mode==='validate')return {data:{valid:true,notice:'预览不修改网站或历史游标'},serverVerified:false};else if(s.op==='history.resolvePending')data=await history.resolvePending(session.actor);else data=await history.restore(session.actor,session.role,s.params||{},e.requestId,s.op==='history.undo'?'undo':s.op==='history.redo'?'redo':'point');
+ if(data.status&&data.status!=='success')throw Object.assign(Error('部分恢复未完成；已成功的目标保留，请查看各项结果。'),{code:data.status.toUpperCase(),outcome:data.outcomes?.some(x=>x.status==='success')?'partially_executed':'not_executed',diagnostic:data});
+ return {data,serverVerified:!!data.outcomes?.length&&data.status==='success'};
+ }
  if(s.op==='site.compatibility')return {data:await compatibilityFor(tab),serverVerified:false};
  if(s.op==='site.context'){
   const target=s.target?.id||s.target?.number?s.target:(await bridge(tab.id,{kind:'inspect'})).activeTarget;
@@ -42,7 +70,6 @@ export const executor=new Executor(store,async(s,e)=>{
    catch(error){context.siteAnalysis={available:false,reason:error.message};}
    if(!context.siteAnalysis.available){context.complete=false;context.warnings.push('原站评分/计算未读取成功，不能保证状态完整。');}
   }
-  context.preferences=await preferencesFor(store,context.account.actor,'manage');
   context.compatibility=await compatibilityFor(tab);
   context.aiGuidance.intake=buildIntake(context);
   return {data:{...context,tabId:tab.id},serverVerified:!!context.plan&&context.complete};
@@ -54,47 +81,29 @@ export const executor=new Executor(store,async(s,e)=>{
  const p=s.params||{};if(typeof p.source!=='string'||!['MAIN','USER_SCRIPT'].includes(p.world))fail('INVALID_SCHEMA','需要 source 字符串及 world');
  let timer;try{const out=await Promise.race([chrome.userScripts.execute({target:{tabId:tab.id},world:p.world,js:[{code:p.source}]}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(Error('脚本超时；无法取消已运行脚本，请检查网页状态'),{code:'SCRIPT_TIMEOUT'})),20000);})]);if(out.some(x=>x.error))fail('SCRIPT_RUNTIME_ERROR','脚本执行错误；详情仅留在网页开发者工具');return {data:clean(out),serverVerified:false,rollback:'not_guaranteed'};}catch(err){fail(err.code||'SCRIPT_RUNTIME_ERROR',err.code?err.message:'浏览器拒绝或脚本异常，请检查用户脚本权限和网页控制台');}finally{clearTimeout(timer);}
  }
- const api=new ApiAdapter(async(path,method,body)=>{let tries=method==='POST'?1:(e.execution?.retry?.maxAttempts||1);for(let i=0;i<tries;i++){try{return await request(tab,path,method,body);}catch(err){if(err.code!=='NETWORK_ERROR'||i===tries-1)throw err;await new Promise(r=>setTimeout(r,Math.min(10000,(e.execution?.retry?.backoffMs||500)*2**i)));}}},{saveSnapshot:(id,value)=>store.set('snapshot:'+id,value),loadSnapshot:id=>store.get('snapshot:'+id)});return api.run(s,e);
+ const api=new ApiAdapter(async(path,method,body)=>{let tries=method==='POST'?1:(e.execution?.retry?.maxAttempts||1);for(let i=0;i<tries;i++){try{return await request(tab,path,method,body);}catch(err){if(err.code!=='NETWORK_ERROR'||i===tries-1)throw err;await new Promise(r=>setTimeout(r,Math.min(10000,(e.execution?.retry?.backoffMs||500)*2**i)));}}},{saveSnapshot:(id,value)=>store.set('snapshot:'+id,value),loadSnapshot:id=>store.get('snapshot:'+id),expectedActor:batch?.actor});const guarded=batch?.prepared?await batch.history.protectStep(s,batch.prepared):s;const result=await api.run(guarded,e);if(batch?.prepared)await batch.history.trackStep(result,batch.prepared);return result;
+},{
+ context:async e=>{if(!e.steps.some(s=>isBusinessWrite(s)||s.op.startsWith('history.')||s.op.startsWith('intake.')||['system.logs','system.status'].includes(s.op)))return null;const tab=await tabFor(e),session=await sessionFor(tab);return {...session,tab,scope:await accountKey(session.actor)};},
+ before:async(e,ctx)=>{
+ if(!e.steps.some(isBusinessWrite)||['validate','preview'].includes(e.mode))return ctx;
+ if(e.steps.some(s=>['history.undo','history.redo','history.restorePoint','history.resolvePending'].includes(s.op)))fail('INVALID_SCHEMA','历史恢复与业务写入请分成独立批次。');
+ const history=new HistoryManager(privateStore,(...args)=>request(ctx.tab,...args));
+ const needsIntake=e.intakeId||e.steps.some(s=>s.op==='plan.create')||classify('',e).complex;
+ if(needsIntake){const ledger=e.intakeId?await privateStore.get('intake:'+e.intakeId):null;const c=await intakeContext(ctx.tab,ledger?.intent||'create');await intake.guard(e,c);}
+ const prepared=await history.prepare(ctx.actor,e);return {...ctx,history,prepared};
+ },
+ after:async(e,result,ctx)=>ctx?.prepared?ctx.history.finish(ctx.actor,ctx.prepared,e,result):undefined
 });
 chrome.runtime.onMessage.addListener((message,sender,reply)=>{
  if(sender.id!==chrome.runtime.id||sender.url?.split(/[?#]/)[0]!==chrome.runtime.getURL('ui.html'))return;
  (async()=>{
   if(message.kind==='openSite'){const tabs=await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'});if(tabs.length)await chrome.tabs.update(tabs[0].id,{active:true});else await chrome.tabs.create({url:'https://plan.fpgabbs.cn/'});return {opened:true};}
-  if(message.kind==='native'){try{await connectNative();return {connected:true,message:'CLI 已连接，可直接运行命令。'};}catch(e){return {connected:false,message:e.message};}}
   if(message.kind==='tabs')return (await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'})).map(t=>({id:t.id,title:t.title,active:t.active}));
-  if(message.kind==='preferences'){const tab=await tabFor({tabId:message.tabId});const session=await request(tab,'/api/session');if(!session.actor||session.mustChangePassword)fail('NOT_LOGGED_IN');return preferencesFor(store,session.actor,message.scene,message.action,message.values,message.scope);}
   if(message.kind==='updates')return checkUpdates();
-  if(message.kind==='cliTest')return runCliDiagnostics({tabId:message.tabId,probeHost:async()=>{
-   await connectNative();if(nativeInfo?.diagnostics!==1)throw {code:'HOST_TOO_OLD'};return nativeDiagnostic('ping');
-  },query:async selected=>{
-   let tab;try{tab=await chrome.tabs.get(selected);}catch{throw {code:'TARGET_NOT_FOUND'};}
-   if(!tab.url?.startsWith('https://plan.fpgabbs.cn/'))throw {code:'TARGET_ORIGIN'};
-   return nativeDiagnostic('query',{tabId:selected},22000);
-  }});
-  if(message.kind==='run')return executor.run(message.command);
+  if(message.kind==='intake'){const tab=await tabFor(message),ctx=await intakeContext(tab,message.intent);if(message.action==='inspect')return intake.inspect(ctx,message);if(message.action==='answer')return intake.answer(ctx,message.intakeId,message.answers,message.rememberExpression);if(message.action==='resetExpression')return intake.resetExpression(ctx,message.intakeId);if(message.action==='confirm')return intake.confirm(ctx,message.intakeId,message.command);fail('INVALID_SCHEMA');}
+  if(message.kind==='export'){const op='site.html.'+message.action;validateStep({id:'export',op,params:message.params});if(!['site.html.begin','site.html.chunk','site.html.release'].includes(op))fail('INVALID_SCHEMA');return exportCommand(await tabFor(message),op,message.params);}
+  if(message.kind==='run'){const e=message.command;if(e?.steps?.some(s=>s.op?.startsWith('site.html.'))){validate(e);if(e.steps.length!==1)fail('INVALID_SCHEMA','网页导出请使用独立指令，不与业务操作混合');const s=e.steps[0];validateStep(s);if(!['site.html.begin','site.html.chunk','site.html.release'].includes(s.op))fail('INVALID_SCHEMA');const value=['preview','validate'].includes(e.mode)?{valid:true}:await exportCommand(await tabFor(e),s.op,s.params);return {protocol:'xutu.result/v1',requestId:e.requestId,status:'success',steps:[{id:s.id,status:'success',serverVerified:false,data:value}],notice:'此导出不写入日志或批次历史'};}return executor.run(e);}
   fail('INVALID_SCHEMA');
- })().then(reply,e=>reply({status:'failed',code:e.code||'INTERNAL_ERROR',message:e.message}));return true;
+ })().then(reply,e=>reply({status:'failed',...(message.command?.requestId?{requestId:message.command.requestId}:{}),code:e.code||'INTERNAL_ERROR',message:e.message}));return true;
 });
-let native,ready=false,connecting,nativeInfo;const nativeTests=new Map();
-function nativeDiagnostic(action,params={},timeout=5000){
- return new Promise((resolve,reject)=>{
-  if(!native||!ready){reject({code:'HOST_DISCONNECTED'});return;}
-  const id=crypto.randomUUID(),timer=setTimeout(()=>{nativeTests.delete(id);reject({code:action==='ping'?'HOST_TIMEOUT':'CLI_TIMEOUT'});},timeout);
-  nativeTests.set(id,{resolve:result=>{clearTimeout(timer);resolve(result);},reject:error=>{clearTimeout(timer);reject(error);}});
-  try{native.postMessage({kind:'diagnostic',id,action,...params});}catch{nativeTests.get(id)?.reject({code:'HOST_DISCONNECTED'});nativeTests.delete(id);}
- });
-}
-function connectNative(){
- if(ready)return Promise.resolve();if(connecting)return connecting;
- connecting=new Promise((resolve,reject)=>{
-  let settled=false;const done=error=>{if(settled)return;settled=true;clearTimeout(timer);error?reject(error):resolve();};
-  const timer=setTimeout(()=>{done(Object.assign(Error('宿主响应超时'),{code:'HOST_TIMEOUT'}));native?.disconnect();native=null;ready=false;},8000);
-  try{
-   native=chrome.runtime.connectNative('cn.fpgabbs.xutu');
-   native.onMessage.addListener(m=>{if(m.kind==='ready'){nativeInfo=m;ready=true;done();return;}if(m.kind==='diagnostic-result'){nativeTests.get(m.id)?.resolve(m.result);nativeTests.delete(m.id);return;}executor.run(m.command).then(result=>native?.postMessage({id:m.id,result}),e=>native?.postMessage({id:m.id,result:{status:'failed',code:e.code||'INTERNAL_ERROR',message:e.message}}));});
-   native.onDisconnect.addListener(()=>{const detail=chrome.runtime.lastError?.message||'';native=null;nativeInfo=null;ready=false;for(const test of nativeTests.values())test.reject({code:'HOST_DISCONNECTED'});nativeTests.clear();const code=/not found/i.test(detail)?'HOST_NOT_FOUND':'HOST_CONNECT_FAILED';done(Object.assign(Error('本地 CLI 未连接，请按安装说明检查。'),{code}));});
-  }catch{native=null;done(Object.assign(Error('本地 CLI 连接失败'),{code:'HOST_CONNECT_FAILED'}));}
- }).finally(()=>{connecting=null;});return connecting;
-}
-chrome.runtime.onStartup.addListener(()=>connectNative().catch(()=>{}));
 chrome.runtime.onInstalled.addListener(()=>{chrome.storage.local.remove(['xutuThemes','xutuThemeUndo','releaseCheck']);chrome.storage.session.remove('aiConnection');});

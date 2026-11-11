@@ -69,4 +69,6 @@ node.renumber 同步节点 ID、连线 from/to、positions 键（包括位置和
 
 格式通过、预览、服务端回读确认、部分成功、未执行、结果尚未确认分别表达。主要界面使用普通说明，技术码与细节留在可展开结果中；结果可复制给用户选择的 AI，可能含计划内容，不能公开上传 GitHub。基础兼容检查不是全功能正常或写权限认证。
 
-完整 Schema 见 schemas/operation.schema.json、command.schema.json、result.schema.json；106项本地测试及真实验证边界见 TEST_REPORT.md。新增写入操作尚未在真实网站验证，安装重载需用户在浏览器允许的流程完成。
+完整 Schema 见 schemas/operation.schema.json、command.schema.json、result.schema.json；本轮测试及真实验证边界见 V2.5_TEST_REPORT.md。新增写入操作尚未在真实网站验证，安装重载需用户在浏览器允许的流程完成。
+
+2.5自动批次快照不受backup:false控制；同批后续无显式版本的操作也使用前步真实回读版本。快照与首写之间有并发修改时拒绝，不能把旧日期保存在可撤销记录后再覆盖它。见V2.5_UNDO_HISTORY.md。

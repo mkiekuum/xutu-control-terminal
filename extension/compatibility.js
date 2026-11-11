@@ -11,7 +11,7 @@ export function probeNativeCompatibility(){
  return result;
 }
 
-export async function collectCompatibility({inspect,session,plans,probe,userScripts,nativeConnected=false}){
+export async function collectCompatibility({inspect,session,plans,probe,userScripts}){
  const jobs=await Promise.allSettled([inspect,session,plans,probe,userScripts].map(run=>Promise.resolve().then(run)));
  const [page,auth,list,engine,scripts]=jobs.map(r=>r.status==='fulfilled'?r.value:null),checks=[];
  const add=(id,status,message)=>checks.push({id,status,message});
@@ -28,8 +28,8 @@ export async function collectCompatibility({inspect,session,plans,probe,userScri
  add('calculation',engine?(engine.calculation&&engine.samplePassed?'pass':'warning'):'unknown',engine?.calculation&&engine.samplePassed?'原生计算接口通过1天合成样例。':'原生计算接口未通过检查；不应推断工期计算兼容。');
  add('scoring',engine?(engine.scoring?'pass':'warning'):'unknown',engine?.scoring?'已发现原生评分函数；未证明所有评分规则不变。':'未确认原生评分函数。');
  add('progress',engine?(engine.progress?'pass':'warning'):'unknown',engine?.progress?'已发现原生完成率函数。':'未确认原生完成率函数。');
- add('javascript',scripts===true?'pass':'optional',scripts===true?'用户脚本接口可读取；具体脚本仍受浏览器限制。':'JavaScript授权未确认；JSON/CLI业务指令不依赖此授权。');
- add('native',nativeConnected?'pass':'optional',nativeConnected?'本地CLI宿主已连接。':'本地CLI未连接；复制提示词和JSON终端可独立使用。');
+ add('javascript',scripts===true?'pass':'optional',scripts===true?'用户脚本接口可读取；具体脚本仍受浏览器限制。':'JavaScript授权未确认；JSON业务指令不依赖此授权。');
+ add('localFeatures','optional','问卷门禁、HTML导出与本地十步历史已提供；此项不代表导出或恢复写入已验证。');
  const status=checks.some(c=>c.status==='fail')?'unavailable':checks.some(c=>['warning','unknown'].includes(c.status))?'limited':'ok';
  return {schema:'xutu.compatibility/v1',extensionVersion:VERSION,checkedAt:new Date().toISOString(),site:'https://plan.fpgabbs.cn/',status,checks,scope:'当前网页基础只读检查；未执行任何业务写入。',limitations:['不是全站兼容或写权限认证；最终以服务器权限及实际操作回读为准。','未扫描所有新增字段或接口；新功能需维护者核实。','未比较全部网站资源或评分规则版本；网站更新检测按维护手册执行。'],privacy:'此报告不包含姓名、计划内容、计划ID、本机路径、Cookie或连接密钥。'};
 }

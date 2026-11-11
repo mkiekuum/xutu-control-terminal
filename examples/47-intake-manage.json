@@ -1,0 +1,15 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "47-intake-manage",
+  "mode": "execute",
+  "steps": [
+    {
+      "id": "q",
+      "op": "intake.inspect",
+      "params": {
+        "intent": "manage",
+        "request": "复杂重构当前计划，请先核实资源和业务约束"
+      }
+    }
+  ]
+}

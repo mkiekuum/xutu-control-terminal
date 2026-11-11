@@ -17,7 +17,5 @@ jobs:
         with:
           version: 11.25.0
       - run: pnpm install --frozen-lockfile
-      - run: node native-host/install-windows.mjs build-only
-        if: runner.os == 'Windows'
       - run: node --test tests/*.test.js
       - run: node tools/build.mjs
