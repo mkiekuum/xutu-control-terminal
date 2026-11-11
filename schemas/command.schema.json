@@ -194,7 +194,8 @@
                     "history.resolvePending",
                     "site.html.begin",
                     "site.html.chunk",
-                    "site.html.release"
+                    "site.html.release",
+                    "plan.batch"
                   ]
                 }
               },

@@ -115,3 +115,10 @@ gh release download vX.Y.Z --dir RELEASE_DIRECTORY
 ## 2.5 回归
 
 必须区分单元/JSDOM/fake-indexeddb、合成接口、实际浏览器隔离页、真实网站写入。node tools/verify-browser.mjs CHROME_PATH PRIVATE_OUTPUT_DIR 使用独立headless配置，离线检验合成快照，并验证网页模式UI；不接触真实鼠标。发布前核对六题门禁、组ID引用、十批历史与未知结果、完整DOM哈希、无CLI权限、使用帮助在主界面。新版 history.list 是扩展本地历史；公司完整编辑历史接口不能冒称存在。
+## v2.5.2 批量编辑与最小修改
+
+单计划结构调整使用 plan.batch，target 给稳定 id 和最新 version，params 为 changes:[{op,params}]。允许计划属性、节点、边、合并拆分和虚线简化的正式白名单；不能嵌套batch、创建/删除整个计划、审核、脚本或跨计划操作。完整参数见 schemas/operation.schema.json。
+
+所有子变换在本地副本验证，通过后一次受版本保护提交并回读，未指定的日期、人员、基线和布局保留。不是服务端多操作事务；超时仍可能是未知结果。旧多步JSON在满足单目标和版本依据条件时由主界面自动合并，结果摘要显示一次提交；不满足条件保持旧行为，不宣称全批原子性。
+
+命令格式校验通过不等于已写入。内容无变化会跳过保存；冲突只读回查，不能猜版本重发。详细限制和验收见 docs/V2.5.2_RELIABILITY.md。

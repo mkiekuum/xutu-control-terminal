@@ -48,6 +48,8 @@ parameterSchemas['history.resolvePending']=object({acknowledge:{const:true}},['a
 parameterSchemas['site.html.begin']=object({kind:{enum:['raw','offline']}},['kind']);
 parameterSchemas['site.html.chunk']=object({exportId:nonempty,offset:{type:'integer',minimum:0}},['exportId','offset']);
 parameterSchemas['site.html.release']=object({exportId:nonempty},['exportId']);
+export const batchOperations=['plan.update','schedule.updateInputs','node.create','node.update','node.batchUpdate','node.renumber','node.remove','node.reorder','edge.create','edge.update','edge.remove','graph.simplify','task.merge','task.split'];
+parameterSchemas['plan.batch']=object({changes:{type:'array',minItems:1,maxItems:100,items:{oneOf:batchOperations.map(op=>object({op:{const:op},params:parameterSchemas[op]},['op','params']))}}},['changes']);
 function invalid(path){throw Object.assign(Error('参数不符合约束：'+path),{code:'INVALID_SCHEMA'});}
 export function checkSchema(schema,value,path='$'){
  if(schema.oneOf){const matches=schema.oneOf.filter(choice=>{try{checkSchema(choice,value,path);return true;}catch{return false;}});if(matches.length!==1)invalid(path);}
@@ -59,14 +61,14 @@ export function checkSchema(schema,value,path='$'){
  if(typeof value==='number'&&(!Number.isFinite(value)||schema.minimum!==undefined&&value<schema.minimum||schema.maximum!==undefined&&value>schema.maximum))invalid(path);
  if(schema.minLength!==undefined&&value.length<schema.minLength)invalid(path);
  if(schema.type==='object'){for(const key of schema.required||[])if(!Object.hasOwn(value,key))invalid(path+'.'+key);for(const[k,v]of Object.entries(value)){if(['__proto__','prototype','constructor'].includes(k))invalid(path+'.'+k);if(schema.properties?.[k])checkSchema(schema.properties[k],v,path+'.'+k);else if(schema.additionalProperties===false)invalid(path+'.'+k);}}
- if(schema.type==='array'){if(schema.uniqueItems&&new Set(value.map(x=>JSON.stringify(x))).size!==value.length)invalid(path);if(schema.items)value.forEach((v,i)=>checkSchema(schema.items,v,path+'['+i+']'));}
+ if(schema.type==='array'){if(schema.minItems!==undefined&&value.length<schema.minItems||schema.maxItems!==undefined&&value.length>schema.maxItems)invalid(path);if(schema.uniqueItems&&new Set(value.map(x=>JSON.stringify(x))).size!==value.length)invalid(path);if(schema.items)value.forEach((v,i)=>checkSchema(schema.items,v,path+'['+i+']'));}
  return value;
 }
 export function validateStep(s){
  if(s.target?.version!==undefined&&s.target?.versionFrom!==undefined)invalid('版本依据只能选择version或versionFrom之一');
  if(parameterSchemas[s.op])checkSchema(parameterSchemas[s.op],s.params||{},s.op);
  if(s.target!==undefined)checkSchema(object({id:nonempty,number:nonempty,owner:nonempty,version:{type:'integer',minimum:0},versionFrom:nonempty}),s.target,'target');
- if(/^(node|edge|progress|review|graph)\./.test(s.op)||['task.merge','task.split','task.assign','task.updateStatus','plan.get','plan.update','plan.replace','plan.copy','plan.export','plan.archive','plan.delete','plan.restore','plan.restoreSnapshot','schedule.updateInputs','history.restore'].includes(s.op)){
+ if(/^(node|edge|progress|review|graph)\./.test(s.op)||['task.merge','task.split','task.assign','task.updateStatus','plan.batch','plan.get','plan.update','plan.replace','plan.copy','plan.export','plan.archive','plan.delete','plan.restore','plan.restoreSnapshot','schedule.updateInputs','history.restore'].includes(s.op)){
   if(!s.target?.id&&!s.target?.number)invalid('target.id 或 target.number');
  }
 }

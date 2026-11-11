@@ -1,3 +1,4 @@
+import {compactPlanEdits} from './batch-input.js';
 import {prepareCommand,buildPrompt,summarize,commandSummary,stableRequestId} from './terminal.js';
 import {formatCompatibility} from './compatibility.js';
 import {VERSION} from './core.js';
@@ -5,6 +6,7 @@ import {buildAgentUpdatePrompt,updateStatusText} from './updates.js';
 import {setupHistory,setupExport} from './ui-workflows.js';
 const $=id=>document.getElementById(id);let tabs=[],lastRequestId='',compatibilityReport=null,compatibilityGeneration=0,refreshGeneration=0;
 let intent='create',updateReport=null;
+chrome.runtime.onMessage.addListener((m,sender)=>{if(sender.id===chrome.runtime.id&&m.kind==='executionPhase'&&m.requestId===lastRequestId&&$('execute').disabled){const labels={checking:'正在检查网站最新内容…',submitting:'正在提交修改，请勿重复执行…',verifying:'网站已响应，正在回读核对…'};if(labels[m.phase])message(labels[m.phase]);}});
 function chooseIntent(value){intent=value;$('createPlan').setAttribute('aria-pressed',String(value==='create'));$('managePlan').setAttribute('aria-pressed',String(value==='manage'));$('requestLabel').textContent=value==='create'?'新建计划的需求':'管理计划的需求';$('request').placeholder=value==='create'?'想新建什么计划？写下目标和要求…':'要新增、删除任务，还是调整依赖、人员或进度？';}
 $('createPlan').onclick=()=>chooseIntent('create');$('managePlan').onclick=()=>chooseIntent('manage');
 const tabId=()=>Number($('tabs').value)||undefined;
@@ -50,8 +52,8 @@ $('copyPrompt').onclick=()=>busy('copyPrompt',async()=>{
 });
 $('execute').onclick=()=>busy('execute',async()=>{
  lastRequestId=await stableRequestId($('editor').value);
- const command=prepareCommand($('editor').value,tabId(),lastRequestId);
- $('changeSummary').textContent=commandSummary(command);message('格式校验通过，正在核对网站最新内容并执行…');await new Promise(resolve=>setTimeout(resolve,0));const result=await send({kind:'run',command});$('output').textContent=JSON.stringify(result,null,2);$('resultDetails').hidden=false;message(summarize(result),result.status!=='success');if(result.status!=='success')$('resultDetails').open=true;await historyUI.load(false).catch(()=>{});
+ const command=compactPlanEdits(prepareCommand($('editor').value,tabId(),lastRequestId));
+ $('changeSummary').textContent=commandSummary(command);message('格式校验通过，正在核对网站最新内容并执行…');await new Promise(resolve=>setTimeout(resolve,0));let result;try{result=await send({kind:'run',command});}catch{result={requestId:command.requestId,status:'failed',code:'TIMEOUT_RESULT_UNKNOWN',message:'连接中断，执行结果尚未确认。请只读核对，不要重新提交。'};}$('output').textContent=JSON.stringify(result,null,2);$('resultDetails').hidden=false;message(summarize(result),result.status!=='success');if(result.status!=='success')$('resultDetails').open=true;await historyUI.load(false).catch(()=>{});
 });
 $('editor').addEventListener('input',()=>{try{$('changeSummary').textContent=commandSummary(prepareCommand($('editor').value,tabId(),'preview-only'));}catch{$('changeSummary').textContent='请粘贴完整指令；格式校验通过后显示改动摘要。';}});
 $('copyResult').onclick=event=>{event.preventDefault();busy('copyResult',async()=>{await clipboard($('output').textContent);message('结果已复制。');});};
