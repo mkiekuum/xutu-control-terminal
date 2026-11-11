@@ -1,3 +1,5 @@
+> v2.5.1 更新：所有澄清、表达偏好、分工与估时确认均在外部 AI 对话中完成。插件不再提供本地问卷、偏好设置、intakeId 门禁或方案确认按钮。以下旧版相关描述已被此决定取代。
+
 # 命令参考 v2.5
 
 插件仅接收 JSON/Markdown JSON。信封 protocol=xutu.command/v1、requestId、steps，按需 mode/tabId/intakeId。普通执行器保留参数、权限、版本、去重、独立失败回读。复杂写入使用本地问卷；script.execute 不得绕过正式契约。CLI 已删除。

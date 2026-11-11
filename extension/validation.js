@@ -42,9 +42,6 @@ export const parameterSchemas={
 parameterSchemas['schedule.updateInputs']=parameterSchemas['plan.update'];
 parameterSchemas['progress.complete']=parameterSchemas['progress.update'];
 for(const op of ['graph.inspect','graph.simplify','plan.list','plan.get','plan.export','plan.archive','plan.restore','node.list','edge.list','progress.read','review.status','review.submit','review.approve','history.list','project.list','group.list','task.list','user.list','site.session','system.version','system.health','system.capabilities','site.inspect','site.capabilities','site.context','site.tabs','site.compatibility'])parameterSchemas[op]=object({});
-parameterSchemas['intake.inspect']=object({request:nonempty,intent:{enum:['create','manage']}},['request','intent']);
-parameterSchemas['intake.answer']=object({intakeId:nonempty,rememberExpression:boolean,answers:object(Object.fromEntries(['title','number','startDate','deadlineDate','projectGroupId','goal','resources','expression'].map(k=>[k,string])))},['intakeId','answers']);
-parameterSchemas['intake.status']=object({intakeId:nonempty},['intakeId']);
 for(const op of ['history.undo','history.redo','history.list'])parameterSchemas[op]=object({});
 for(const op of ['history.diff','history.restorePoint'])parameterSchemas[op]=object({historyId:nonempty,point:{enum:['before','after']},...(op==='history.diff'?{compareId:nonempty}:{})},['historyId']);
 parameterSchemas['history.resolvePending']=object({acknowledge:{const:true}},['acknowledge']);

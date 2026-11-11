@@ -7,7 +7,7 @@ test('版本检查只接受插件UI消息、并发合并且不接受调用者指
  globalThis.fetch=async(url,options)=>{
   requests++;assert.equal(url,RELEASE_PAGE);assert.equal(options.credentials,'omit');
   await new Promise(resolve=>setTimeout(resolve,10));
-  return {status:200,url:REPOSITORY+'/releases/tag/v2.5.0',body:null};
+  return {status:200,url:REPOSITORY+'/releases/tag/v2.5.1',body:null};
  };
  try{
   await import('../extension/background.js');

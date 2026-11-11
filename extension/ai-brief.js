@@ -1,4 +1,4 @@
-// v2.5 intake is enforced in the executor, not solely in these instructions.
+// All clarification happens in the external AI conversation.
 // Derive gaps without inventing dates, people, assignments or user intent.
 export function buildIntake(context){
  const p=context?.plan?.current;
@@ -58,7 +58,7 @@ export const editingRules=`三类规则必须分开：
 【网站硬性规则】节点表示事件/成果；边表示工作或依赖，虚线只能零耗时；真实估时、无环、字段类型、权限、版本保护是约束。
 【网站质量建议】过长/过碎、串行、虚线比例、合并候选与分数仅供建议，不是错误，不阻止合法执行。不能为了提分改变真实工期、人员、必做工作或依赖。
 【个人偏好】命名风格、是否使用“学习”、简短程度、汇报/执行、连续编号、节点数量不是网站规则。没有本次选择或该账号明确记住的偏好，就用中性易懂表达，不套用作者个人习惯。
-偏好只影响表达与建议，不扩张本次业务授权。明确本次选择与记住的长期偏好；需要持久记住请用户在需求问卷中勾选记住表达习惯，可查看、修改、重置。
+偏好只影响表达与建议，不扩张本次业务授权。明确本次选择与记住的长期偏好；插件不保存长期偏好；如需沿用，由用户在AI对话中说明，不要求填写本地表单。
 仅改名称不要追问负责人、日期和目标；只改编号不要改业务依赖；简化语言不等于合并任务、重估工期或删除内容。只求建议就只给建议，不输出写入指令。
 默认保留计划编号/负责人、未要求改动的内容、人员、日期、工期、依赖、进度、审核、基线和布局。生成JSON前用一句话写出真实改动摘要，不新增每次确认弹窗；列明工期变化及原因，不能把整理变成无解释延期。
 批量改名使用 node.batchUpdate（updates:[{id,set:{name}}]）；连续编号使用 node.renumber 的明确 mapping:[{from,to}]，展示旧→新对应。node.reorder 仅显示排序，不改ID；编号连续不代表串行。两种新命令从最新快照只修改指定字段，经现有 import 单次受版本保护提交并回读；不虚称服务端多操作事务。无需 plan.replace，更不能 script.execute 绕过契约。普通数字如型号/数量/日期不能全局替换；[[node:编号]] 是明确文本引用，其他文字引用需 references 精确列明原文和新文。无法识别的引用先问，不猜。

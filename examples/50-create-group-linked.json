@@ -2,7 +2,6 @@
   "protocol": "xutu.command/v1",
   "requestId": "50-create-group-linked",
   "mode": "execute",
-  "intakeId": "INTAKE_ID_FROM_INSPECT",
   "steps": [
     {
       "id": "create",

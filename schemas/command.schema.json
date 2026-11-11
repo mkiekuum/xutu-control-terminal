@@ -187,9 +187,6 @@
                     "site.context",
                     "site.tabs",
                     "site.compatibility",
-                    "intake.inspect",
-                    "intake.answer",
-                    "intake.status",
                     "history.undo",
                     "history.redo",
                     "history.diff",
@@ -215,7 +212,7 @@
     "intakeId": {
       "type": "string",
       "minLength": 1,
-      "description": "插件本机问卷 ID，不能通过 JSON 伪造完成状态"
+      "description": "旧版字段兼容接收，不再触发本地问卷或确认"
     }
   },
   "additionalProperties": false,

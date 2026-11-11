@@ -66,12 +66,9 @@
   },
   "authenticatedTests": false,
   "extensionLocal": {
-    "version": "2.5.0",
+    "version": "2.5.1",
     "operations": [
       "history.list",
-      "intake.inspect",
-      "intake.answer",
-      "intake.status",
       "history.undo",
       "history.redo",
       "history.diff",

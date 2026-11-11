@@ -1,6 +1,6 @@
-# 可复制 JSON 示例 v2.5
+# JSON示例 v2.5.1
 
-共61份，位于 examples/。均通过 Schema；合成操作回归见测试报告。示例 ID/编号/版本/问卷ID必须换成实际回读结果，不能直接在真实业务计划盲目执行。输入仍为完整 JSON 或单一 JSON 代码块。旧例中新建/复杂调整现在需要本地 intakeId 和方案核实，旧CLI方式不再支持。
+共57份。问题、偏好、人员与估时在AI聊天中核实，无本地问卷或intakeId要求。示例中的目标ID、版本需替换为实际读取值。
 
 - [01.json](../examples/01.json)
 - [02.json](../examples/02.json)
@@ -40,13 +40,9 @@
 - [36.json](../examples/36.json)
 - [44.json](../examples/44.json)
 - [45.json](../examples/45.json)
-- [46-intake-create.json](../examples/46-intake-create.json)
 - [46.json](../examples/46.json)
-- [47-intake-manage.json](../examples/47-intake-manage.json)
 - [47.json](../examples/47.json)
-- [48-intake-answer.json](../examples/48-intake-answer.json)
 - [48.json](../examples/48.json)
-- [49-intake-status.json](../examples/49-intake-status.json)
 - [50-create-group-linked.json](../examples/50-create-group-linked.json)
 - [50.json](../examples/50.json)
 - [51-html-raw.json](../examples/51-html-raw.json)
@@ -63,5 +59,3 @@
 - [59-history-restore-point.json](../examples/59-history-restore-point.json)
 - [60-history-resolve.json](../examples/60-history-resolve.json)
 - [61-history-compare.json](../examples/61-history-compare.json)
-
-46–49 建立/回答/读取问卷；50 创建并分组，组ID与问卷一致，需先用UI确认提案；51–54 读取导出元数据/分块/释放，普通用户用按钮自动收齐；55–61 本地历史列表、撤销、重做、对比、历史点及未知结果核对。占位值不是事实，也不是模拟成功。

@@ -17,7 +17,7 @@ export function prepareCommand(text,tabId,requestId){
  validate(command);for(const step of command.steps){if(/^(theme|layout)\./.test(step.op))throw Error('外观功能已移除。');validateStep(step);}
  return command;
 }
-export function buildPrompt(request,context,tabId,{intent,preferences,intakeLedger}={}){
+export function buildPrompt(request,context,tabId,{intent}={}){
  if(!request.trim())throw Error('先写下你想做什么。');
  const businessContext=context?Object.fromEntries(Object.entries(context).filter(([key])=>!['websiteGuide','commandContract','aiGuidance','preferences'].includes(key))):null;
  const contracts=Object.fromEntries(Object.entries(parameterSchemas).filter(([op])=>op!=='script.execute'));
@@ -25,9 +25,7 @@ export function buildPrompt(request,context,tabId,{intent,preferences,intakeLedg
  if(intent){intake.selectedIntent=intent;intake.unknowns=intake.unknowns.slice(1);}
  const intentGuide=intent==='create'?'用户已在插件明确选择【新建】。创建独立的新计划，优先一次plan.create提交完整节点与连线；不得用plan.replace/plan.update覆盖当前计划。当前选中计划只是参考，不自动继承其编号、负责人、执行人、日期、审核、基线或进度；新计划编号应核对未占用。不要再追问新建还是管理；若用户文字与此选择冲突，先澄清。':intent==='manage'?'用户已在插件明确选择【管理】。这包括新增/删除任务、合并拆分、调整依赖与结构、人员、日期、进度和审核等现有命令支持的操作，不局限于微调任务内部文字。根据用户具体授权选择命令，保留未要求改动的其他内容；不擅自扩大删除或审核范围。涉及既有计划时须确认目标和版本；未选中计划或目标不清楚先澄清，不猜目标。':'';
  return aiInstructions+'\n\n本次资料生成时间：'+new Date().toISOString()+'；用户浏览器时区：'+(context?.clientTimeZone||Intl.DateTimeFormat().resolvedOptions().timeZone||'未确认')+
- '\n本次表达偏好（来自问卷；不扩张授权）：'+JSON.stringify(intakeLedger?.facts?.expression?.value||preferences||{})+
- '\n插件问卷台账（由本地保存；不得伪造已答或确认状态）：'+JSON.stringify(intakeLedger||null)+
- '\n执行门禁：新建及复杂调整必须使用本地问卷 intakeId；先回答首轮3–6题，优先复用事实，追问仅限缺项。未答完只讨论不生成执行JSON；用户将答复保存到插件。答完后在聊天中直接给一个完整JSON代码块，顶层携带intakeId='+String(intakeLedger?.id||'尚未建立')+'。不得交付JSON文件链接。提议估时/分工需在插件核实具体方案，不能声称AI自己已批准。简单改名不要求整计划问卷。表达偏好在问卷中选择，默认中性。'+
+ '\n所有业务澄清、表达偏好、人员与建议估时确认都在你与用户的AI聊天中完成。复杂任务先问3–6个有价值的问题，后续只补缺项；简单改名不问无关字段。不要要求用户填写插件问卷、保存偏好或点击方案确认。插件没有本地问卷、长期偏好或intakeId门禁。信息充分后直接给一个完整JSON代码块，不生成文件链接。'+
  '\n项目组关联：project.assignPlan.params.planIdFrom={stepId:前面plan.create步骤id,field:"targetId"}，并dependsOn依赖该创建步骤；不得猜新建ID。网站截止是硬约束，预测完成不是deadline；owner默认当前账号，但节点负责人/连线executor须分别核实。'+
  '\n本次操作选择：'+intentGuide+
  '\n信息核对摘要：'+JSON.stringify(intake)+

@@ -1,6 +1,5 @@
 import {prepareCommand,stableRequestId,summarize,commandSummary} from './terminal.js';
 import {assembleExport} from './html-export.js';
-import {UNSET} from './intake.js';
 const labels={title:'计划名称',number:'计划编号',startDate:'开工日期',deadlineDate:'硬截止日期',projectGroupId:'项目组',goal:'交付、优先级与验收',resources:'人员、设备、工期依据',expression:'本次表达与修改偏好'};
 const element=(tag,text)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;};
 function checked(result){if(result?.status==='failed')throw Error(result.message||result.code);return result;}
@@ -15,38 +14,6 @@ export function proposalText(command){
   if(s.op==='project.assignPlan')lines.push('分配到项目组：'+(p.groupId||'不分组'));
  }
  return lines.join('\n');
-}
-export function setupIntake(h){
- const {$,tabId,send,message,busy,intent}=h;let ledger=null,fields=new Map();
- const call=async(action,extra={})=>checked(await send({kind:'intake',action,tabId:tabId(),intent:intent(),intakeId:ledger?.id,...extra}));
- function reset(){ledger=null;fields.clear();$('intakePanel').hidden=true;$('proposalPanel').hidden=true;$('proposalStatus').textContent='';}
- function render(value){ledger=value;fields.clear();$('intakePanel').hidden=false;$('intakeState').textContent=value.roundAnswered?'答复已保存':value.required?'需核实后才能执行':'本次可选';$('intakeQuestions').replaceChildren();
-  for(const q of value.questions){const section=element('fieldset'),legend=element('legend',q.title);section.append(legend);
-   for(const name of q.fields){const label=element('label',labels[name]),input=element(name==='projectGroupId'?'select':['goal','resources','expression'].includes(name)?'textarea':'input');input.id='answer-'+name;input.setAttribute('aria-label',labels[name]);
-    if(name==='projectGroupId'){for(const option of [{id:'',name:'请选择'}, {id:UNSET,name:'明确不分组'},...value.groups.map(g=>({id:g.id,name:(g.number||'')+' '+g.name}))]){const o=element('option',option.name);o.value=option.id;input.append(o);}}
-    if(['startDate','deadlineDate'].includes(name))input.type='date';
-    const fact=value.facts[name];input.value=fact?(fact.value===''&&name==='projectGroupId'?UNSET:fact.value):name==='expression'?value.rememberedExpression||'':'';
-    if(name==='title'){const list=element('datalist');list.id='title-suggestions';for(const text of value.titleSuggestions)list.append(element('option',text));input.setAttribute('list',list.id);section.append(list);}
-    if(input.tagName==='TEXTAREA'){input.rows=2;input.placeholder=name==='expression'?'如：给同事执行，适中，保留现有名称与编号':name==='resources'?'实际分工、可并行设备、已知工期；不清楚的内容先讨论':'业务目标、交付物、优先级、验收条件';}
-    label.append(input);section.append(label);const entry={input};
-    if(['startDate','deadlineDate'].includes(name)){const unset=element('input');unset.type='checkbox';unset.checked=fact?.status==='explicitly-unset';const l=element('label',' 明确暂不设置');l.prepend(unset);section.append(l);entry.unset=unset;}
-    fields.set(name,entry);
-   }
-   $('intakeQuestions').append(section);
-  }
-  $('proposalPanel').hidden=!value.required;$('proposalStatus').textContent=value.approvedHash?'这份方案已核实；修改 JSON 后需重新核对。':'回答问题后粘贴 AI 的 JSON，再查看具体人员与估时。';
- }
- async function inspect(){if(!tabId())throw Error('请先在主界面选择序图网页。');const result=await call('inspect',{request:$('request').value});render(result);return result;}
- function bind(command){if(ledger?.required){if(ledger.request!==$('request').value||ledger.intent!==intent())throw Error('需求或用途已变化，请重新复制提示词并核实问卷。');command.intakeId=ledger.id;}return command;}
- $('request').addEventListener('input',reset);
- $('saveAnswers').onclick=()=>busy('saveAnswers',async()=>{const answers={};for(const[k,{input,unset}]of fields){if(unset?.checked)answers[k]=UNSET;else if(input.value.trim())answers[k]=input.value;}
-  render(await call('answer',{answers,rememberExpression:$('rememberExpression').checked}));message(ledger.roundAnswered?'答复已保存。现在复制提示词给 AI，再粘贴它返回的 JSON。':'已保存部分答复，可继续讨论；缺项尚不能执行。');
- });
- $('resetExpression').onclick=()=>busy('resetExpression',async()=>{render(await call('resetExpression'));$('rememberExpression').checked=false;message('已清除此账号、此用途记住的表达习惯。');});
- $('editor').addEventListener('input',()=>{try{$('proposalText').textContent=proposalText(prepareCommand($('editor').value,tabId(),'proposal-preview'));$('proposalStatus').textContent='请核对这份 JSON 中的人员、日期与估时。';}catch{$('proposalText').textContent='粘贴完整 JSON 后显示人员与工期。';}});
- $('confirmProposal').onclick=()=>busy('confirmProposal',async()=>{if(!ledger)await inspect();const command=bind(prepareCommand($('editor').value,tabId(),await stableRequestId($('editor').value)));$('proposalText').textContent=proposalText(command);render(await call('confirm',{command}));message('这份方案已核实，可以执行。');});
- $('createGroup').onclick=()=>busy('createGroup',async()=>{const ctx=await h.readContext();if(!ctx.account?.actor)throw Error('请先登录并读取账号。');const command=h.envelope('project.create');command.steps[0].params={number:$('newGroupNumber').value.trim(),name:$('newGroupName').value.trim(),owner:ctx.account.actor};const result=await send({kind:'run',command});h.data(result);message('项目组已创建并回读确认。请在问卷中选择它。');await inspect();});
- return {inspect,reset,bind,adopt:value=>{if(value?.id&&value.facts&&value.request){h.chooseIntent(value.intent);$('request').value=value.request;render(value);}},get:()=>ledger};
 }
 export function setupHistory(h){
  const {$,send,busy,message,envelope,data}=h;let compared='';

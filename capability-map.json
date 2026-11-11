@@ -525,27 +525,6 @@
     "rollback": "per-record capability and conflict checks"
   },
   {
-    "op": "intake.inspect",
-    "transport": "extension-local; selected authorized site tab",
-    "role": "current-session/account-isolated",
-    "tested": "synthetic local tests; real website new writes not verified",
-    "rollback": "not_applicable"
-  },
-  {
-    "op": "intake.answer",
-    "transport": "extension-local; selected authorized site tab",
-    "role": "current-session/account-isolated",
-    "tested": "synthetic local tests; real website new writes not verified",
-    "rollback": "not_applicable"
-  },
-  {
-    "op": "intake.status",
-    "transport": "extension-local; selected authorized site tab",
-    "role": "current-session/account-isolated",
-    "tested": "synthetic local tests; real website new writes not verified",
-    "rollback": "not_applicable"
-  },
-  {
     "op": "history.undo",
     "transport": "extension-local; selected authorized site tab",
     "role": "current-session/account-isolated",

@@ -8,18 +8,11 @@ import {buildIntake} from './ai-brief.js';
 import {collectCompatibility,probeNativeCompatibility} from './compatibility.js';
 import {createUpdateChecker} from './updates.js';
 import {LocalStore,accountKey} from './local-store.js';
-import {IntakeEngine,classify} from './intake.js';
 import {HistoryManager,isBusinessWrite} from './history.js';
 import {capturePage,pageChunk,releasePageExport} from './html-export.js';
-const privateStore=new LocalStore(),intake=new IntakeEngine(privateStore);
+const privateStore=new LocalStore();
 const exportHandles=new Map();
 async function sessionFor(tab){const session=await request(tab,'/api/session');if(!session.actor||session.mustChangePassword)fail('NOT_LOGGED_IN','请先在序图网站登录并完成账号设置。');return session;}
-async function intakeContext(tab,intent='manage'){
- const session=await sessionFor(tab),raw=await request(tab,'/api/project-groups'),groups=Array.isArray(raw)?raw:raw.groups;
- if(!Array.isArray(groups))fail('PROJECT_GROUP_UNAVAILABLE','无法核实项目组清单，请稍后重试。');
- let target=null;if(intent==='manage'){const inspect=await bridge(tab.id,{kind:'inspect'});if(inspect.activeTarget){const api=new ApiAdapter((...a)=>request(tab,...a)),id=await api.resolve(inspect.activeTarget),record=await request(tab,'/api/plans/'+encodeURIComponent(id));target={id,version:record.revision};}}
- return {...session,tabId:tab.id,groups,target};
-}
 async function exportCommand(tab,op,p){
  const session=await sessionFor(tab);let func,args;
  if(op==='site.html.begin'){func=capturePage;args=[p.kind];}
@@ -48,13 +41,12 @@ export const executor=new Executor(store,async(s,e,batch)=>{
  if(s.op==='convert.nativeToLegacy')return {data:nativeToLegacy(s.params),serverVerified:false};
  if(s.op==='system.version')return {data:{version:VERSION},serverVerified:false};
  if(s.op==='site.tabs')return {data:(await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'})).map(t=>({id:t.id,title:t.title,active:t.active})),serverVerified:false};
- if(s.op==='system.capabilities'||s.op==='site.capabilities')return {data:{api:Object.keys(reads).concat(writes,['site.context','site.tabs','site.compatibility']),local:Object.keys(parameterSchemas).filter(op=>op.startsWith('intake.')||op.startsWith('site.html.')||['history.list','history.diff','history.undo','history.redo','history.restorePoint','history.resolvePending'].includes(op)),unavailable:['plan.delete permanent','user.create','user.update','user.disable','role.*','schedule.recalculate','server history'],testStatus:'contract observed; test status varies by operation; see docs/LIVE_TEST_RESULTS.md'},serverVerified:false};
+ if(s.op==='system.capabilities'||s.op==='site.capabilities')return {data:{api:Object.keys(reads).concat(writes,['site.context','site.tabs','site.compatibility']),local:Object.keys(parameterSchemas).filter(op=>op.startsWith('site.html.')||['history.list','history.diff','history.undo','history.redo','history.restorePoint','history.resolvePending'].includes(op)),unavailable:['plan.delete permanent','user.create','user.update','user.disable','role.*','schedule.recalculate','server history'],testStatus:'contract observed; test status varies by operation; see docs/LIVE_TEST_RESULTS.md'},serverVerified:false};
  if(s.op==='system.logs'||s.op==='system.status')return {data:(await store.get('job:'+(batch?.scope?batch.scope+':':'')+s.params?.requestId))?.result||{status:'unknown'},serverVerified:false};
  if(s.op==='system.backup.get')return {data:await store.get('snapshot:'+s.params.backupId)||null,serverVerified:false};
  const tab=await tabFor(e);
  if(batch?.actor&&(await sessionFor(tab)).actor!==batch.actor)fail('HISTORY_CONTEXT_MISMATCH','登录账号在执行期间变化，已停止后续操作。');
  if(s.op.startsWith('site.html.'))fail('EXPORT_USER_ACTION_REQUIRED','网页原文只通过主界面的复制/导出按钮读取，不进入执行日志。');
- if(s.op.startsWith('intake.')){const ctx=await intakeContext(tab,s.params?.intent||'manage');if(s.op==='intake.inspect')return {data:await intake.inspect(ctx,s.params),serverVerified:false};const existing=await privateStore.get('intake:'+s.params.intakeId);if(existing?.intent==='create')ctx.target=null;return {data:s.op==='intake.answer'?await intake.answer(ctx,s.params.intakeId,s.params.answers,s.params.rememberExpression):await intake.get(ctx,s.params.intakeId),serverVerified:false};}
  if(['history.list','history.diff','history.undo','history.redo','history.restorePoint','history.resolvePending'].includes(s.op)){
  const session=await sessionFor(tab),history=new HistoryManager(privateStore,async(...args)=>{if(args[1]==='POST'&&(await sessionFor(tab)).actor!==session.actor)fail('HISTORY_CONTEXT_MISMATCH');return request(tab,...args);});let data;
  if(s.op==='history.list')data=await history.list(session.actor);else if(s.op==='history.diff')data=await history.diff(session.actor,s.params);else if(e.mode==='preview'||e.mode==='validate')return {data:{valid:true,notice:'预览不修改网站或历史游标'},serverVerified:false};else if(s.op==='history.resolvePending')data=await history.resolvePending(session.actor);else data=await history.restore(session.actor,session.role,s.params||{},e.requestId,s.op==='history.undo'?'undo':s.op==='history.redo'?'redo':'point');
@@ -83,13 +75,11 @@ export const executor=new Executor(store,async(s,e,batch)=>{
  }
  const api=new ApiAdapter(async(path,method,body)=>{let tries=method==='POST'?1:(e.execution?.retry?.maxAttempts||1);for(let i=0;i<tries;i++){try{return await request(tab,path,method,body);}catch(err){if(err.code!=='NETWORK_ERROR'||i===tries-1)throw err;await new Promise(r=>setTimeout(r,Math.min(10000,(e.execution?.retry?.backoffMs||500)*2**i)));}}},{saveSnapshot:(id,value)=>store.set('snapshot:'+id,value),loadSnapshot:id=>store.get('snapshot:'+id),expectedActor:batch?.actor});const guarded=batch?.prepared?await batch.history.protectStep(s,batch.prepared):s;const result=await api.run(guarded,e);if(batch?.prepared)await batch.history.trackStep(result,batch.prepared);return result;
 },{
- context:async e=>{if(!e.steps.some(s=>isBusinessWrite(s)||s.op.startsWith('history.')||s.op.startsWith('intake.')||['system.logs','system.status'].includes(s.op)))return null;const tab=await tabFor(e),session=await sessionFor(tab);return {...session,tab,scope:await accountKey(session.actor)};},
+ context:async e=>{if(!e.steps.some(s=>isBusinessWrite(s)||s.op.startsWith('history.')||['system.logs','system.status'].includes(s.op)))return null;const tab=await tabFor(e),session=await sessionFor(tab);return {...session,tab,scope:await accountKey(session.actor)};},
  before:async(e,ctx)=>{
  if(!e.steps.some(isBusinessWrite)||['validate','preview'].includes(e.mode))return ctx;
  if(e.steps.some(s=>['history.undo','history.redo','history.restorePoint','history.resolvePending'].includes(s.op)))fail('INVALID_SCHEMA','历史恢复与业务写入请分成独立批次。');
  const history=new HistoryManager(privateStore,(...args)=>request(ctx.tab,...args));
- const needsIntake=e.intakeId||e.steps.some(s=>s.op==='plan.create')||classify('',e).complex;
- if(needsIntake){const ledger=e.intakeId?await privateStore.get('intake:'+e.intakeId):null;const c=await intakeContext(ctx.tab,ledger?.intent||'create');await intake.guard(e,c);}
  const prepared=await history.prepare(ctx.actor,e);return {...ctx,history,prepared};
  },
  after:async(e,result,ctx)=>ctx?.prepared?ctx.history.finish(ctx.actor,ctx.prepared,e,result):undefined
@@ -100,7 +90,6 @@ chrome.runtime.onMessage.addListener((message,sender,reply)=>{
   if(message.kind==='openSite'){const tabs=await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'});if(tabs.length)await chrome.tabs.update(tabs[0].id,{active:true});else await chrome.tabs.create({url:'https://plan.fpgabbs.cn/'});return {opened:true};}
   if(message.kind==='tabs')return (await chrome.tabs.query({url:'https://plan.fpgabbs.cn/*'})).map(t=>({id:t.id,title:t.title,active:t.active}));
   if(message.kind==='updates')return checkUpdates();
-  if(message.kind==='intake'){const tab=await tabFor(message),ctx=await intakeContext(tab,message.intent);if(message.action==='inspect')return intake.inspect(ctx,message);if(message.action==='answer')return intake.answer(ctx,message.intakeId,message.answers,message.rememberExpression);if(message.action==='resetExpression')return intake.resetExpression(ctx,message.intakeId);if(message.action==='confirm')return intake.confirm(ctx,message.intakeId,message.command);fail('INVALID_SCHEMA');}
   if(message.kind==='export'){const op='site.html.'+message.action;validateStep({id:'export',op,params:message.params});if(!['site.html.begin','site.html.chunk','site.html.release'].includes(op))fail('INVALID_SCHEMA');return exportCommand(await tabFor(message),op,message.params);}
   if(message.kind==='run'){const e=message.command;if(e?.steps?.some(s=>s.op?.startsWith('site.html.'))){validate(e);if(e.steps.length!==1)fail('INVALID_SCHEMA','网页导出请使用独立指令，不与业务操作混合');const s=e.steps[0];validateStep(s);if(!['site.html.begin','site.html.chunk','site.html.release'].includes(s.op))fail('INVALID_SCHEMA');const value=['preview','validate'].includes(e.mode)?{valid:true}:await exportCommand(await tabFor(e),s.op,s.params);return {protocol:'xutu.result/v1',requestId:e.requestId,status:'success',steps:[{id:s.id,status:'success',serverVerified:false,data:value}],notice:'此导出不写入日志或批次历史'};}return executor.run(e);}
   fail('INVALID_SCHEMA');

@@ -1,3 +1,5 @@
+> v2.5.1 更新：所有澄清、表达偏好、分工与估时确认均在外部 AI 对话中完成。插件不再提供本地问卷、偏好设置、intakeId 门禁或方案确认按钮。以下旧版相关描述已被此决定取代。
+
 # 数据边界与权限
 
 仅固定序图站点与 GitHub 更新站点权限；保留 storage、scripting、userScripts，移除 nativeMessaging。UI 消息只接受本扩展 ui.html，网站不能用 postMessage 调用终端。JSON script.execute 仍依赖浏览器用户脚本许可和真实网站权限，任意脚本副作用不可保证恢复。
