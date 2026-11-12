@@ -830,7 +830,8 @@
             "nodeIds",
             "name"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "仅支持按顺序列出的至少三个连续链节点；保留首尾、删除中间节点。中间节点必须各一入一出且无分支，首尾不能已有直接边；已有基线或链上完成进度不能直接合并。分支合并须明确映射、估时与外部依赖后使用 plan.batch，不可强行串联。"
         }
       }
     },
@@ -1898,7 +1899,15 @@
         },
         "params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "projectGroups": {
+              "enum": [
+                "all",
+                "selected",
+                "omit"
+              ]
+            }
+          },
           "required": [],
           "additionalProperties": false
         }
@@ -2797,7 +2806,8 @@
                           "nodeIds",
                           "name"
                         ],
-                        "additionalProperties": false
+                        "additionalProperties": false,
+                        "description": "仅支持按顺序列出的至少三个连续链节点；保留首尾、删除中间节点。中间节点必须各一入一出且无分支，首尾不能已有直接边；已有基线或链上完成进度不能直接合并。分支合并须明确映射、估时与外部依赖后使用 plan.batch，不可强行串联。"
                       }
                     },
                     "required": [

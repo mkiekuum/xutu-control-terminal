@@ -1,27 +1,25 @@
-# 序图终端 v3.0.0
+# 序图终端 v3.0.1
 
-优先修复撤销、重做与错误恢复；保留简单的“输入需求 → 复制给 AI → 粘贴 JSON 并执行”。
+- 清理“问卷门禁”旧文案，统一普通执行与删除/恢复确认说明。
+- 精简重复提示词，批量参数共享同一约束；完整计划数据保留。
+- 普通微调仅附当前关联项目组，涉及分组时才附完整可见清单；旧上下文指令默认行为保持兼容。
+- 明确连续链合并与分支调整的区别，保留一次提交、版本保护、防重复和十批历史恢复。
 
-- 撤销只恢复原操作字段，保留无关远端日期、人员与进度；冲突展示三方差异，恢复前核对。
-- 业务保存与布局回读分开显示；待核对批次关联原请求，不盲目重试。
-- 首页复制页面摘要；完整 DOM、离线 HTML 和诊断按需展开。draw.io 增强提示词，无新增导入器。
-- 保留 plan.batch 一次提交、版本检查、防重复、JSON 脚本权限与网站计算。已删除模块不恢复。
-
-## 下载与安装
+## 下载与新手安装
 
 | 文件 | 用途 |
 | --- | --- |
-| [chrome.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.0/xutu-control-terminal-v3.0.0-chrome.zip) | 普通同事安装此包 |
-| [source.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.0/xutu-control-terminal-v3.0.0-source.zip) | 完整源码、手册、Schema、示例与测试 |
-| [SHA256SUMS](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.0/SHA256SUMS) | 下载完整性校验 |
+| [chrome.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.1/xutu-control-terminal-v3.0.1-chrome.zip) | 普通用户插件安装包 |
+| [source.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.1/xutu-control-terminal-v3.0.1-source.zip) | 完整源码、Schema、示例、手册、测试和调整报告 |
+| [SHA256SUMS](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.1/SHA256SUMS) | 两个 ZIP 的下载完整性校验 |
 
-1. 下载 chrome.zip，解压到固定文件夹，确认直接包含 manifest.json。
-2. Chrome 地址栏打开 chrome://extensions，开启“开发者模式”，点击“加载已解压的扩展程序”，选择该文件夹。Edge 对应 edge://extensions；本轮未验证 Edge 安装。
-3. 登录序图网站，在工具栏固定插件。写需求、复制给 AI、回答必要问题、粘贴完整 JSON 并执行。无需 Node、GitHub 登录或本地 CLI。
-4. 删除和恢复先看差异；结果未知时点“检查原请求”，不要反复执行。使用帮助在首页。
+1. 下载 chrome.zip，解压到固定目录，确认里面直接有 manifest.json。
+2. Chrome 打开 chrome://extensions，开启开发者模式，点击“加载已解压的扩展程序”，选择该目录。Edge 对应 edge://extensions，本轮未验证 Edge 安装。
+3. 登录序图网站，固定插件。输入需求 → 复制给 AI → 粘贴 JSON 并执行。帮助在首页，不需要 Node、GitHub 登录或本地 CLI。
+4. 已安装用户：确认没有在途写入，备份旧目录，核验新版包后覆盖原目录，在扩展管理页重新加载。保留浏览器存储。不能把自动检查版本当作自动安装。
 
-旧版升级：确认没有执行中的写入，备份旧目录，核验包后覆盖原加载目录，再在扩展管理页重新加载。不要删除浏览器历史存储。开发者扩展不能靠网页按钮自动安装；自动检测和 AI 更新指令保留。加载失败先核对所选目录是否含 manifest.json，必要时还原旧目录并重新加载。
+加载失败先检查是否选择含 manifest.json 的目录，必要时还原备份再重新加载。出现未知执行结果，先检查原请求，不要重复提交。
 
-## 验证边界
+## 测试与边界
 
-140 项本地测试通过，隔离 Chrome 合成页面与离线 HTML 通过。未修改真实业务计划；用户已安装扩展重载、生产写入、真实系统剪贴板尚未验证。draw.io 测试验证提示词契约与合成指令，不证明任意外部 AI 的视觉理解。详细报告在源码包 docs/V3.0.0_ACCEPTANCE.md。
+147 项本地测试和隔离 Chrome 合成页面回归通过。未操作真实业务计划或物理鼠标。生产写入、用户扩展重载、系统剪贴板及任意外部 AI 的实际效果未验证。没有恢复 CLI、Native Messaging、本地问卷/偏好、外观编辑、AI Key 或 MCP。详见源码包 docs/V3.0.1_PROMPT_REPORT.md。

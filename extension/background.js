@@ -57,7 +57,7 @@ export const executor=new Executor(store,async(s,e,batch)=>{
  if(s.op==='site.compatibility')return {data:await compatibilityFor(tab),serverVerified:false};
  if(s.op==='site.context'){
   const target=s.target?.id||s.target?.number?s.target:(await bridge(tab.id,{kind:'inspect'})).activeTarget;
-  const context=await collectContext((path,method,body)=>request(tab,path,method,body),target);
+  const context=await collectContext((path,method,body)=>request(tab,path,method,body),target,s.params);
   if(context.plan){
    try{const result=await chrome.scripting.executeScript({target:{tabId:tab.id},world:'MAIN',func:readNativeAnalysis,args:[context.plan.current]});context.siteAnalysis=result[0]?.result||{available:false,reason:'网页未返回评分'};}
    catch(error){context.siteAnalysis={available:false,reason:error.message};}

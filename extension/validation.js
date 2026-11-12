@@ -42,6 +42,7 @@ export const parameterSchemas={
 parameterSchemas['schedule.updateInputs']=parameterSchemas['plan.update'];
 parameterSchemas['progress.complete']=parameterSchemas['progress.update'];
 for(const op of ['graph.inspect','graph.simplify','plan.list','plan.get','plan.export','plan.archive','plan.restore','node.list','edge.list','progress.read','review.status','review.submit','review.approve','history.list','project.list','group.list','task.list','user.list','site.session','system.version','system.health','system.capabilities','site.inspect','site.capabilities','site.context','site.tabs','site.compatibility'])parameterSchemas[op]=object({});
+parameterSchemas['site.context']=object({projectGroups:{enum:['all','selected','omit']}});
 for(const op of ['history.undo','history.redo'])parameterSchemas[op]=object({reviewToken:nonempty});
 parameterSchemas['history.list']=object({});
 parameterSchemas['history.pending']=object({});
@@ -51,6 +52,7 @@ parameterSchemas['history.resolvePending']=object({acknowledge:{const:true},revi
 parameterSchemas['site.html.begin']=object({kind:{enum:['raw','offline']}},['kind']);
 parameterSchemas['site.html.chunk']=object({exportId:nonempty,offset:{type:'integer',minimum:0}},['exportId','offset']);
 parameterSchemas['site.html.release']=object({exportId:nonempty},['exportId']);
+parameterSchemas['task.merge'].description='仅支持按顺序列出的至少三个连续链节点；保留首尾、删除中间节点。中间节点必须各一入一出且无分支，首尾不能已有直接边；已有基线或链上完成进度不能直接合并。分支合并须明确映射、估时与外部依赖后使用 plan.batch，不可强行串联。';
 export const batchOperations=['plan.update','schedule.updateInputs','node.create','node.update','node.batchUpdate','node.renumber','node.remove','node.reorder','edge.create','edge.update','edge.remove','graph.simplify','task.merge','task.split'];
 parameterSchemas['plan.batch']=object({changes:{type:'array',minItems:1,maxItems:100,items:{oneOf:batchOperations.map(op=>object({op:{const:op},params:parameterSchemas[op]},['op','params']))}}},['changes']);
 function invalid(path){throw Object.assign(Error('参数不符合约束：'+path),{code:'INVALID_SCHEMA'});}

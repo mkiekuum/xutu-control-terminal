@@ -1,4 +1,4 @@
-序图终端 v3.0.0
+序图终端 v3.0.1
 1. 解压 chrome.zip 到固定文件夹，里面应直接有 manifest.json。
 2. Chrome 打开 chrome://extensions，开启开发者模式，加载已解压的扩展程序。
 3. 登录序图网站，写需求 → 复制给 AI → 粘贴 JSON 并执行。帮助在首页。

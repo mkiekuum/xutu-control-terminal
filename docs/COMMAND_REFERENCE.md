@@ -1,4 +1,4 @@
-# v3.0.0 正式参数契约
+# v3.0.1 正式参数契约
 
 JSON 使用 xutu.command/v1；插件主界面不接受 CLI 或独立 JavaScript。script.execute 仅通过显式 JSON 及原浏览器权限使用。
 
@@ -9,6 +9,9 @@ history.preview 为只读，direction=undo/redo/point（point 需要 historyId/p
 verifySaved 将业务与布局分开：verification.businessVerified/layoutVerified。布局非本次明确意图时差异给警告；编号映射、全量替换、快照恢复等布局意图仍严格核验。快照与请求日志仅留本机。
 
 以下由实际 parameterSchemas 生成；不代表每项均已通过生产网站写入测试。convert 命令沿用既有后端转换器，不新增 draw.io 命令。
+
+
+site.context.params.projectGroups 可选 all/selected/omit；默认 all，旧指令保持兼容。复制提示词按需求选择范围。提示词的 plan.batch 子参数使用指向同一命令定义对象的 $ref，以下执行契约仍完整展开。
 
 ## plan.create
 
@@ -727,7 +730,8 @@ verifySaved 将业务与布局分开：verification.businessVerified/layoutVerif
     "nodeIds",
     "name"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "description": "仅支持按顺序列出的至少三个连续链节点；保留首尾、删除中间节点。中间节点必须各一入一出且无分支，首尾不能已有直接边；已有基线或链上完成进度不能直接合并。分支合并须明确映射、估时与外部依赖后使用 plan.batch，不可强行串联。"
 }
 ```
 
@@ -1519,7 +1523,15 @@ verifySaved 将业务与布局分开：verification.businessVerified/layoutVerif
 ```json
 {
   "type": "object",
-  "properties": {},
+  "properties": {
+    "projectGroups": {
+      "enum": [
+        "all",
+        "selected",
+        "omit"
+      ]
+    }
+  },
   "required": [],
   "additionalProperties": false
 }
@@ -2332,7 +2344,8 @@ verifySaved 将业务与布局分开：verification.businessVerified/layoutVerif
                   "nodeIds",
                   "name"
                 ],
-                "additionalProperties": false
+                "additionalProperties": false,
+                "description": "仅支持按顺序列出的至少三个连续链节点；保留首尾、删除中间节点。中间节点必须各一入一出且无分支，首尾不能已有直接边；已有基线或链上完成进度不能直接合并。分支合并须明确映射、估时与外部依赖后使用 plan.batch，不可强行串联。"
               }
             },
             "required": [

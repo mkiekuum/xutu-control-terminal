@@ -1,13 +1,14 @@
 import test from 'node:test';import assert from 'node:assert/strict';
+import {VERSION} from '../extension/core.js';
 import {RELEASE_PAGE,REPOSITORY} from '../extension/updates.js';
 test('版本检查只接受插件UI消息、并发合并且不接受调用者指定下载地址',async()=>{
  let listener,requests=0;const id='a'.repeat(32),base='chrome-extension://'+id+'/';
  globalThis.chrome={runtime:{id,getURL:file=>base+file,onMessage:{addListener:fn=>listener=fn},onStartup:{addListener(){}},onInstalled:{addListener(){}}}};
  const original=globalThis.fetch;
  globalThis.fetch=async(url,options)=>{
-  requests++;assert([RELEASE_PAGE,REPOSITORY+'/releases/tag/v3.0.0'].includes(url));assert.equal(options.credentials,'omit');
+  requests++;assert([RELEASE_PAGE,REPOSITORY+'/releases/tag/v'+VERSION].includes(url));assert.equal(options.credentials,'omit');
   await new Promise(resolve=>setTimeout(resolve,10));
-  return {status:200,url:REPOSITORY+'/releases/tag/v3.0.0',body:null};
+  return {status:200,url:REPOSITORY+'/releases/tag/v'+VERSION,body:null};
  };
  try{
   await import('../extension/background.js');
