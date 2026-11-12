@@ -1,14 +1,14 @@
-> v2.5.1 更新：所有澄清、表达偏好、分工与估时确认均在外部 AI 对话中完成。插件不再提供本地问卷、偏好设置、intakeId 门禁或方案确认按钮。以下旧版相关描述已被此决定取代。
+# v3.0.0 正式参数契约
 
-# 命令参考 v2.5
+JSON 使用 xutu.command/v1；插件主界面不接受 CLI 或独立 JavaScript。script.execute 仅通过显式 JSON 及原浏览器权限使用。
 
-插件仅接收 JSON/Markdown JSON。信封 protocol=xutu.command/v1、requestId、steps，按需 mode/tabId/intakeId。普通执行器保留参数、权限、版本、去重、独立失败回读。复杂写入使用本地问卷；script.execute 不得绕过正式契约。CLI 已删除。
+plan.get/plan.export 成功回读提供 targetId、afterVersion，后续同目标可用 versionFrom 引用。不能引用别的计划、失败步骤或格式校验结果。plan.batch 保留一次受版本保护提交；多计划不构成事务。
 
-扩展本地接口：intake.*、history.list/diff/undo/redo/restorePoint/resolvePending、site.html.*；不冒称网站有这些 API。网页导出必须是独立请求，不进日志或历史。intake 确认提案仅在 UI 操作，不开放 AI 自行批准命令。
+history.preview 为只读，direction=undo/redo/point（point 需要 historyId/point），返回实际字段差异、冲突、不可恢复原因及 reviewToken。history.undo/redo/restorePoint 接受可选 reviewToken，同字段冲突必须匹配最新预览才能处理；UI 中恢复总先显示差异。history.pending 只读关联原请求记录、最新计划与快照差异；history.resolvePending 需要 acknowledge:true 和最新 reviewToken，仅保留现状、关闭缺口，受影响历史仍不可恢复。
 
-project.assignPlan 可填写 planId，或 planIdFrom={stepId,field:"targetId"} 并依赖已回读成功的 plan.create，两者互斥。创建与分组可能部分成功。history.restore 仍是旧的服务器版本恢复，与扩展 restorePoint 不同。
+verifySaved 将业务与布局分开：verification.businessVerified/layoutVerified。布局非本次明确意图时差异给警告；编号映射、全量替换、快照恢复等布局意图仍严格核验。快照与请求日志仅留本机。
 
-[问卷](V2.5_INTAKE_MANUAL.md)、[字段](V2.5_PLAN_FIELDS.md)、[历史](V2.5_UNDO_HISTORY.md)、[导出](V2.5_HTML_EXPORT.md)、[局部修改](LOCAL_EDITING.md) 解释执行条件。以下参数契约由 validation.js 生成；服务器仍最终决定权限。
+以下由实际 parameterSchemas 生成；不代表每项均已通过生产网站写入测试。convert 命令沿用既有后端转换器，不新增 draw.io 命令。
 
 ## plan.create
 
@@ -1547,108 +1547,17 @@ project.assignPlan 可填写 planId，或 planIdFrom={stepId,field:"targetId"} �
 }
 ```
 
-## intake.inspect
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "request": {
-      "type": "string",
-      "minLength": 1
-    },
-    "intent": {
-      "enum": [
-        "create",
-        "manage"
-      ]
-    }
-  },
-  "required": [
-    "request",
-    "intent"
-  ],
-  "additionalProperties": false
-}
-```
-
-## intake.answer
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "intakeId": {
-      "type": "string",
-      "minLength": 1
-    },
-    "rememberExpression": {
-      "type": "boolean"
-    },
-    "answers": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "number": {
-          "type": "string"
-        },
-        "startDate": {
-          "type": "string"
-        },
-        "deadlineDate": {
-          "type": "string"
-        },
-        "projectGroupId": {
-          "type": "string"
-        },
-        "goal": {
-          "type": "string"
-        },
-        "resources": {
-          "type": "string"
-        },
-        "expression": {
-          "type": "string"
-        }
-      },
-      "required": [],
-      "additionalProperties": false
-    }
-  },
-  "required": [
-    "intakeId",
-    "answers"
-  ],
-  "additionalProperties": false
-}
-```
-
-## intake.status
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "intakeId": {
-      "type": "string",
-      "minLength": 1
-    }
-  },
-  "required": [
-    "intakeId"
-  ],
-  "additionalProperties": false
-}
-```
-
 ## history.undo
 
 ```json
 {
   "type": "object",
-  "properties": {},
+  "properties": {
+    "reviewToken": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
   "required": [],
   "additionalProperties": false
 }
@@ -1659,8 +1568,55 @@ project.assignPlan 可填写 planId，或 planIdFrom={stepId,field:"targetId"} �
 ```json
 {
   "type": "object",
+  "properties": {
+    "reviewToken": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}
+```
+
+## history.pending
+
+```json
+{
+  "type": "object",
   "properties": {},
   "required": [],
+  "additionalProperties": false
+}
+```
+
+## history.preview
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "direction": {
+      "enum": [
+        "undo",
+        "redo",
+        "point"
+      ]
+    },
+    "historyId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "point": {
+      "enum": [
+        "before",
+        "after"
+      ]
+    }
+  },
+  "required": [
+    "direction"
+  ],
   "additionalProperties": false
 }
 ```
@@ -1708,6 +1664,10 @@ project.assignPlan 可填写 planId，或 planIdFrom={stepId,field:"targetId"} �
         "before",
         "after"
       ]
+    },
+    "reviewToken": {
+      "type": "string",
+      "minLength": 1
     }
   },
   "required": [
@@ -1725,10 +1685,15 @@ project.assignPlan 可填写 planId，或 planIdFrom={stepId,field:"targetId"} �
   "properties": {
     "acknowledge": {
       "const": true
+    },
+    "reviewToken": {
+      "type": "string",
+      "minLength": 1
     }
   },
   "required": [
-    "acknowledge"
+    "acknowledge",
+    "reviewToken"
   ],
   "additionalProperties": false
 }
@@ -1794,10 +1759,699 @@ project.assignPlan 可填写 planId，或 planIdFrom={stepId,field:"targetId"} �
   "additionalProperties": false
 }
 ```
-## v2.5.2 批量编辑与最小修改
 
-单计划结构调整使用 plan.batch，target 给稳定 id 和最新 version，params 为 changes:[{op,params}]。允许计划属性、节点、边、合并拆分和虚线简化的正式白名单；不能嵌套batch、创建/删除整个计划、审核、脚本或跨计划操作。完整参数见 schemas/operation.schema.json。
+## plan.batch
 
-所有子变换在本地副本验证，通过后一次受版本保护提交并回读，未指定的日期、人员、基线和布局保留。不是服务端多操作事务；超时仍可能是未知结果。旧多步JSON在满足单目标和版本依据条件时由主界面自动合并，结果摘要显示一次提交；不满足条件保持旧行为，不宣称全批原子性。
-
-命令格式校验通过不等于已写入。内容无变化会跳过保存；冲突只读回查，不能猜版本重发。详细限制和验收见 docs/V2.5.2_RELIABILITY.md。
+```json
+{
+  "type": "object",
+  "properties": {
+    "changes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "plan.update"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "set": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "startDate": {
+                        "type": "string"
+                      },
+                      "deadlineDate": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "set"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "schedule.updateInputs"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "set": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "startDate": {
+                        "type": "string"
+                      },
+                      "deadlineDate": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "set"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "node.create"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "ownerName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "node.update"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "set": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "content": {
+                        "type": "string"
+                      },
+                      "owner": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "id",
+                  "set"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "node.batchUpdate"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "updates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "set": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "content": {
+                              "type": "string"
+                            },
+                            "owner": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "set"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "updates"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "node.renumber"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "mapping": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "to": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "from",
+                        "to"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "references": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "nodeId": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "field": {
+                          "enum": [
+                            "name",
+                            "content"
+                          ]
+                        },
+                        "before": {
+                          "type": "string"
+                        },
+                        "after": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "nodeId",
+                        "field",
+                        "before",
+                        "after"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "mapping"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "node.remove"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "node.reorder"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "ids"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "edge.create"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "fromNodeId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "toNodeId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "estimateDays": {
+                    "type": "object",
+                    "properties": {
+                      "minimum": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "likely": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "maximum": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "minimum",
+                      "likely",
+                      "maximum"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "dashed": {
+                    "type": "boolean"
+                  },
+                  "executor": {
+                    "type": "string"
+                  },
+                  "actualCompleteDate": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "fromNodeId",
+                  "toNodeId",
+                  "estimateDays"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "edge.update"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "fromNodeId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "toNodeId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "estimateDays": {
+                    "type": "object",
+                    "properties": {
+                      "minimum": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "likely": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "maximum": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "minimum",
+                      "likely",
+                      "maximum"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "dashed": {
+                    "type": "boolean"
+                  },
+                  "executor": {
+                    "type": "string"
+                  },
+                  "actualCompleteDate": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "fromNodeId",
+                  "toNodeId"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "edge.remove"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "fromNodeId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "toNodeId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "fromNodeId",
+                  "toNodeId"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "graph.simplify"
+              },
+              "params": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "task.merge"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "nodeIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "owner": {
+                    "type": "string"
+                  },
+                  "executor": {
+                    "type": "string"
+                  },
+                  "allowMilestones": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "nodeIds",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "task.split"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "fromNodeId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "toNodeId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "nodes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "content": {
+                          "type": "string"
+                        },
+                        "ownerName": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "segments": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "estimateDays": {
+                          "type": "object",
+                          "properties": {
+                            "minimum": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "likely": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "maximum": {
+                              "type": "number",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "minimum",
+                            "likely",
+                            "maximum"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "executor": {
+                          "type": "string"
+                        },
+                        "dashed": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "estimateDays"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "allowDurationChange": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "fromNodeId",
+                  "toNodeId",
+                  "nodes",
+                  "segments"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "op",
+              "params"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "changes"
+  ],
+  "additionalProperties": false
+}
+```

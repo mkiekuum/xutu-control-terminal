@@ -1,21 +1,27 @@
-# 序图终端 v2.5.2
+# 序图终端 v3.0.0
 
-- 同计划、符合条件的多步 JSON 自动合为一次受版本保护的提交，新增 plan.batch 正式契约。
-- 无变化不保存；重复请求不重复写入；冲突独立回读，未知结果不盲目重试。
-- 显示检查、提交和回读阶段，明确区分成功、部分成功及结果未确认。
-- 取消固定问卷题数，确认表格原文优先，不因评分建议扩大修改范围。CLI、本地问卷和AI API设置不恢复。
+优先修复撤销、重做与错误恢复；保留简单的“输入需求 → 复制给 AI → 粘贴 JSON 并执行”。
 
-## 新手安装
+- 撤销只恢复原操作字段，保留无关远端日期、人员与进度；冲突展示三方差异，恢复前核对。
+- 业务保存与布局回读分开显示；待核对批次关联原请求，不盲目重试。
+- 首页复制页面摘要；完整 DOM、离线 HTML 和诊断按需展开。draw.io 增强提示词，无新增导入器。
+- 保留 plan.batch 一次提交、版本检查、防重复、JSON 脚本权限与网站计算。已删除模块不恢复。
 
-1. 下载附件 xutu-control-terminal-v2.5.2-chrome.zip，解压到固定文件夹。
-2. Chrome 打开 chrome://extensions（Edge 打开 edge://extensions），开启“开发者模式”。
-3. 点击“加载已解压的扩展程序”，选择包含 manifest.json 的文件夹。
-4. 登录序图网站，点击插件图标。写需求 → 复制提示词给 AI → 回答必要问题 → 粘贴 JSON 执行。帮助在主界面。
+## 下载与安装
 
-旧版用户：确认没有正在执行的修改，将新版解压覆盖原扩展目录，在扩展管理页点击“重新加载”。本次发布不会自动替换开发者加载的扩展代码。
+| 文件 | 用途 |
+| --- | --- |
+| [chrome.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.0/xutu-control-terminal-v3.0.0-chrome.zip) | 普通同事安装此包 |
+| [source.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.0/xutu-control-terminal-v3.0.0-source.zip) | 完整源码、手册、Schema、示例与测试 |
+| [SHA256SUMS](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.0/SHA256SUMS) | 下载完整性校验 |
 
-## 验证和范围
+1. 下载 chrome.zip，解压到固定文件夹，确认直接包含 manifest.json。
+2. Chrome 地址栏打开 chrome://extensions，开启“开发者模式”，点击“加载已解压的扩展程序”，选择该文件夹。Edge 对应 edge://extensions；本轮未验证 Edge 安装。
+3. 登录序图网站，在工具栏固定插件。写需求、复制给 AI、回答必要问题、粘贴完整 JSON 并执行。无需 Node、GitHub 登录或本地 CLI。
+4. 删除和恢复先看差异；结果未知时点“检查原请求”，不要反复执行。使用帮助在首页。
 
-123项本地单元/模拟接口测试通过；隔离Chrome验证两项修改只产生一次模拟写入和一次版本增长。未操作真实计划，生产写入、实际安装和系统剪贴板未验证。跨计划、审核、脚本等不合并，不承诺跨操作事务或未知写入自动恢复。详细验收见源码包 docs/V2.5.2_RELIABILITY.md。
+旧版升级：确认没有执行中的写入，备份旧目录，核验包后覆盖原加载目录，再在扩展管理页重新加载。不要删除浏览器历史存储。开发者扩展不能靠网页按钮自动安装；自动检测和 AI 更新指令保留。加载失败先核对所选目录是否含 manifest.json，必要时还原旧目录并重新加载。
 
-附件 source.zip 包含完整源码、手册、JSON Schema 和示例。SHA256SUMS 用于校验两个 ZIP 的下载完整性。
+## 验证边界
+
+140 项本地测试通过，隔离 Chrome 合成页面与离线 HTML 通过。未修改真实业务计划；用户已安装扩展重载、生产写入、真实系统剪贴板尚未验证。draw.io 测试验证提示词契约与合成指令，不证明任意外部 AI 的视觉理解。详细报告在源码包 docs/V3.0.0_ACCEPTANCE.md。

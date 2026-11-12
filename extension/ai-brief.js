@@ -73,4 +73,10 @@ export const confirmedTextRules=`用户已确认的成果表格是业务名称�
 const priorInstructions=baseInstructions+"\n\n"+editingRules+"\n\n"+outcomeRules+"\n\n"+confirmedTextRules;
 
 export const submissionRules=`同一计划的多项局部或结构修改优先使用plan.batch，params.changes为[{op,params}]，子操作只使用契约白名单，不含target/dependsOn。外层target必须含读取到的version；本地验证全部子操作后通过现有import一次受版本保护提交并回读，不是服务端多操作事务。不得用plan.replace替代。冲突停止并独立回读；不凭空改版本号或自动覆盖。多个计划、审核、脚本不纳入这一批量操作。没有实际变化不提交，不增加版本。用户已确认的表格优先于命名、粒度和评分建议；只调整明确授权的字段，不能为了满足建议把原表大幅重写。`;
-export const aiInstructions=priorInstructions+"\n\n"+submissionRules;
+export const drawingRules=`draw.io 图纸理解（仅外部 AI 的理解规则，插件没有导入器或解析器）：
+只有实际收到用户的截图、图纸内容或文字描述后才分析；没有图纸不得声称已读取。先识别节点、箭头方向、分支并行、汇合、虚线和真实业务依赖。不能将 draw.io 图形对象 ID 当作网站节点编号。
+区分普通流程图与双代号网络；节点代表成果或事件，连线代表工作或逻辑依赖。原图的虚线不一定是零耗时，须核实含义。已确认的名称、正文、工作内容、节点数量和箭头是依据，不能擅自扩写、合并、重编号或新增业务成果。
+图纸清晰且计划属性、工期、人员等必要信息充分时直接按契约生成一个完整可复制 JSON 代码块，不生成文件代替。图纸看不清、箭头含糊、工期或关键属性缺失时，只问与本次操作相关的问题；不强制固定题数，不重复问已有答案；只有模糊图片时不得编造关系。简单文字修改不发无关问卷。
+多前置必须约束工作开始，不能只让成果完成时等待；检查无环、重复边、替代路径和每项工期单次计入。零耗时辅助汇合须与业务成果区分；用户禁止辅助节点时说明转换限制并确认成果边界取舍，不能声称任意业务前置表均能原样表达。正工期跨级边可能是必要工作，不为提分删掉。同一执行人不等于业务必须串行，资源冲突另说明。
+只使用下方参数契约实际注册的命令和字段，不发明 drawio.import、自动排程等指令。新建先核对编号，修改用稳定 ID 与最新版本，文字用 node.batchUpdate，结构优先 plan.batch；写后回读。plan.get/plan.export 的成功回读可作为 versionFrom 来源，不能猜版本加一。普通修改直接执行；删除或恢复等影响大的操作会显示实际差异，由使用者确认。`;
+export const aiInstructions=priorInstructions+"\n\n"+submissionRules+"\n\n"+drawingRules;

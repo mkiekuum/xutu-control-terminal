@@ -579,5 +579,19 @@
     "role": "current-session/account-isolated",
     "tested": "synthetic local tests; real website new writes not verified",
     "rollback": "not_applicable"
+  },
+  {
+    "op": "history.preview",
+    "transport": "local-extension-and-read-only-api",
+    "role": "current-session-account-scoped",
+    "tested": "synthetic unit/browser; production not tested",
+    "rollback": "read-only"
+  },
+  {
+    "op": "history.pending",
+    "transport": "local-extension-and-read-only-api",
+    "role": "current-session-account-scoped",
+    "tested": "synthetic unit/browser; production not tested",
+    "rollback": "read-only"
   }
 ]

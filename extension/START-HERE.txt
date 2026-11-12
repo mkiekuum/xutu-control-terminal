@@ -1,4 +1,8 @@
-序图终端 v2.5.2
-解压后在浏览器扩展管理页加载此文件夹。已有用户请重新加载扩展。
-写需求→复制给AI→在AI聊天中回答问题→粘贴JSON→执行。
-没有本地问卷、偏好设置、方案确认按钮或CLI。帮助在主界面；历史和网页导出保留。
+序图终端 v3.0.0
+1. 解压 chrome.zip 到固定文件夹，里面应直接有 manifest.json。
+2. Chrome 打开 chrome://extensions，开启开发者模式，加载已解压的扩展程序。
+3. 登录序图网站，写需求 → 复制给 AI → 粘贴 JSON 并执行。帮助在首页。
+4. 删除/恢复先核对差异；结果未知点“检查原请求”，不要重复写入。
+5. 原目录覆盖更新后，在扩展管理页重新加载；没有自动安装保证。
+无 CLI、Native Messaging、本地问卷或 AI API 设置。最近十批历史仅在原浏览器保存。
+正式安装说明：https://github.com/mkiekuum/xutu-control-terminal/releases/latest

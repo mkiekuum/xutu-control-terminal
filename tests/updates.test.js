@@ -13,11 +13,11 @@ test('有网页不等于版本存在：必须HTTP200且最终地址是本仓库�
 test('自动检测只请求latest网页，不发API、版本文件或凭据，区分三种版本关系',async()=>{
  const calls=[];const fetchImpl=async(url,options)=>{calls.push({url,options});return page();};
  for(const [currentVersion,status] of [['2.2.1','available'],['2.3.0','current'],['2.4.0','ahead']]){const r=await checkForUpdates({currentVersion,fetchImpl});assert.equal(r.status,status);assert.equal(r.source,'release-page');}
- assert.equal(calls.length,3);for(const c of calls){assert.equal(c.url,RELEASE_PAGE);assert.equal(c.options.method,'HEAD');assert.equal(c.options.credentials,'omit');assert.equal(c.options.redirect,'follow');assert.equal(c.options.cache,'no-store');assert.equal(c.options.headers,undefined);}
+ assert.equal(calls.length,6);for(const c of calls){assert.equal(c.url,c.options.method==='HEAD'?RELEASE_PAGE:REPOSITORY+'/releases/tag/v2.3.0');assert.equal(c.options.credentials,'omit');assert.equal(c.options.redirect,'follow');assert.equal(c.options.cache,'no-store');assert.equal(c.options.headers,undefined);}
 });
 test('服务器不支持HEAD时仅对同一latest地址回退GET',async()=>{
- const methods=[];const result=await checkForUpdates({currentVersion:'2.3.0',fetchImpl:async(url,o)=>{assert.equal(url,RELEASE_PAGE);methods.push(o.method);return o.method==='HEAD'?{status:405,body:null}:page();}});
- assert.equal(result.status,'current');assert.deepEqual(methods,['HEAD','GET']);
+ const methods=[];const result=await checkForUpdates({currentVersion:'2.3.0',fetchImpl:async(url,o)=>{assert([RELEASE_PAGE,REPOSITORY+'/releases/tag/v2.3.0'].includes(url));methods.push(o.method);return o.method==='HEAD'?{status:405,body:null}:page();}});
+ assert.equal(result.status,'current');assert.deepEqual(methods,['HEAD','GET','GET']);
 });
 test('404、403、限流、离线和没有正式tag的200页面均不得宣称最新',async()=>{
  for(const fetchImpl of [async()=>page('2.2.3',404),async()=>page('2.3.0',403),async()=>page('2.3.0',429),async()=>{throw Error('offline');},async()=>({status:200,url:RELEASE_PAGE})]){

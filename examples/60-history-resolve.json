@@ -1,13 +1,14 @@
 {
   "protocol": "xutu.command/v1",
   "requestId": "60-history-resolve",
-  "mode": "execute",
+  "mode": "preview",
   "steps": [
     {
       "id": "read",
       "op": "history.resolvePending",
       "params": {
-        "acknowledge": true
+        "acknowledge": true,
+        "reviewToken": "replace-with-reviewed-history-pending-token"
       }
     }
   ]

@@ -189,6 +189,8 @@
                     "site.compatibility",
                     "history.undo",
                     "history.redo",
+                    "history.pending",
+                    "history.preview",
                     "history.diff",
                     "history.restorePoint",
                     "history.resolvePending",

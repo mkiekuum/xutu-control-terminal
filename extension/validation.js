@@ -42,9 +42,12 @@ export const parameterSchemas={
 parameterSchemas['schedule.updateInputs']=parameterSchemas['plan.update'];
 parameterSchemas['progress.complete']=parameterSchemas['progress.update'];
 for(const op of ['graph.inspect','graph.simplify','plan.list','plan.get','plan.export','plan.archive','plan.restore','node.list','edge.list','progress.read','review.status','review.submit','review.approve','history.list','project.list','group.list','task.list','user.list','site.session','system.version','system.health','system.capabilities','site.inspect','site.capabilities','site.context','site.tabs','site.compatibility'])parameterSchemas[op]=object({});
-for(const op of ['history.undo','history.redo','history.list'])parameterSchemas[op]=object({});
-for(const op of ['history.diff','history.restorePoint'])parameterSchemas[op]=object({historyId:nonempty,point:{enum:['before','after']},...(op==='history.diff'?{compareId:nonempty}:{})},['historyId']);
-parameterSchemas['history.resolvePending']=object({acknowledge:{const:true}},['acknowledge']);
+for(const op of ['history.undo','history.redo'])parameterSchemas[op]=object({reviewToken:nonempty});
+parameterSchemas['history.list']=object({});
+parameterSchemas['history.pending']=object({});
+parameterSchemas['history.preview']=object({direction:{enum:['undo','redo','point']},historyId:nonempty,point:{enum:['before','after']}},['direction']);
+for(const op of ['history.diff','history.restorePoint'])parameterSchemas[op]=object({historyId:nonempty,point:{enum:['before','after']},...(op==='history.diff'?{compareId:nonempty}:{reviewToken:nonempty})},['historyId']);
+parameterSchemas['history.resolvePending']=object({acknowledge:{const:true},reviewToken:nonempty},['acknowledge','reviewToken']);
 parameterSchemas['site.html.begin']=object({kind:{enum:['raw','offline']}},['kind']);
 parameterSchemas['site.html.chunk']=object({exportId:nonempty,offset:{type:'integer',minimum:0}},['exportId','offset']);
 parameterSchemas['site.html.release']=object({exportId:nonempty},['exportId']);

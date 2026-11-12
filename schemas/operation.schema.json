@@ -1949,7 +1949,12 @@
         },
         "params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "reviewToken": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
           "required": [],
           "additionalProperties": false
         }
@@ -1966,8 +1971,68 @@
         },
         "params": {
           "type": "object",
+          "properties": {
+            "reviewToken": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "const": "history.pending"
+        },
+        "params": {
+          "type": "object",
           "properties": {},
           "required": [],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "op",
+        "params"
+      ],
+      "properties": {
+        "op": {
+          "const": "history.preview"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "direction": {
+              "enum": [
+                "undo",
+                "redo",
+                "point"
+              ]
+            },
+            "historyId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "point": {
+              "enum": [
+                "before",
+                "after"
+              ]
+            }
+          },
+          "required": [
+            "direction"
+          ],
           "additionalProperties": false
         }
       }
@@ -2029,6 +2094,10 @@
                 "before",
                 "after"
               ]
+            },
+            "reviewToken": {
+              "type": "string",
+              "minLength": 1
             }
           },
           "required": [
@@ -2053,10 +2122,15 @@
           "properties": {
             "acknowledge": {
               "const": true
+            },
+            "reviewToken": {
+              "type": "string",
+              "minLength": 1
             }
           },
           "required": [
-            "acknowledge"
+            "acknowledge",
+            "reviewToken"
           ],
           "additionalProperties": false
         }

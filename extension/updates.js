@@ -25,11 +25,17 @@ export async function checkForUpdates({fetchImpl=fetch,currentVersion=VERSION,no
    let response=await fetchImpl(RELEASE_PAGE,options);
    // Some proxies do not implement HEAD. GET is a read-only fallback to the same address.
    if([405,501].includes(response.status)){await response.body?.cancel().catch(()=>{});response=await fetchImpl(RELEASE_PAGE,{...options,method:'GET'});}
-   try{return releaseFromResponse(response);}finally{await response.body?.cancel().catch(()=>{});}
+   const release=releaseFromResponse(response);await response.body?.cancel().catch(()=>{});
+   // Remote prose is display-only text, never executable HTML or maintenance authorization.
+   const detailController=new AbortController();let detailTimer;
+   const notesTask=(async()=>{try{const detail=await fetchImpl(release.url,{...options,method:'GET',signal:detailController.signal});if(detail.status===200&&detail.text){const html=(await detail.text()).slice(0,1000000),match=html.match(/<div[^>]*class="[^"]*markdown-body[^"]*"[^>]*>([\s\S]*?)<\/div>/i);if(match)return match[1].replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,' ').replace(/&(?:nbsp|amp|lt|gt|quot);/g,' ').replace(/\s+/g,' ').trim().slice(0,1000);}await detail.body?.cancel().catch(()=>{});}catch{}return '';})();
+   try{release.notes=await Promise.race([notesTask,new Promise(resolve=>{detailTimer=setTimeout(()=>{detailController.abort();resolve('');},Math.min(1500,timeoutMs/4));})]);}finally{clearTimeout(detailTimer);}
+
+   return release;
   })();
   const release=await Promise.race([task,new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('TIMEOUT'));},timeoutMs);})]);
   const compared=compareVersions(currentVersion,release.version);
-  return {...base,status:compared<0?'available':compared===0?'current':'ahead',latestVersion:release.version,releaseUrl:release.url};
+  return {...base,status:compared<0?'available':compared===0?'current':'ahead',latestVersion:release.version,releaseUrl:release.url,...(release.notes?{notes:release.notes}:{})};
  }catch(error){
   const reason=error.message==='HTTP_404'?'GitHub 返回 HTTP 404：没有找到公开正式发布页。':/^HTTP_\d{3}$/.test(error.message)?'GitHub 发布页返回 '+error.message.replace('_',' ')+'，暂时无法确认版本。':error.message==='TIMEOUT'||error.name==='AbortError'?'连接 GitHub 发布页超时，请检查网络后重新打开插件。':['INVALID_RELEASE_PAGE','INVALID_VERSION'].includes(error.message)?'GitHub 没有返回有效的正式版本发布页，暂时无法确认版本。':'无法访问 GitHub 发布页，请检查网络后重新打开插件。';
   return {...base,status:'unknown',reason};

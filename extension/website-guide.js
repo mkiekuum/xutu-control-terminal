@@ -1,4 +1,6 @@
+import {drawingRules} from './ai-brief.js';
 export const websiteGuide={
+ drawingGuide:drawingRules,
  version:'2026-11-10-v2.4',ruleClasses:{hard:'模型、字段格式、有效图、权限及版本约束必须遵守',quality:'评分、长短工期、串行及合并建议不是错误，不自动阻止执行',personal:'名称风格、学习用词、编号和节点数量按本次选择或当前账号明确保存的偏好，不属于网站硬规则'},purpose:'让新AI先理解序图的模型、评分和权限，再修改计划。规则来自已核对的公开前端；实时评分以当前网页函数和设置为准。',
  model:[
   '这是双代号网络计划：节点是阶段成果或汇合条件，连线是工作或依赖；不能把节点与工作混为一谈。节点content保存具体任务、交付标准、约束及说明。',

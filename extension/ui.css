@@ -47,7 +47,6 @@ summary::-webkit-details-marker{display:none}
 summary:after{content:"⌄";margin-left:auto;font-size:14px;color:#848c94}
 details[open]>summary:after{transform:rotate(180deg)}
 .more-body{padding:4px 0 0}
-.cli{padding-bottom:10px}
 .detail-body{padding-bottom:10px}
 .hint{font-size:12px;color:var(--muted);margin:7px 0;line-height:1.65}
 .button-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
@@ -62,8 +61,10 @@ li{margin:6px 0}
 
 .help-links{display:flex;gap:16px;margin:10px 0;font-size:12px}.help-links a{color:var(--accent);text-decoration:none}.help-links a:hover{text-decoration:underline}
 
-#preferenceDetails label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0}#preferenceDetails select{max-width:240px}#changeSummary{overflow-wrap:anywhere;max-height:100px;overflow:auto}
+#changeSummary{overflow-wrap:anywhere;max-height:100px;overflow:auto}
 
 #usageHelp{border:0;padding:0 0 8px;color:var(--muted)}
-#intakePanel, .history-panel{border-top:1px solid var(--line);padding-top:12px}
-fieldset{border:1px solid var(--line);border-radius:6px;margin:8px 0;padding:10px;min-width:0}legend{font-size:12px;line-height:1.5}fieldset label{display:block;margin:5px 0;font-size:12px;font-weight:400}input:not([type=checkbox]){width:100%;border:1px solid var(--line);border-radius:5px;padding:7px;margin:4px 0}input[type=checkbox]{width:auto;margin-right:5px}.remember{display:block;font-weight:400;font-size:12px;margin:8px 0}#proposalPanel{padding:10px 0}#proposalText{max-height:260px;overflow:auto}#historyBody>label{display:block;margin:8px 0}#historyDiff{font-size:12px;overflow-wrap:anywhere;max-height:300px;overflow:auto}#historyDiff h3{font-size:12px}.button-row{flex-wrap:wrap}#historyNotice{color:#915b16}
+.history-panel{border-top:1px solid var(--line);padding-top:12px}
+#historyBody>label{display:block;margin:8px 0}#historyDiff{font-size:12px;overflow-wrap:anywhere;max-height:300px;overflow:auto}#historyDiff h3{font-size:12px}#historyNotice{color:#915b16}
+
+#reviewPanel{border:1px solid #d5c39c;background:#fffcf5;border-radius:7px;padding:12px}#reviewNotice{font-size:12px}#reviewPanel .primary{width:auto}#historyBody select{display:block;width:100%;margin-top:5px}#copyPage{width:100%}button:disabled{cursor:default}#installUpdate{display:inline-block;color:var(--accent);margin:8px 0}
