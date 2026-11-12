@@ -1,3 +1,4 @@
+import {inspectFlow,enforceFlow} from './flow-check.js';
 import {verifySaved} from './recovery.js';
 import {fail,assert,clone,edge,nativePlan,validatePlan,validDate,equivalent,operationId} from './core.js';
 import {validateStep,batchOperations} from './validation.js';
@@ -52,7 +53,7 @@ export class ApiAdapter{
  if(!after||after[field]!==value)fail('SERVER_NOT_CONFIRMED');
  return {targetId:planId,beforeVersion:item.revision,afterVersion:after.revision,data:after,serverVerified:true};
  }
- let path,id,before,current,backupId,changes;
+ let path,id,before,current,backupId,changes,flowCheck;
  if(op==='plan.create'){id=crypto.randomUUID();current=nativePlan(p,session.actor);path='/api/plans';}
  else if(op.startsWith('project.')||op.startsWith('group.')){
  if(e.execution?.backup)fail('UNSUPPORTED_BY_SITE','项目/权限配置快照恢复未核实，未执行写入');
@@ -113,8 +114,8 @@ export class ApiAdapter{
  if(op.startsWith('edge.')||op.startsWith('progress.')){let i=current.edges.findIndex(x=>x.from===p.fromNodeId&&x.to===p.toNodeId);if(op==='edge.create')current.edges.push(edge(p));else{assert(i>=0,'连线不存在');if(op==='edge.remove')current.edges.splice(i,1);else if(op.startsWith('progress.')){assert(typeof p.actualCompleteDate==='string','需要 actualCompleteDate');current.edges[i].completedAt=p.actualCompleteDate;}else{const x=current.edges[i];if(p.estimateDays)x.upper=edge({...p}).upper;if(p.dashed!==undefined){assert(typeof p.dashed==='boolean','dashed 必须 boolean');x.dashed=p.dashed;}if(p.executor!==undefined)x.executor=p.executor;}}}
  }
  if(op==='edge.update'){const changed=current.edges.find(x=>x.from===p.fromNodeId&&x.to===p.toNodeId);assert(!changed.dashed||changed.upper.split('-').every(x=>Number(x)===0),'虚任务必须是零耗时，请明确设置estimateDays三个0');}
- validatePlan(current);assert(validDate(current.start)&&validDate(current.deadline)&&current.edges.every(x=>validDate(x.completedAt||'')),'日期无效');if(e.mode==='preview')return {data:{before:before?.current||null,after:['plan.delete','plan.archive'].includes(op)?null:current,revision:before?.revision,operation:op,rollback:'not_guaranteed',changes:changes||planDiff(before?.current,current)},serverVerified:false};
- if(before&&(['plan.batch',...batchOperations].includes(op))&&equivalent(before.current,current))return {targetId:id,beforeVersion:before.revision,afterVersion:before.revision,data:before,serverVerified:true,noChange:true};
+ validatePlan(current);if(!p.flowCheck&&['plan.create','plan.batch'].includes(op))flowCheck={format:'pass',drawing:'unverified',dependencies:'unverified',duration:'unverified',business:'not_independently_verified',canSubmit:true,notice:'未附确认图纸清单：原图一致性、工作开始约束与工期映射未核实；网站保存状态单独报告。'};if(p.flowCheck)flowCheck=e.mode==='preview'?inspectFlow(p.flowCheck,current):enforceFlow(p.flowCheck,current);assert(validDate(current.start)&&validDate(current.deadline)&&current.edges.every(x=>validDate(x.completedAt||'')),'日期无效');if(e.mode==='preview')return {data:{before:before?.current||null,after:['plan.delete','plan.archive'].includes(op)?null:current,revision:before?.revision,operation:op,rollback:'not_guaranteed',...(flowCheck?{flowCheck}:{}),changes:changes||planDiff(before?.current,current)},serverVerified:false};
+ if(before&&(['plan.batch',...batchOperations].includes(op))&&equivalent(before.current,current))return {targetId:id,beforeVersion:before.revision,afterVersion:before.revision,data:before,serverVerified:true,noChange:true,...(flowCheck?{flowCheck}:{})};
  if(e.execution?.backup&&before){if(!this.options.saveSnapshot)fail('UNSUPPORTED_BY_SITE','快照存储不可用，未写入');backupId=e.requestId+':'+s.id;await this.options.saveSnapshot(backupId,{actor:session.actor,targetId:before.id||id,record:before,createdAt:new Date().toISOString()});}
  const operation=await operationId(e.requestId,s.id);let body={baseRevision:before?.revision,current,operation};
  if(path==='/api/plans')body={id,current,...(op==='plan.copy'?{copySourceId:before.id}:{})};
@@ -125,6 +126,6 @@ export class ApiAdapter{
  await this.options.onPhase?.('verifying');const after=await this.request('/api/plans/'+encodeURIComponent(id));if(after.revision!==written.revision)fail('SERVER_NOT_CONFIRMED','回读版本不一致');
  let verification;
  if(path.endsWith('/change')||path==='/api/plans'||path.endsWith('/import'))verification=verifySaved(current,after.current,{strictLayout:['node.renumber','plan.replace','plan.restoreSnapshot'].includes(op)||op==='plan.batch'&&p.changes.some(c=>c.op==='node.renumber')});
- return {targetId:id,serverVerified:true,...(backupId?{backupId}:{}),...(changes?{changes}:{}),...(verification?{verification}:{}),beforeVersion:before?.revision,afterVersion:after.revision,data:after};
+ return {targetId:id,serverVerified:true,...(flowCheck?{flowCheck}:{}),...(backupId?{backupId}:{}),...(changes?{changes}:{}),...(verification?{verification}:{}),beforeVersion:before?.revision,afterVersion:after.revision,data:after};
  }
 }

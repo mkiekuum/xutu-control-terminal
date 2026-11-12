@@ -116,6 +116,125 @@
                 ],
                 "additionalProperties": false
               }
+            },
+            "flowCheck": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 100,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "content": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "enum": [
+                          "outcome",
+                          "category",
+                          "event",
+                          "auxiliary"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "dependencies": {
+                  "type": "array",
+                  "maxItems": 300,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "to": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "from",
+                      "to"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "works": {
+                  "type": "array",
+                  "maxItems": 300,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "fromNodeId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "toNodeId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "estimateDays": {
+                        "type": "object",
+                        "properties": {
+                          "minimum": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "likely": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "maximum": {
+                            "type": "number",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "minimum",
+                          "likely",
+                          "maximum"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "fromNodeId",
+                      "toNodeId",
+                      "estimateDays"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "nodes",
+                "dependencies"
+              ],
+              "additionalProperties": false,
+              "description": "用户确认的目标图纸清单（已包含本次明确同意的修改），不上传网站；默认逐字、逐编号及逐直接箭头比较，未列出的辅助节点也会被拒绝。kind区分完成成果、原分类、事件和明确同意的辅助点。works是完整的一对一确认工作/连线/估时映射，不是允许AI自行拆分工期。缺少映射不能认证开工依赖或工期。"
             }
           },
           "required": [
@@ -2240,6 +2359,125 @@
         "params": {
           "type": "object",
           "properties": {
+            "flowCheck": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 100,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "content": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "enum": [
+                          "outcome",
+                          "category",
+                          "event",
+                          "auxiliary"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "dependencies": {
+                  "type": "array",
+                  "maxItems": 300,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "to": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "from",
+                      "to"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "works": {
+                  "type": "array",
+                  "maxItems": 300,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "fromNodeId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "toNodeId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "estimateDays": {
+                        "type": "object",
+                        "properties": {
+                          "minimum": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "likely": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "maximum": {
+                            "type": "number",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "minimum",
+                          "likely",
+                          "maximum"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "fromNodeId",
+                      "toNodeId",
+                      "estimateDays"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "nodes",
+                "dependencies"
+              ],
+              "additionalProperties": false,
+              "description": "用户确认的目标图纸清单（已包含本次明确同意的修改），不上传网站；默认逐字、逐编号及逐直接箭头比较，未列出的辅助节点也会被拒绝。kind区分完成成果、原分类、事件和明确同意的辅助点。works是完整的一对一确认工作/连线/估时映射，不是允许AI自行拆分工期。缺少映射不能认证开工依赖或工期。"
+            },
             "changes": {
               "type": "array",
               "minItems": 1,

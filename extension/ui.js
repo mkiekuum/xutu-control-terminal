@@ -1,3 +1,4 @@
+import {flowFeedback} from './flow-check.js';
 import {projectGroupMode} from './prompt-context.js';
 import {businessDiff} from './history.js';
 import {helpPackage,readableDiff} from './assistance.js';
@@ -58,17 +59,18 @@ $('copyPrompt').onclick=()=>busy('copyPrompt',async()=>{
  if(selected!==tabId()||selectedIntent!==intent||requestText!==$('request').value)throw Error('操作选择或需求已变化，请重新复制以获取对应资料。');
  await clipboard(buildPrompt(requestText,context,selected,{intent:selectedIntent}));message(intent==='create'?'已复制新建提示词，发给 AI 生成独立计划。':context?.plan?(context.complete?'已复制管理提示词与当前计划资料。':'已复制；部分状态未能读取，提示词中已注明。'):'已复制；涉及既有计划时，请先在网站选中目标，AI 会核对。');
 });
-function showResult(result,command){lastResult=result;if(command)lastCommand=command;$('output').textContent=JSON.stringify(result,null,2);$('resultDetails').hidden=false;$('recoveryActions').hidden=false;$('helpPrivacy').hidden=false;message(summarize(result),result.status!=='success');if(result.status!=='success')$('resultDetails').open=true;}
+function showResult(result,command){lastResult=result;if(command)lastCommand=command;$('output').textContent=JSON.stringify(result,null,2);$('resultDetails').hidden=false;$('recoveryActions').hidden=false;$('helpPrivacy').hidden=false;message([summarize(result),flowFeedback(result)].filter(Boolean).join('\n'),result.status!=='success');if(result.status!=='success')$('resultDetails').open=true;}
 async function execute(command){let result;try{result=await send({kind:'run',command});}catch{result={requestId:command.requestId,status:'failed',code:'TIMEOUT_RESULT_UNKNOWN',message:'连接中断，执行结果尚未确认。请只读核对，不要重新提交。'};}showResult(result,command);await historyUI.load(false).catch(()=>{});if(result.code==='HISTORY_SNAPSHOT_INCOMPLETE'||result.steps?.some(x=>x.code==='HISTORY_SNAPSHOT_INCOMPLETE'))await historyUI.inspectPending();}
 function highImpact(command){return command.steps.some(s=>['plan.delete','plan.archive','plan.replace','plan.restore','plan.restoreSnapshot','history.restore'].includes(s.op)||s.op==='node.remove'||s.op==='edge.remove'||s.op==='plan.batch'&&s.params.changes.some(c=>['node.remove','edge.remove'].includes(c.op)));}
 $('execute').onclick=()=>busy('execute',async()=>{
  lastRequestId=await stableRequestId($('editor').value);
  const command=compactPlanEdits(prepareCommand($('editor').value,tabId(),lastRequestId));
  $('changeSummary').textContent=commandSummary(command);lastCommand=command;
+ if(command.mode!=='execute'){message('正在只读检查，尚未提交网站…');await execute(command);return;}
  const historyStep=command.steps.find(s=>['history.undo','history.redo','history.restorePoint'].includes(s.op));
  if(historyStep){if(command.steps.length!==1)throw Error('恢复历史请单独执行，先查看实际差异。');const direction=historyStep.op==='history.undo'?'undo':historyStep.op==='history.redo'?'redo':'point';const check=envelope('history.preview');check.steps[0].params={direction,...Object.fromEntries(Object.entries(historyStep.params||{}).filter(([k])=>k!=='reviewToken'))};const preview=data(await send({kind:'run',command:check}));if(!preview.canRestore)throw Error(preview.errors.map(e=>e.message).join('；'));historyStep.params={...historyStep.params,reviewToken:preview.reviewToken};review(preview.conflicts.length?'同字段发生冲突，请核对原值、网站现值和恢复值。':preview.notice,readableDiff(preview.changes),()=>execute(command));return;}
  if(highImpact(command)){
-  const preview=await send({kind:'run',command:{...command,mode:'preview'}});if(preview.status!=='success'){showResult(preview,command);return;}
+  const preview=await send({kind:'run',command:{...command,mode:'preview'}});if(preview.status!=='success'||preview.steps.some(s=>s.data?.flowCheck?.canSubmit===false)){showResult(preview,command);return;}
   // Pin every previewed target to its read version. A concurrent edit must stop execution.
   for(const step of command.steps){const info=preview.steps.find(x=>x.id===step.id)?.data;if(step.target&&!step.target.versionFrom&&Number.isInteger(info?.revision))step.target.version=info.revision;}
   review('这些操作会删除或恢复内容。请核对实际差异；确认后执行，网站再次变化时会停止。',readableDiff(preview.steps.map(s=>({targetId:command.steps.find(c=>c.id===s.id)?.target?.id,lifecycle:!s.data?.after,diff:businessDiff(s.data?.before,s.data?.after)}))),()=>execute(command));return;

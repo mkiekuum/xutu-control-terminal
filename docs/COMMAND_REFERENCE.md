@@ -1,4 +1,4 @@
-# v3.0.1 正式参数契约
+# v3.0.2 正式参数契约
 
 JSON 使用 xutu.command/v1；插件主界面不接受 CLI 或独立 JavaScript。script.execute 仅通过显式 JSON 及原浏览器权限使用。
 
@@ -7,6 +7,8 @@ plan.get/plan.export 成功回读提供 targetId、afterVersion，后续同目�
 history.preview 为只读，direction=undo/redo/point（point 需要 historyId/point），返回实际字段差异、冲突、不可恢复原因及 reviewToken。history.undo/redo/restorePoint 接受可选 reviewToken，同字段冲突必须匹配最新预览才能处理；UI 中恢复总先显示差异。history.pending 只读关联原请求记录、最新计划与快照差异；history.resolvePending 需要 acknowledge:true 和最新 reviewToken，仅保留现状、关闭缺口，受影响历史仍不可恢复。
 
 verifySaved 将业务与布局分开：verification.businessVerified/layoutVerified。布局非本次明确意图时差异给警告；编号映射、全量替换、快照恢复等布局意图仍严格核验。快照与请求日志仅留本机。
+
+plan.create / plan.batch 新增可选 flowCheck，参见 FLOW_COMPATIBILITY.md。清单只在插件使用，不传网站；按完整候选图比较名称、正文、直接依赖与工作映射。带检查的写入不能省略完整工作映射；preview 可返回未通过报告而不提交。没有清单的旧指令兼容，但标明未核实图纸。主界面尊重 mode=preview/validate，只读不会变为执行。
 
 以下由实际 parameterSchemas 生成；不代表每项均已通过生产网站写入测试。convert 命令沿用既有后端转换器，不新增 draw.io 命令。
 
@@ -120,6 +122,125 @@ site.context.params.projectGroups 可选 all/selected/omit；默认 all，旧指
         ],
         "additionalProperties": false
       }
+    },
+    "flowCheck": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "content": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "outcome",
+                  "category",
+                  "event",
+                  "auxiliary"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "maxItems": 300,
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "works": {
+          "type": "array",
+          "maxItems": 300,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "fromNodeId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "toNodeId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "estimateDays": {
+                "type": "object",
+                "properties": {
+                  "minimum": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "likely": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "maximum": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "minimum",
+                  "likely",
+                  "maximum"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "fromNodeId",
+              "toNodeId",
+              "estimateDays"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "nodes",
+        "dependencies"
+      ],
+      "additionalProperties": false,
+      "description": "用户确认的目标图纸清单（已包含本次明确同意的修改），不上传网站；默认逐字、逐编号及逐直接箭头比较，未列出的辅助节点也会被拒绝。kind区分完成成果、原分类、事件和明确同意的辅助点。works是完整的一对一确认工作/连线/估时映射，不是允许AI自行拆分工期。缺少映射不能认证开工依赖或工期。"
     }
   },
   "required": [
@@ -1778,6 +1899,125 @@ site.context.params.projectGroups 可选 all/selected/omit；默认 all，旧指
 {
   "type": "object",
   "properties": {
+    "flowCheck": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "content": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "outcome",
+                  "category",
+                  "event",
+                  "auxiliary"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "maxItems": 300,
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string",
+                "minLength": 1
+              },
+              "to": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "works": {
+          "type": "array",
+          "maxItems": 300,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "fromNodeId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "toNodeId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "estimateDays": {
+                "type": "object",
+                "properties": {
+                  "minimum": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "likely": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "maximum": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "minimum",
+                  "likely",
+                  "maximum"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "fromNodeId",
+              "toNodeId",
+              "estimateDays"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "nodes",
+        "dependencies"
+      ],
+      "additionalProperties": false,
+      "description": "用户确认的目标图纸清单（已包含本次明确同意的修改），不上传网站；默认逐字、逐编号及逐直接箭头比较，未列出的辅助节点也会被拒绝。kind区分完成成果、原分类、事件和明确同意的辅助点。works是完整的一对一确认工作/连线/估时映射，不是允许AI自行拆分工期。缺少映射不能认证开工依赖或工期。"
+    },
     "changes": {
       "type": "array",
       "minItems": 1,

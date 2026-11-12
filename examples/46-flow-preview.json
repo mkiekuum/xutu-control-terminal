@@ -1,0 +1,70 @@
+{
+  "protocol": "xutu.command/v1",
+  "requestId": "synthetic-flow-preview-example",
+  "mode": "preview",
+  "steps": [
+    {
+      "id": "preview",
+      "op": "plan.create",
+      "params": {
+        "title": "合成示例（仅预览）",
+        "number": "SYNTH-FLOW-PREVIEW",
+        "nodes": [
+          {
+            "id": "0",
+            "name": "开始"
+          },
+          {
+            "id": "1",
+            "name": "确认结果",
+            "content": "合成验收内容"
+          }
+        ],
+        "edges": [
+          {
+            "fromNodeId": "0",
+            "toNodeId": "1",
+            "estimateDays": {
+              "minimum": 1,
+              "likely": 2,
+              "maximum": 3
+            }
+          }
+        ],
+        "flowCheck": {
+          "nodes": [
+            {
+              "id": "0",
+              "name": "开始",
+              "kind": "event"
+            },
+            {
+              "id": "1",
+              "name": "确认结果",
+              "content": "合成验收内容",
+              "kind": "outcome"
+            }
+          ],
+          "dependencies": [
+            {
+              "from": "0",
+              "to": "1"
+            }
+          ],
+          "works": [
+            {
+              "id": "work-1",
+              "fromNodeId": "0",
+              "toNodeId": "1",
+              "estimateDays": {
+                "minimum": 1,
+                "likely": 2,
+                "maximum": 3
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -5,3 +5,6 @@ fs.writeFileSync('schemas/operation.schema.json',JSON.stringify(schema,null,2)+'
 const command=JSON.parse(fs.readFileSync('schemas/command.schema.json'));
 command.properties.steps.items.allOf=[{if:{properties:{op:{enum:Object.keys(parameterSchemas)}},required:['op']},then:{$ref:'operation.schema.json'}}];
 fs.writeFileSync('schemas/command.schema.json',JSON.stringify(command,null,2)+'\n');
+const manualPath='docs/COMMAND_REFERENCE.md',manual=fs.readFileSync(manualPath,'utf8'),marker=manual.indexOf('## plan.create');
+if(marker<0)throw Error('Missing command reference marker');
+fs.writeFileSync(manualPath,manual.slice(0,marker)+Object.entries(parameterSchemas).map(([op,params])=>'## '+op+'\n\n```json\n'+JSON.stringify(params,null,2)+'\n```\n').join('\n'));

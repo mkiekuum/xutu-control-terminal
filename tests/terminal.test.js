@@ -5,7 +5,7 @@ import {memory} from './v25-helpers.js';
 
 test('界面只接收原始JSON和JSON代码块；CLI与独立JavaScript提示改用JSON',()=>{
  const json=JSON.stringify({protocol:'xutu.command/v1',requestId:'ai-id',mode:'preview',tabId:999,steps:[{id:'a',op:'plan.list'}]});
- for(const text of [json,'```json\n'+json+'\n```']){const c=prepareCommand(text,123,'local-job');assert.equal(c.mode,'execute');assert.equal(c.requestId,'ai-id');assert.equal(c.tabId,123);}
+ for(const text of [json,'```json\n'+json+'\n```']){const c=prepareCommand(text,123,'local-job');assert.equal(c.mode,'preview');assert.equal(c.requestId,'ai-id');assert.equal(c.tabId,123);}
  for(const text of ['plan list','xutu context','alert(1)','```javascript\nalert(1)\n```','{foo:1}'])assert.throws(()=>prepareCommand(text,123,'bad'),/JSON/);
  assert.throws(()=>prepareCommand(JSON.stringify({protocol:'xutu.command/v1',steps:[{id:'a',op:'theme.reset'}]}),123,'removed'),/已移除/);
 });

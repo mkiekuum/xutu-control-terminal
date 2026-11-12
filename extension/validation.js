@@ -2,11 +2,13 @@
 const string={type:'string'}, nonempty={type:'string',minLength:1}, boolean={type:'boolean'};
 const object=(properties,required=[])=>({type:'object',properties,required,additionalProperties:false});
 const estimate=object({minimum:{type:'number',minimum:0},likely:{type:'number',minimum:0},maximum:{type:'number',minimum:0}},['minimum','likely','maximum']);
+const flowCheck=object({nodes:{type:'array',minItems:1,maxItems:100,items:object({id:nonempty,name:nonempty,content:string,kind:{enum:['outcome','category','event','auxiliary']}},['id','name','kind'])},dependencies:{type:'array',maxItems:300,items:object({from:nonempty,to:nonempty},['from','to'])},works:{type:'array',maxItems:300,items:object({id:nonempty,fromNodeId:nonempty,toNodeId:nonempty,estimateDays:estimate},['id','fromNodeId','toNodeId','estimateDays'])}},['nodes','dependencies']);
+flowCheck.description='用户确认的目标图纸清单（已包含本次明确同意的修改），不上传网站；默认逐字、逐编号及逐直接箭头比较，未列出的辅助节点也会被拒绝。kind区分完成成果、原分类、事件和明确同意的辅助点。works是完整的一对一确认工作/连线/估时映射，不是允许AI自行拆分工期。缺少映射不能认证开工依赖或工期。';
 const node=object({id:nonempty,name:nonempty,content:string,ownerName:string},['id','name']);
 const edgeFields={fromNodeId:nonempty,toNodeId:nonempty,estimateDays:estimate,dashed:boolean,executor:string,actualCompleteDate:string};
 const planFields={title:nonempty,number:nonempty,owner:nonempty,startDate:string,deadlineDate:string,status:{const:'draft'},nodes:{type:'array',items:node},edges:{type:'array',items:object(edgeFields,['fromNodeId','toNodeId','estimateDays'])}};
 export const parameterSchemas={
- 'plan.create':object(planFields,['title','number']),
+ 'plan.create':object({...planFields,flowCheck},['title','number']),
  'plan.update':object({set:object({title:nonempty,startDate:string,deadlineDate:string})},['set']),
  'plan.replace':object({...planFields,replace:{const:true}},['title','nodes','edges','replace']),
  'plan.copy':object({number:nonempty,owner:nonempty,title:nonempty},['number']),
@@ -54,7 +56,7 @@ parameterSchemas['site.html.chunk']=object({exportId:nonempty,offset:{type:'inte
 parameterSchemas['site.html.release']=object({exportId:nonempty},['exportId']);
 parameterSchemas['task.merge'].description='仅支持按顺序列出的至少三个连续链节点；保留首尾、删除中间节点。中间节点必须各一入一出且无分支，首尾不能已有直接边；已有基线或链上完成进度不能直接合并。分支合并须明确映射、估时与外部依赖后使用 plan.batch，不可强行串联。';
 export const batchOperations=['plan.update','schedule.updateInputs','node.create','node.update','node.batchUpdate','node.renumber','node.remove','node.reorder','edge.create','edge.update','edge.remove','graph.simplify','task.merge','task.split'];
-parameterSchemas['plan.batch']=object({changes:{type:'array',minItems:1,maxItems:100,items:{oneOf:batchOperations.map(op=>object({op:{const:op},params:parameterSchemas[op]},['op','params']))}}},['changes']);
+parameterSchemas['plan.batch']=object({flowCheck,changes:{type:'array',minItems:1,maxItems:100,items:{oneOf:batchOperations.map(op=>object({op:{const:op},params:parameterSchemas[op]},['op','params']))}}},['changes']);
 function invalid(path){throw Object.assign(Error('参数不符合约束：'+path),{code:'INVALID_SCHEMA'});}
 export function checkSchema(schema,value,path='$'){
  if(schema.oneOf){const matches=schema.oneOf.filter(choice=>{try{checkSchema(choice,value,path);return true;}catch{return false;}});if(matches.length!==1)invalid(path);}

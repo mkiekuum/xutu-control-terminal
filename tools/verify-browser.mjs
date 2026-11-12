@@ -9,7 +9,7 @@ const snapshot=path.join(out,'synthetic-offline.html');await fs.writeFile(snapsh
 const child=spawn(chrome,['--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-component-update','--disable-sync','--disable-default-apps','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{windowsHide:true,stdio:'ignore'});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));let ws,server,id=0;const pending=new Map(),events=[];
 try{
- let portInfo;for(let i=0;i<100;i++){try{portInfo=await fs.readFile(path.join(profile,'DevToolsActivePort'),'utf8');break;}catch{await sleep(100);}}if(!portInfo)throw Error('Isolated Chrome did not start');
+ let portInfo;for(let i=0;i<300;i++){if(child.exitCode!==null)throw Error("Isolated Chrome exited: "+child.exitCode);try{portInfo=await fs.readFile(path.join(profile,'DevToolsActivePort'),'utf8');break;}catch{await sleep(100);}}if(!portInfo)throw Error('Isolated Chrome did not start');
  const [port,endpoint]=portInfo.trim().split(/\r?\n/);ws=new WebSocket('ws://127.0.0.1:'+port+endpoint);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
  ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id){const p=pending.get(m.id);if(p){pending.delete(m.id);clearTimeout(p.timer);m.error?p.reject(Error(JSON.stringify(m.error))):p.resolve(m.result);}}else events.push(m);};
  const call=(method,params={},sessionId)=>new Promise((resolve,reject)=>{const n=++id,timer=setTimeout(()=>{pending.delete(n);reject(Error('CDP timeout: '+method));},15000);pending.set(n,{resolve,reject,timer});ws.send(JSON.stringify({id:n,method,params,...(sessionId?{sessionId}:{})}));});
@@ -31,6 +31,16 @@ try{
  assert.equal(promptScope.unrelatedGroupReads,0);assert.equal(promptScope.groupReads,1);assert.equal(promptScope.hasRequestedGroups,true);
  const execution=await evaluate(`(async()=>{const c={protocol:'xutu.command/v1',requestId:'synthetic-batch-ui',steps:[{id:'a',op:'node.batchUpdate',target:{id:'P',version:1},params:{updates:[{id:'1',set:{name:'确认名称'}}]}},{id:'b',op:'plan.update',target:{id:'P',versionFrom:'a'},dependsOn:['a'],params:{set:{title:'Synthetic batch'}}}]};document.querySelector('#editor').value=JSON.stringify(c);await document.querySelector('#execute').onclick();return {message:document.querySelector('#message').textContent,summary:document.querySelector('#changeSummary').textContent,result:JSON.parse(document.querySelector('#output').textContent).status,posts:window.qaSite.calls.filter(c=>c.method==='POST').length,revision:window.qaSite.records.get('P').revision};})()`);
  assert.equal(execution.result,'success');assert.equal(execution.posts,1);assert.equal(execution.revision,2);assert(execution.message.includes('已回读确认'));assert(execution.summary.includes('一次提交'));
+ const flowUI=await evaluate(`(async()=>{
+  const $=id=>document.getElementById(id),posts=()=>qaSite.calls.filter(c=>c.method==='POST').length,revision=qaSite.records.get('P').revision,original=qaSite.records.get('P').current.title;
+  const preview={protocol:'xutu.command/v1',requestId:'synthetic-explicit-preview',mode:'preview',steps:[{id:'u',op:'plan.update',target:{id:'P',version:revision},params:{set:{title:'Must not save'}}}]};
+  const count=posts();$('editor').value=JSON.stringify(preview);await $('execute').onclick();const previewReadOnly=posts()===count&&qaSite.records.get('P').current.title===original&&$('message').textContent.includes('尚未写入');
+  const current=qaSite.records.get('P').current,reference={nodes:current.nodes.map((n,i)=>({id:n.id,name:n.name,content:n.content||'',kind:i?'outcome':'event'})),dependencies:[{from:'1',to:'2'}],works:[{id:'work',fromNodeId:'1',toNodeId:'2',estimateDays:{minimum:1,likely:2,maximum:3}}]};
+  const c={protocol:'xutu.command/v1',requestId:'synthetic-flow-rejected',steps:[{id:'b',op:'plan.batch',target:{id:'P',version:revision},params:{flowCheck:reference,changes:[{op:'node.update',params:{id:'1',set:{name:'Unapproved name'}}}]}}]};
+  $('editor').value=JSON.stringify(c);await $('execute').onclick();const result=JSON.parse($('output').textContent),rejected=posts()===count&&result.steps[0].code==='FLOW_CHECK_FAILED'&&$('message').textContent.includes('未保存')&&result.steps[0].flowCheck.diff.names.length===1;
+  return {previewReadOnly,rejected,detailsAvailable:!$('resultDetails').hidden,helpAvailable:!$('recoveryActions').hidden};
+ })()`);
+ for(const [check,value] of Object.entries(flowUI))assert.equal(value,true,check);
  const recoveryUI=await evaluate(`(async()=>{
   const $=id=>document.getElementById(id),posts=()=>qaSite.calls.filter(c=>c.method==='POST').length;
   qaSite.records.get('P').current.deadline='2026-12-01';qaSite.records.get('P').revision++;
@@ -49,5 +59,5 @@ try{
  for(const [check,value] of Object.entries(recoveryUI))assert.equal(value,true,check);
  // Synthetic UI evidence, never a screenshot of the user's website.
  const screenshot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});await fs.writeFile(path.join(out,'synthetic-ui.png'),Buffer.from(screenshot.data,'base64'));
- const report={browser:version.product,isolatedProfile:true,siteLogin:false,offlineEmulation:true,rawBytes:raw.bytes,offlineBytes:meta.bytes,missingResources:meta.missingResources,offline,networkWrites:writes.length,ui,questions,promptScope,execution,recoveryUI,scope:'合成数据：真实Chrome离线渲染及网页模式UI；未安装扩展，未登录真实网站，未验证生产写入或系统剪贴板'};await fs.writeFile(path.join(out,'browser-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));await call('Browser.close');
+ const report={browser:version.product,isolatedProfile:true,siteLogin:false,offlineEmulation:true,rawBytes:raw.bytes,offlineBytes:meta.bytes,missingResources:meta.missingResources,offline,networkWrites:writes.length,ui,questions,promptScope,execution,flowUI,recoveryUI,scope:'合成数据：真实Chrome离线渲染及网页模式UI；未安装扩展，未登录真实网站，未验证生产写入或系统剪贴板'};await fs.writeFile(path.join(out,'browser-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));await call('Browser.close');
 }finally{if(ws?.readyState===1)ws.close();for(const p of pending.values())clearTimeout(p.timer);if(server)await new Promise(resolve=>server.close(resolve));if(child.exitCode===null)child.kill();}

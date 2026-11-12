@@ -20,6 +20,6 @@ export function scopePromptContext(context,request,intent){
 export function promptContracts(){
  const contracts=Object.fromEntries(Object.entries(parameterSchemas).filter(([op])=>op!=='script.execute'));
  // The same actual schemas stay present once. References resolve within this commands object.
- contracts['plan.batch']={...contracts['plan.batch'],properties:{changes:{...contracts['plan.batch'].properties.changes,items:{oneOf:batchOperations.map(op=>({type:'object',properties:{op:{const:op},params:{$ref:'#/'+op}},required:['op','params'],additionalProperties:false}))}}}};
+ contracts['plan.batch']={...contracts['plan.batch'],properties:{flowCheck:{$ref:'#/plan.create/properties/flowCheck'},changes:{...contracts['plan.batch'].properties.changes,items:{oneOf:batchOperations.map(op=>({type:'object',properties:{op:{const:op},params:{$ref:'#/'+op}},required:['op','params'],additionalProperties:false}))}}}};
  return contracts;
 }
