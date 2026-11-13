@@ -25,7 +25,7 @@ export function createRelay({clientToken,bridgeToken,origins=[],now=()=>Date.now
    if(body.jsonrpc!=='2.0'||typeof body.method!=='string'||Array.isArray(body))return json(400,{error:'INVALID_REQUEST'});
    if(body.id===undefined){res.writeHead(202);return res.end();}
    const rpc=result=>json(200,{jsonrpc:'2.0',id:body.id,result});
-   if(body.method==='initialize')return rpc({protocolVersion:'2025-06-18',capabilities:{tools:{}},serverInfo:{name:'xutu-terminal',version:'3.1.1'}});
+   if(body.method==='initialize')return rpc({protocolVersion:'2025-06-18',capabilities:{tools:{}},serverInfo:{name:'xutu-terminal',version:'3.1.2'}});
    if(body.method==='ping')return rpc({});if(body.method==='tools/list')return rpc({tools});
    if(body.method!=='tools/call')return json(200,{jsonrpc:'2.0',id:body.id,error:{code:-32601,message:'Method not found'}});
    try{

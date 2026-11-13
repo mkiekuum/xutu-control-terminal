@@ -1,3 +1,4 @@
+import {setupToolPanels} from './ui-panels.js';
 import {mcpPrompt} from './mcp-policy.js';
 import {createConnection} from './mcp-connection.js';
 import {flowFeedback} from './flow-check.js';
@@ -11,6 +12,7 @@ import {VERSION} from './core.js';
 import {buildAgentUpdatePrompt} from './updates.js';
 import {setupHistory,setupExport} from './ui-workflows.js';
 const $=id=>document.getElementById(id);let tabs=[],lastRequestId='',compatibilityReport=null,compatibilityGeneration=0,refreshGeneration=0;
+const toolPanels=setupToolPanels(document);
 let intent='create',updateReport=null,lastCommand=null,lastResult=null,pendingAction=null;
 function review(notice,details,action){$('reviewPanel').hidden=false;$('reviewNotice').textContent=notice;$('reviewDiff').textContent=typeof details==='string'?details:JSON.stringify(details,null,2);const selected=tabId();pendingAction=async()=>{if(selected!==tabId())throw Error('网页选择已变化，请重新核对影响。');await action();};}
 $('cancelAction').onclick=()=>{pendingAction=null;$('reviewPanel').hidden=true;message('已保留网站现状。');};
@@ -28,7 +30,7 @@ const updatePromise=(async()=>{
  $('updateNotes').textContent=updateReport.notes||'更新内容请查看官方发布页；未读取到正文时不猜测。';
  if(updateReport.status==='available'&&updateReport.releaseUrl?.startsWith('https://github.com/mkiekuum/xutu-control-terminal/releases/')){$('installUpdate').href=updateReport.releaseUrl;$('installUpdate').hidden=false;}
  $('updateCheckedAt').textContent=updateReport.checkedAt?'检查时间：'+new Date(updateReport.checkedAt).toLocaleString()+(updateReport.cached?'（短时缓存）':''):'';
- $('moreLabel').textContent=updateReport.status==='available'?'更多 · 有新版本':'更多';$('moreLabel').dataset.update=String(updateReport.status==='available');
+ $('moreLabel').textContent=updateReport.status==='available'?'设置 · 新版':'设置';$('moreLabel').dataset.update=String(updateReport.status==='available');
 })();
 const envelope=(op,target)=>({protocol:'xutu.command/v1',requestId:crypto.randomUUID(),...(tabId()?{tabId:tabId()}:{}),steps:[{id:'read',op,...(target?{target}:{})}]});
 function data(result){if(result.status!=='success')throw Error(summarize(result));return result.steps[0].data;}
@@ -61,7 +63,7 @@ $('copyPrompt').onclick=()=>busy('copyPrompt',async()=>{
  if(selected!==tabId()||selectedIntent!==intent||requestText!==$('request').value)throw Error('操作选择或需求已变化，请重新复制以获取对应资料。');
  await clipboard(buildPrompt(requestText,context,selected,{intent:selectedIntent}));message(intent==='create'?'已复制新建提示词，发给 AI 生成独立计划。':context?.plan?(context.complete?'已复制管理提示词与当前计划资料。':'已复制；部分状态未能读取，提示词中已注明。'):'已复制；涉及既有计划时，请先在网站选中目标，AI 会核对。');
 });
-function showResult(result,command){lastResult=result;if(command)lastCommand=command;$('output').textContent=JSON.stringify(result,null,2);$('resultDetails').hidden=false;$('recoveryActions').hidden=false;$('helpPrivacy').hidden=false;message([summarize(result),flowFeedback(result)].filter(Boolean).join('\n'),result.status!=='success');if(result.status!=='success')$('resultDetails').open=true;}
+function showResult(result,command){lastResult=result;if(command)lastCommand=command;$('output').textContent=JSON.stringify(result,null,2);$('resultDetails').hidden=false;$('recoveryActions').hidden=result.status==='success';$('helpPrivacy').hidden=result.status==='success';message([summarize(result),flowFeedback(result)].filter(Boolean).join('\n'),result.status!=='success');if(result.status!=='success')$('resultDetails').open=true;}
 async function execute(command){let result;try{result=await send({kind:'run',command});}catch{result={requestId:command.requestId,status:'failed',code:'TIMEOUT_RESULT_UNKNOWN',message:'连接中断，执行结果尚未确认。请只读核对，不要重新提交。'};}showResult(result,command);await historyUI.load(false).catch(()=>{});if(result.code==='HISTORY_SNAPSHOT_INCOMPLETE'||result.steps?.some(x=>x.code==='HISTORY_SNAPSHOT_INCOMPLETE'))await historyUI.inspectPending();}
 function highImpact(command){return command.steps.some(s=>['plan.delete','plan.archive','plan.replace','plan.restore','plan.restoreSnapshot','history.restore'].includes(s.op)||s.op==='node.remove'||s.op==='edge.remove'||s.op==='plan.batch'&&s.params.changes.some(c=>['node.remove','edge.remove'].includes(c.op)));}
 $('execute').onclick=()=>busy('execute',async()=>{
@@ -83,7 +85,7 @@ $('copyHelp').onclick=()=>busy('copyHelp',async()=>{await clipboard(helpPackage(
 $('diagnoseRequest').onclick=()=>busy('diagnoseRequest',async()=>{if(!lastResult?.requestId)throw Error('没有可核对的请求。');const c=envelope('system.status');c.steps[0].params={requestId:lastResult.requestId};const status=data(await send({kind:'run',command:c}));const pending=await historyUI.inspectPending();$('output').textContent=JSON.stringify({original:lastResult,requestStatus:status,pending},null,2);message('已只读检查原请求与历史；没有重发任何写入。');});
 $('editor').addEventListener('input',()=>{pendingAction=null;$('reviewPanel').hidden=true;try{$('changeSummary').textContent=commandSummary(prepareCommand($('editor').value,tabId(),'preview-only'));}catch{$('changeSummary').textContent='请粘贴完整指令；格式校验通过后显示改动摘要。';}});
 $('copyResult').onclick=event=>{event.preventDefault();busy('copyResult',async()=>{await clipboard($('output').textContent);message('结果已复制。');});};
-const helpers={$ ,tabId,send,message,busy,clipboard,intent:()=>intent,envelope,data,readContext,chooseIntent,review,showResult,attachDiagnosis:report=>{if(lastResult)lastResult={...lastResult,pendingDiagnosis:report};}};
+const helpers={$ ,showTool:toolPanels.show,tabId,send,message,busy,clipboard,intent:()=>intent,envelope,data,readContext,chooseIntent,review,showResult,attachDiagnosis:report=>{if(lastResult)lastResult={...lastResult,pendingDiagnosis:report};}};
 const historyUI=setupHistory(helpers);setupExport(helpers);
 window.addEventListener('unhandledrejection',event=>message(event.reason?.message||'连接异常，请重新打开插件。',true));
 refresh().catch(e=>{$('connection').textContent='暂未连接';document.querySelector('.connection-strip').dataset.state='error';message(e.message,true);});

@@ -58,8 +58,8 @@ test('连接导入只接受本机独立凭据，MCP提示词包含私密配置�
 });
 test('精简界面保留恢复和单一页面复制区，不出现密钥输入或新手帮助',async()=>{
  const fs=await import('node:fs');const dom=new JSDOM(fs.readFileSync('extension/ui.html','utf8')),d=dom.window.document;
- for(const id of ['mcpUrl','mcpToken','usageHelp','mcpFile','connectMcp'])assert.equal(d.getElementById(id),null);
- for(const id of ['request','editor','copyPrompt','copyMcpPrompt','undo','redo','loadHistory','recoveryActions','copyPage','copyDom','saveOffline'])assert(d.getElementById(id));
+ for(const id of ['mcpUrl','mcpToken','usageHelp','mcpFile','connectMcp','undo','redo'])assert.equal(d.getElementById(id),null);
+ for(const id of ['request','editor','copyPrompt','copyMcpPrompt','loadHistory','recoveryActions','copyPage','copyDom','saveOffline'])assert(d.getElementById(id));
  assert(d.getElementById('compatibilityDetails').hidden);assert(d.getElementById('updateNotes').hidden);assert.equal(d.querySelectorAll('#copyPage').length,1);assert.equal(d.getElementById('copyPage').closest('section'),d.getElementById('copyDom').closest('section'));assert(!d.getElementById('moreDetails').contains(d.getElementById('copyDom')));dom.window.close();
 });
 
@@ -78,4 +78,12 @@ test('点击复制即可生成本机连接，不需文件导入；重复复制�
  const {createConnection}=await import('../extension/mcp-connection.js');const a=createConnection(123),b=createConnection(124,a);
  assert.equal(a.clientToken.length,64);assert.equal(a.token.length,64);assert.notEqual(a.clientToken,a.token);assert.equal(a.clientToken,b.clientToken);assert.equal(a.token,b.token);assert.equal(b.tabId,124);assert.equal(a.bridgeId,b.bridgeId);assert.throws(()=>createConnection(undefined));
  const prompt=mcpPrompt('业务需求',a);assert(prompt.includes('不要求用户导入文件'));assert(prompt.includes('不结束其他Node'));assert(prompt.includes('SHA256SUMS'));
+});
+
+
+test('底部工具互斥展开、重复点击收回，历史诊断可主动打开且无嵌套菜单',async()=>{
+ const fs=await import('node:fs'),{setupToolPanels}=await import('../extension/ui-panels.js');const dom=new JSDOM(fs.readFileSync('extension/ui.html','utf8')),d=dom.window.document,panels=setupToolPanels(d);
+ d.getElementById('pageTools').click();assert(!d.getElementById('pageToolsPanel').hidden);assert.equal(d.getElementById('pageTools').getAttribute('aria-expanded'),'true');
+ d.getElementById('moreToggle').click();assert(d.getElementById('pageToolsPanel').hidden);assert(!d.getElementById('moreDetails').hidden);d.getElementById('moreToggle').click();assert(d.getElementById('moreDetails').hidden);
+ panels.show('historyBody');assert(!d.getElementById('historyBody').hidden);assert.equal(d.getElementById('loadHistory').getAttribute('aria-expanded'),'true');assert.equal(d.querySelectorAll('#pageToolsPanel details,#historyBody details').length,0);dom.window.close();
 });

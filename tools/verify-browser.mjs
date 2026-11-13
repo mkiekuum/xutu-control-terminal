@@ -46,15 +46,15 @@ try{
  const recoveryUI=await evaluate(`(async()=>{
   const $=id=>document.getElementById(id),posts=()=>qaSite.calls.filter(c=>c.method==='POST').length;
   qaSite.records.get('P').current.deadline='2026-12-01';qaSite.records.get('P').revision++;
-  const before=posts();await $('undo').onclick();const undoReview=!$('reviewPanel').hidden&&posts()===before;await $('confirmAction').onclick();
+  const before=posts();await $('loadHistory').onclick();$('historyPoint').value='before';await $('comparePoint').onclick();await $('restorePoint').onclick();const undoReview=!$('reviewPanel').hidden&&posts()===before;await $('confirmAction').onclick();
   const undone=qaSite.records.get('P').current.title==='Synthetic P'&&qaSite.records.get('P').current.deadline==='2026-12-01';
-  await $('redo').onclick();await $('confirmAction').onclick();const redone=qaSite.records.get('P').current.title==='Synthetic batch';
+  $('historyPoint').value='after';await $('comparePoint').onclick();await $('restorePoint').onclick();await $('confirmAction').onclick();const redone=qaSite.records.get('P').current.title==='Synthetic batch';
   qaSite.records.get('P').current.title='Remote title';qaSite.records.get('P').revision++;
-  await $('undo').onclick();const conflictVisible=$('reviewDiff').textContent.includes('Remote title')&&$('reviewNotice').textContent.includes('相同字段');await $('cancelAction').onclick();const cancelPreserved=qaSite.records.get('P').current.title==='Remote title';
+  $('historyPoint').value='before';await $('comparePoint').onclick();await $('restorePoint').onclick();const conflictVisible=$('reviewDiff').textContent.includes('Remote title')&&$('reviewNotice').textContent.includes('相同字段');await $('cancelAction').onclick();const cancelPreserved=qaSite.records.get('P').current.title==='Remote title';
   await $('copyPage').onclick();const pageCopy=$('manualCopyText').value.includes('合成计划摘要')||$('message').textContent.includes('摘要已复制');
   $('editor').value=JSON.stringify({protocol:'xutu.command/v1',requestId:'synthetic-delete-ui',steps:[{id:'d',op:'plan.delete',target:{id:'P',version:qaSite.records.get('P').revision},params:{}}]});const deleteBefore=posts();await $('execute').onclick();const deleteReview=!$('reviewPanel').hidden&&posts()===deleteBefore;await $('cancelAction').onclick();
   qaSite.beforePost=()=>{throw Object.assign(Error('timeout'),{code:'TIMEOUT_RESULT_UNKNOWN'});};$('editor').value=JSON.stringify({protocol:'xutu.command/v1',requestId:'synthetic-lost-ui',steps:[{id:'u',op:'plan.update',target:{id:'P',version:qaSite.records.get('P').revision},params:{set:{title:'Unknown'}}}]});await $('execute').onclick();const unknown=$('message').textContent.includes('尚未确认');const unknownPosts=posts();await $('diagnoseRequest').onclick();const diagnosed=!$('resolveHistory').hidden&&posts()===unknownPosts;
-  await $('resolveHistory').onclick();const resolveReview=!$('reviewPanel').hidden;await $('confirmAction').onclick();const unresolvedUndoDisabled=$('undo').disabled;
+  await $('resolveHistory').onclick();const resolveReview=!$('reviewPanel').hidden;await $('confirmAction').onclick();const unresolvedUndoDisabled=$('restorePoint').disabled;
   await $('copyHelp').onclick();const helpCopy=$('manualCopyText').value.includes('system.status')||$('message').textContent.includes('求助资料已复制');
   return {undoReview,undone,redone,conflictVisible,cancelPreserved,pageCopy,deleteReview,unknown,diagnosed,resolveReview,unresolvedUndoDisabled,helpCopy};
  })()`);
