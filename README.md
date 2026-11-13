@@ -1,13 +1,13 @@
-# 序图终端 v3.0.2
+# 序图终端 v3.1.0
 
-输入需求 → 复制给 AI → 粘贴 JSON 并执行。使用帮助、撤销、重做、历史及复制页面都在首页。
+输入需求 → 复制给 AI → 粘贴 JSON 并执行。也可通过可选本机 MCP 读取上下文、预览并执行，使用网站现有账号权限。
 
-沿用 v3.0.0 历史恢复：按字段恢复，保留无关远端修改；同字段冲突显示三方差异，确认后才覆盖。删除及恢复会先展示影响，普通修改直接执行。保留单次提交、版本保护、防重复与服务器回读。
+首页保留业务输入、结果、撤销重做、历史与页面复制，移除使用帮助及重复说明。更多中可开启“侧栏仅点击展开”，再次点击、外部点击、Esc 或收起按钮均可关闭，随时还原。
 
-[安装](docs/WINDOWS_INSTALL.md) · [两分钟使用](docs/AI_QUICK_START.md) · [验收与限制](docs/V3.0.0_ACCEPTANCE.md) · [正式下载](https://github.com/mkiekuum/xutu-control-terminal/releases/latest)
+[安装](docs/WINDOWS_INSTALL.md) · [使用说明](docs/AI_QUICK_START.md) · [本机 MCP](mcp/README.md) · [本版验收与限制](docs/V3.1.0_UI_MCP_REPORT.md) · [正式下载](https://github.com/mkiekuum/xutu-control-terminal/releases/latest)
 
-没有 CLI、Native Messaging、本地问卷/偏好、外观编辑器、AI API Key 或 MCP。draw.io 仅增强外部 AI 提示词，不提供导入器。
+MCP 不用公网部署：可选源码组件仅监听本机，导入一次连接文件。“MCP AI”提示词按用户要求包含 AI 访问密钥，仅发给可信 AI；普通提示词不带密钥。客户端仍须支持并配置 MCP。HTTP 与 stdio 协议通过本地测试，不承诺任意 AI 都能连接 localhost。
 
-本地模拟与隔离 Chrome 合成页面验收通过。未改真实业务计划；生产写入、用户已安装扩展重载和系统剪贴板尚未验证。外部 AI 的实际理解质量不由本地测试保证。
+保留单次提交、版本保护、请求去重、服务器回读和十批历史。没有恢复旧业务 CLI、Native Messaging、插件内问卷、长期偏好、外观编辑器或 AI API Key。
 
-本次修复外部图纸转换的授权边界，新增提交前图纸与工作映射对照；禁止新增节点不再默认补点，预览 JSON 不会写入。详见[调整报告](docs/V3.0.2_FLOW_REPORT.md)及[转换说明](docs/FLOW_COMPATIBILITY.md)。
+174 项本地测试及隔离 Chrome 合成页面回归通过；未改真实业务计划。实际浏览器扩展重载、生产写入和多品牌 AI 实际调用未验证。[外部图纸兼容限制](docs/FLOW_COMPATIBILITY.md)继续适用；网站评分不授权改变用户业务图。

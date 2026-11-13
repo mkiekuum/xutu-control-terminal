@@ -1,7 +1,7 @@
 import {drawingRules} from './ai-brief.js';
 export const websiteGuide={
  drawingGuide:drawingRules,
- version:'2026-11-12-v3.0.2',ruleClasses:{hard:'模型、字段格式、有效图、权限及版本约束必须遵守',quality:'评分、长短工期、串行及合并建议不是错误，不自动阻止执行',personal:'名称风格、学习用词、编号和节点数量按本次选择或用户在 AI 对话中明确说明的偏好，不属于网站硬规则'},purpose:'让新AI先理解序图的模型、评分和权限，再修改计划。规则来自已核对的公开前端；实时评分以当前网页函数和设置为准。',
+ version:'2026-11-12-v3.1.0',ruleClasses:{hard:'模型、字段格式、有效图、权限及版本约束必须遵守',quality:'评分、长短工期、串行及合并建议不是错误，不自动阻止执行',personal:'名称风格、学习用词、编号和节点数量按本次选择或用户在 AI 对话中明确说明的偏好，不属于网站硬规则'},purpose:'让新AI先理解序图的模型、评分和权限，再修改计划。规则来自已核对的公开前端；实时评分以当前网页函数和设置为准。',
  model:[
   '这是双代号网络计划：节点是阶段成果或汇合条件，连线是工作或依赖；不能把节点与工作混为一谈。节点content保存具体任务、交付标准、约束及说明。',
   '实线表示有实际历时的工作或过程。自动烧水、干燥、固化、审批等待虽不持续占用人，也有历时，不能改成零耗时虚线。虚线只表示0-0-0的逻辑约束，不是隐藏工期的工具。',
@@ -40,7 +40,7 @@ export const websiteGuide={
   '修改前刷新context，明确target.id和target.version；完成后用plan.get/context回读。批量步骤依赖失败则跳过，不把部分成功说成全部成功。',
   '普通修改校验通过后直接执行；删除、全量替换和恢复先展示实际差异，使用者确认后执行。JSON支持校验和预览；requestId去重，写入批次自动保存本地快照。未知写入或超时须先查状态，不盲目换ID重试。',
   '删除目前是垃圾桶，未核实永久清空；完整历史、用户/角色管理不可冒充已支持。快照只在本机，恢复依赖当前权限，不保证任意操作可撤销。',
-  '外观、AI API和MCP功能已移除。外部AI通过复制提示词和粘贴JSON；本地CLI已移除。'
+  '支持可关闭的左侧栏 UI 优化及可配置的标准 MCP 桥；普通 AI 仍使用提示词和 JSON。任意外观编辑、AI API Key 和本地 CLI 未恢复。'
  ]
 };
 // Runs in the website MAIN world; calls the site's own functions without editing state.

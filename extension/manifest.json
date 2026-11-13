@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "序图终端",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "minimum_chrome_version": "135",
   "description": "AI 在聊天中核实需求，粘贴 JSON 执行；支持十步历史和离线网页。",
   "permissions": [
     "storage",
     "scripting",
-    "userScripts"
+    "userScripts",
+    "alarms"
   ],
   "host_permissions": [
     "https://plan.fpgabbs.cn/*",
@@ -27,9 +28,23 @@
         "https://plan.fpgabbs.cn/*"
       ],
       "js": [
-        "content.js"
+        "content.js",
+        "sidebar-loader.js"
       ],
       "run_at": "document_idle"
+    }
+  ],
+  "optional_host_permissions": [
+    "http://127.0.0.1/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "sidebar-ui.js"
+      ],
+      "matches": [
+        "https://plan.fpgabbs.cn/*"
+      ]
     }
   ]
 }

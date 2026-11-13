@@ -1,3 +1,4 @@
+import {startMcpBridge} from './mcp-bridge.js';
 import {captureSummary,redact} from './assistance.js';
 import {Executor,validate,fail,VERSION,clean} from './core.js';
 import {ApiAdapter,reads,writes} from './api.js';
@@ -98,3 +99,12 @@ chrome.runtime.onMessage.addListener((message,sender,reply)=>{
  })().then(reply,e=>reply({status:'failed',...(message.command?.requestId?{requestId:message.command.requestId}:{}),code:e.code||'INTERNAL_ERROR',message:e.message}));return true;
 });
 chrome.runtime.onInstalled.addListener(()=>{chrome.storage.local.remove(['xutuThemes','xutuThemeUndo','releaseCheck']);chrome.storage.session.remove('aiConnection');});
+
+if(chrome.storage?.local){
+const mcpBridge=startMcpBridge({storage:chrome.storage.local,run:async(c,cfg)=>{if(!cfg?.enabled||!cfg.tabId)throw Error('MCP 已断开');return executor.run({...c,tabId:cfg.tabId});},identity:async cfg=>{if(!cfg?.enabled||!cfg.tabId)throw Error('MCP 已断开');const t=await tabFor({tabId:cfg.tabId});return t.id+':'+(await sessionFor(t)).actor;}});
+chrome.runtime.onStartup?.addListener(async()=>{const {mcpConnection:c}=await chrome.storage.local.get('mcpConnection');if(c)await chrome.storage.local.set({mcpConnection:{...c,enabled:false}});await mcpBridge.reset();await chrome.storage.local.set({mcpBridgeStatus:{state:'disconnected',message:'浏览器已重启，请重新导入连接以绑定当前网页。'}});});
+chrome.alarms?.onAlarm.addListener(a=>{if(a.name==='xutu-mcp')mcpBridge.tick();});
+chrome.alarms?.create('xutu-mcp',{periodInMinutes:0.5});
+chrome.storage.onChanged?.addListener(async(c,area)=>{if(area==='local'&&c.mcpConnection){await mcpBridge.reset();await mcpBridge.tick();}});
+
+}

@@ -1,0 +1,4 @@
+import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import {randomBytes} from 'node:crypto';import {createRelay} from './relay.mjs';
+const dir=path.resolve(process.env.XUTU_HOME||path.join(os.homedir(),'.xutu-mcp'));fs.mkdirSync(dir,{recursive:true});const file=path.join(dir,'connection.json');let config;
+if(fs.existsSync(file))config=JSON.parse(fs.readFileSync(file,'utf8'));else{config={url:'http://127.0.0.1:62924',clientToken:randomBytes(32).toString('hex'),bridgeToken:randomBytes(32).toString('hex')};fs.writeFileSync(file,JSON.stringify(config,null,2),{mode:0o600});}
+const {server}=createRelay({clientToken:config.clientToken,bridgeToken:config.bridgeToken,origins:(process.env.XUTU_ALLOWED_ORIGINS||'').split(',').filter(Boolean)});server.on('error',e=>{console.error(e.code||'START_FAILED');process.exitCode=1;});server.listen(new URL(config.url).port,'127.0.0.1',()=>console.log('Local MCP ready. Private connection file: '+file));

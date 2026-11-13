@@ -1,27 +1,26 @@
-# 序图终端 v3.0.2
+# 序图终端 v3.1.0
 
-- 修复外部流程图转换提示词：不默认加辅助点，保留分类节点、完成含义、直接依赖和确认原文；允许估时不等于允许改结构。
-- 增加 flowCheck 提交前对照：节点、文字、箭头、前置和逐项估时分别核对；失败不提交，不伪称任意图纸可无损转换。
-- 结果区明确区分图形一致、工作映射与网站回读。原有旧指令仍兼容，没有原图证据时明确未核实。
-- 修复 JSON 仅预览被界面转为执行的问题，保留现有批量、版本与历史保护。
+- 左侧计划栏可改为仅点击展开，支持四种收起方式和还原。
+- 可选本机 MCP：HTTP/stdio、读取/预览/确认执行/结果查询，复用原版本与防重保护，无需公网部署。
+- 普通 AI / MCP AI 提示词分开；MCP 提示词包含 AI 访问密钥，仅发给可信 AI。首次导入连接文件，无需手填配置。
+- 删除首页使用帮助与重复说明，页面摘要、完整 DOM、离线 HTML 集中在一个区域。保留错误、恢复与历史入口。
 
-## 下载与新手安装
+## 下载与安装
 
 | 文件 | 用途 |
 | --- | --- |
-| [chrome.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.2/xutu-control-terminal-v3.0.2-chrome.zip) | 普通用户插件安装包 |
-| [source.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.2/xutu-control-terminal-v3.0.2-source.zip) | 完整源码、Schema、示例、手册、测试和调整报告 |
-| [SHA256SUMS](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.0.2/SHA256SUMS) | 两个 ZIP 的下载完整性校验 |
+| [chrome.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.1.0/xutu-control-terminal-v3.1.0-chrome.zip) | 插件安装包 |
+| [source.zip](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.1.0/xutu-control-terminal-v3.1.0-source.zip) | 源码、可选本机 MCP、手册、Schema、测试和验收报告 |
+| [SHA256SUMS](https://github.com/mkiekuum/xutu-control-terminal/releases/download/v3.1.0/SHA256SUMS) | ZIP 校验和 |
 
-1. 下载 chrome.zip，解压到固定目录，确认里面直接有 manifest.json。
-2. Chrome 打开 chrome://extensions，开启开发者模式，点击“加载已解压的扩展程序”，选择该目录。Edge 对应 edge://extensions，本轮未验证 Edge 安装。
-3. 登录序图网站，固定插件。输入需求 → 复制给 AI → 粘贴 JSON 并执行。帮助在首页，不需要 Node、GitHub 登录或本地 CLI。
-4. 已安装用户：确认没有在途写入，备份旧目录，核验新版包后覆盖原目录，在扩展管理页重新加载。保留浏览器存储。不能把自动检查版本当作自动安装。
+1. 下载 chrome.zip，解压到固定目录，确认直接有 manifest.json。
+2. Chrome 打开 chrome://extensions，开启开发者模式，“加载已解压的扩展程序”选择该目录。Edge 对应 edge://extensions，本轮未验证 Edge 安装。
+3. 登录序图网站，输入需求 → 普通 AI → 粘贴 JSON 并执行。普通使用无需 Node、GitHub 登录或本机宿主。
+4. 更新用户：确认无在途写入，备份旧代码、核对校验和，覆盖原目录后重新加载扩展，保留浏览器存储。自动检查版本不等于自动安装。
+5. 需要 MCP 时，另下载源码包，按 mcp/README.md 启动本机服务并导入连接文件；AI 客户端仍须支持 MCP，云端 AI 不能自动访问 localhost。侧栏优化在“更多”手动开启，默认关闭。
 
-加载失败先检查是否选择含 manifest.json 的目录，必要时还原备份再重新加载。出现未知执行结果，先检查原请求，不要重复提交。
+加载失败核对选择目录；结果未知先检查原请求，不要重复提交。保留原有 JSON 后台能力，没有恢复旧业务 CLI、Native Messaging、本地问卷、外观编辑器或 AI API Key。
 
-## 测试与边界
+## 测试与限制
 
-162 项本地测试和隔离 Chrome 合成页面回归通过（含原预览不写入、图纸差异拒绝、12 项恢复/错误界面检查）。未操作真实业务计划或物理鼠标。生产写入、用户扩展重载、系统剪贴板及任意外部 AI 的实际效果未验证。没有恢复 CLI、Native Messaging、本地问卷/偏好、外观编辑、AI Key 或 MCP。详见源码包 docs/V3.0.2_FLOW_REPORT.md。
-
-图纸检查仅核对指令所附确认清单，不是图片识别或业务认证。没有完整工作映射时不宣称工期准确；带检查的写入会停止，预览可展示限制。没有新增 draw.io 导入器或折叠视图。
+174 项本地测试全部通过，隔离 Chrome 合成 UI/原站侧栏事件回归通过，包含密钥复制分离、预览不写入、写入一次、防重及历史恢复。未修改真实计划、未操作物理鼠标；用户实际扩展重载、生产 MCP 写入、跨电脑隧道及多品牌 AI 实际调用未验证。approval 是 AI 引用的用户同意文本，不是独立人工认证。MCP 不开放任意脚本及完整 DOM 导出。详细范围见源码包 docs/V3.1.0_UI_MCP_REPORT.md。

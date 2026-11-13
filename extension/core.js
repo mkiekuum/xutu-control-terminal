@@ -1,5 +1,5 @@
 import {checkSchema,validateStep} from './validation.js';
-export const VERSION='3.0.2';
+export const VERSION='3.1.0';
 export function fail(code,message=code){throw Object.assign(new Error(message),{code});}
 export function assert(ok,message){if(!ok)fail('INVALID_SCHEMA',message);}
 export const clone=x=>structuredClone(x);
