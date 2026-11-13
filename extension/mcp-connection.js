@@ -10,3 +10,10 @@ export function parseConnection(text,tabId){
  if(c.clientToken===c.bridgeToken)throw Error('AI 密钥和浏览器密钥必须分开');
  return {url,token:c.bridgeToken,clientToken:c.clientToken,bridgeId:crypto.randomUUID(),tabId,enabled:true};
 }
+
+export function createConnection(tabId,previous){
+ if(!Number.isInteger(tabId)||tabId<=0)throw Error('请先选择序图网页');
+ const random=()=>Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('');
+ const c=previous?.clientToken&&previous?.token?parseConnection(JSON.stringify({url:previous.url,clientToken:previous.clientToken,bridgeToken:previous.token}),tabId):parseConnection(JSON.stringify({url:'http://127.0.0.1:62924',clientToken:random(),bridgeToken:random()}),tabId);
+ return {...c,bridgeId:previous?.bridgeId||c.bridgeId};
+}

@@ -66,7 +66,7 @@
   },
   "authenticatedTests": false,
   "extensionLocal": {
-    "version": "3.1.0",
+    "version": "3.1.1",
     "operations": [
       "history.list",
       "history.undo",

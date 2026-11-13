@@ -1,5 +1,5 @@
 import {mcpPrompt} from './mcp-policy.js';
-import {parseConnection} from './mcp-connection.js';
+import {createConnection} from './mcp-connection.js';
 import {flowFeedback} from './flow-check.js';
 import {projectGroupMode} from './prompt-context.js';
 import {businessDiff} from './history.js';
@@ -8,7 +8,7 @@ import {compactPlanEdits} from './batch-input.js';
 import {prepareCommand,buildPrompt,summarize,commandSummary,stableRequestId} from './terminal.js';
 import {formatCompatibility} from './compatibility.js';
 import {VERSION} from './core.js';
-import {buildAgentUpdatePrompt,updateStatusText} from './updates.js';
+import {buildAgentUpdatePrompt} from './updates.js';
 import {setupHistory,setupExport} from './ui-workflows.js';
 const $=id=>document.getElementById(id);let tabs=[],lastRequestId='',compatibilityReport=null,compatibilityGeneration=0,refreshGeneration=0;
 let intent='create',updateReport=null,lastCommand=null,lastResult=null,pendingAction=null;
@@ -24,9 +24,9 @@ const send=async input=>{const result=await chrome.runtime.sendMessage(input);if
 const updatePromise=(async()=>{
  try{const result=await send({kind:'updates'});if(!['available','current','ahead','unknown'].includes(result.status))throw Error('UPDATE_UNAVAILABLE');updateReport=result;}
  catch{updateReport={status:'unknown',currentVersion:VERSION,reason:'请确认已重新加载插件，并检查网络后重新打开。'};}
- $('updateStatus').textContent=updateStatusText(updateReport);
+ $('updateStatus').textContent='v'+VERSION+' · '+({available:'新版 v'+updateReport.latestVersion,current:'已是最新版',ahead:'高于当前正式版',unknown:'暂无法检查更新'}[updateReport.status]);
  $('updateNotes').textContent=updateReport.notes||'更新内容请查看官方发布页；未读取到正文时不猜测。';
- if(updateReport.releaseUrl?.startsWith('https://github.com/mkiekuum/xutu-control-terminal/releases/')){$('installUpdate').href=updateReport.releaseUrl;$('installUpdate').hidden=false;}
+ if(updateReport.status==='available'&&updateReport.releaseUrl?.startsWith('https://github.com/mkiekuum/xutu-control-terminal/releases/')){$('installUpdate').href=updateReport.releaseUrl;$('installUpdate').hidden=false;}
  $('updateCheckedAt').textContent=updateReport.checkedAt?'检查时间：'+new Date(updateReport.checkedAt).toLocaleString()+(updateReport.cached?'（短时缓存）':''):'';
  $('moreLabel').textContent=updateReport.status==='available'?'更多 · 有新版本':'更多';$('moreLabel').dataset.update=String(updateReport.status==='available');
 })();
@@ -88,11 +88,9 @@ const historyUI=setupHistory(helpers);setupExport(helpers);
 window.addEventListener('unhandledrejection',event=>message(event.reason?.message||'连接异常，请重新打开插件。',true));
 refresh().catch(e=>{$('connection').textContent='暂未连接';document.querySelector('.connection-strip').dataset.state='error';message(e.message,true);});
 
-$('copyMcpPrompt').onclick=()=>busy('copyMcpPrompt',async()=>{const text=$('request').value,selected=tabId(),selectedIntent=intent,{mcpConnection:c}=await chrome.storage.local.get('mcpConnection');if(!c?.enabled||!c.clientToken)throw Error('请先在更多中导入本机 MCP 连接');if(c.tabId!==selected)throw Error('连接绑定的网页已变化，请重新导入连接');const ctx=await readContext(projectGroupMode(text,selectedIntent));if(selected!==tabId()||selectedIntent!==intent||text!==$('request').value)throw Error('需求或目标变化，请重新复制');await clipboard(mcpPrompt(buildPrompt(text,ctx,selected,{intent:selectedIntent}),c));message('已复制，包含本机 AI 访问密钥。');});
-chrome.storage.local.get(['optimizeSidebar','mcpConnection','mcpBridgeStatus']).then(s=>{$('optimizeSidebar').checked=!!s.optimizeSidebar;$('mcpState').textContent=s.mcpBridgeStatus?.message||'首次选择本机生成的 connection.json。';});
+$('copyMcpPrompt').onclick=()=>busy('copyMcpPrompt',async()=>{const text=$('request').value,selected=tabId(),selectedIntent=intent;if(!text.trim())throw Error('先写下你想做什么。');if(!selected)throw Error('请先选择序图网页');if(!await chrome.permissions.request({origins:['http://127.0.0.1/*']}))throw Error('需允许访问本机服务才能连接 MCP');const {mcpConnection:previous}=await chrome.storage.local.get('mcpConnection'),c=createConnection(selected,previous);await chrome.storage.local.set({mcpConnection:c});const ctx=await readContext(projectGroupMode(text,selectedIntent));if(selected!==tabId()||selectedIntent!==intent||text!==$('request').value)throw Error('需求或目标变化，请重新复制');await clipboard(mcpPrompt(buildPrompt(text,ctx,selected,{intent:selectedIntent}),c));message('已复制 MCP 提示词及私密配置，交给可信 AI 自动连接。');});
+chrome.storage.local.get(['optimizeSidebar','mcpBridgeStatus']).then(s=>{$('optimizeSidebar').checked=!!s.optimizeSidebar;$('mcpState').textContent=s.mcpBridgeStatus?.state==='connected'?'MCP 已连接':'MCP 未连接';});
 $('optimizeSidebar').onchange=async()=>{try{await chrome.storage.local.set({optimizeSidebar:$('optimizeSidebar').checked});for(const t of await send({kind:'tabs'}))await chrome.scripting.executeScript({target:{tabId:t.id},files:['sidebar-loader.js']});message('网页侧栏设置已保存；只影响界面，不修改计划。');}catch(e){message(e.message,true);}};
-$('connectMcp').onclick=()=>busy('connectMcp',async()=>{if(!tabId())throw Error('请先选择序图网页');if(!await chrome.permissions.request({origins:['http://127.0.0.1/*']}))throw Error('尚未允许连接本机服务');$('mcpFile').click();});
-$('mcpFile').onchange=()=>busy('connectMcp',async()=>{const file=$('mcpFile').files?.[0];try{if(!file)return;if(file.size>4096)throw Error('连接文件过大');const selected=tabId(),c=parseConnection(await file.text(),selected);if(selected!==tabId())throw Error('网页选择变化，请重新导入');await chrome.storage.local.set({mcpConnection:c});$('mcpState').textContent='已连接当前网页，等待本机服务响应。';}finally{$('mcpFile').value='';}});
 $('disconnectMcp').onclick=()=>busy('disconnectMcp',async()=>{await chrome.storage.local.remove(['mcpConnection','mcpBridgeStatus','mcpPreviews']);$('mcpState').textContent='已断开，清除本机连接密钥。';});
 
-chrome.storage.onChanged?.addListener((changes,area)=>{if(area==='local'&&changes.mcpBridgeStatus){const s=changes.mcpBridgeStatus.newValue;$('mcpState').textContent=s?.state==='connected'?'本机 MCP 已连接；写入仍需先预览并获得明确同意。':s?.message||'等待连接';}});
+chrome.storage.onChanged?.addListener((changes,area)=>{if(area==='local'&&changes.mcpBridgeStatus){const s=changes.mcpBridgeStatus.newValue;$('mcpState').textContent=s?.state==='connected'?'MCP 已连接':s?.message||'等待连接';}});

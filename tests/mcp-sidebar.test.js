@@ -48,19 +48,19 @@ test('标准stdio适配器完成握手，stdout仅包含JSON-RPC且不输出密�
 });
 
 
-test('连接导入只接受本机独立凭据，MCP提示词包含AI密钥但不含桥密钥',async()=>{
+test('连接导入只接受本机独立凭据，MCP提示词包含私密配置供AI自动设置，普通提示词无密钥',async()=>{
  const {parseConnection}=await import('../extension/mcp-connection.js');
  const clientToken='CLIENT_TEST_'.repeat(4),bridgeToken='BRIDGE_TEST_'.repeat(4),source={url:'http://127.0.0.1:62924',clientToken,bridgeToken,unexpected:'do not retain'};
  const c=parseConnection(JSON.stringify(source),123);assert.equal(c.token,bridgeToken);assert.equal(c.unexpected,undefined);assert.equal(c.tabId,123);
- const text=mcpPrompt('本次需求',c);assert(text.includes(clientToken));assert(!text.includes(bridgeToken));assert(text.includes('本次需求'));assert(text.includes('仅收到文字不代表工具已安装'));assert(!mcpPrompt('普通内容').includes(clientToken));
+ const text=mcpPrompt('本次需求',c);assert(text.includes(clientToken));assert(text.includes(bridgeToken));assert(text.includes('本次需求'));assert(text.includes('仅收到文字不代表工具已安装'));assert(!mcpPrompt('普通内容').includes(clientToken));
  for(const override of [{url:'https://example.com'},{url:'http://127.0.0.1:62924/path'},{clientToken:bridgeToken},{bridgeToken:'short'},{clientToken:'x\n'.repeat(40)}])assert.throws(()=>parseConnection(JSON.stringify({...source,...override}),123));
  assert.throws(()=>parseConnection(JSON.stringify(source),null));assert.throws(()=>parseConnection('x'.repeat(4097),123));assert.throws(()=>parseConnection('null',123));
 });
 test('精简界面保留恢复和单一页面复制区，不出现密钥输入或新手帮助',async()=>{
  const fs=await import('node:fs');const dom=new JSDOM(fs.readFileSync('extension/ui.html','utf8')),d=dom.window.document;
- for(const id of ['mcpUrl','mcpToken','usageHelp'])assert.equal(d.getElementById(id),null);
- for(const id of ['request','editor','copyPrompt','copyMcpPrompt','undo','redo','loadHistory','recoveryActions','copyPage','copyDom','saveOffline','mcpFile'])assert(d.getElementById(id));
- assert.equal(d.querySelectorAll('#copyPage').length,1);assert.equal(d.getElementById('copyPage').closest('section'),d.getElementById('copyDom').closest('section'));assert(!d.getElementById('moreDetails').contains(d.getElementById('copyDom')));dom.window.close();
+ for(const id of ['mcpUrl','mcpToken','usageHelp','mcpFile','connectMcp'])assert.equal(d.getElementById(id),null);
+ for(const id of ['request','editor','copyPrompt','copyMcpPrompt','undo','redo','loadHistory','recoveryActions','copyPage','copyDom','saveOffline'])assert(d.getElementById(id));
+ assert(d.getElementById('compatibilityDetails').hidden);assert(d.getElementById('updateNotes').hidden);assert.equal(d.querySelectorAll('#copyPage').length,1);assert.equal(d.getElementById('copyPage').closest('section'),d.getElementById('copyDom').closest('section'));assert(!d.getElementById('moreDetails').contains(d.getElementById('copyDom')));dom.window.close();
 });
 
 
@@ -71,4 +71,11 @@ test('MCP 分块传输的中文不会损坏',async()=>{
  const result=await new Promise((resolve,reject)=>{const req=http.request(url+'/mcp',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'}},res=>{let text='';res.setEncoding('utf8');res.on('data',s=>text+=s);res.on('end',()=>resolve(JSON.parse(text)));});req.on('error',reject);req.write(bytes.subarray(0,split));setTimeout(()=>req.end(bytes.subarray(split)),10);});
  const job=JSON.parse(result.result.content[0].text);assert.equal(jobs.get(job.jobId).command.steps[0].params.set.title,'中文名称');
  }finally{await new Promise(r=>server.close(r));}
+});
+
+
+test('点击复制即可生成本机连接，不需文件导入；重复复制保持密钥且重新绑定选中网页',async()=>{
+ const {createConnection}=await import('../extension/mcp-connection.js');const a=createConnection(123),b=createConnection(124,a);
+ assert.equal(a.clientToken.length,64);assert.equal(a.token.length,64);assert.notEqual(a.clientToken,a.token);assert.equal(a.clientToken,b.clientToken);assert.equal(a.token,b.token);assert.equal(b.tabId,124);assert.equal(a.bridgeId,b.bridgeId);assert.throws(()=>createConnection(undefined));
+ const prompt=mcpPrompt('业务需求',a);assert(prompt.includes('不要求用户导入文件'));assert(prompt.includes('不结束其他Node'));assert(prompt.includes('SHA256SUMS'));
 });
